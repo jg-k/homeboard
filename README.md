@@ -17,19 +17,16 @@ Hobby project — contributions welcome.
 
 ## Stack
 
-Standard Rails, plus Phlex for view components. Nothing exotic.
+Standard Rails, plus Phlex for view components.
 
-- Ruby 3.4, Rails 8.1
-- SQLite
-- Hotwire (Turbo + Stimulus), pure CSS
-- Solid Queue and Solid Cache
+- Rails + SQLite + Hotwire (Turbo + Stimulus) + Solis queue and cach
+- pure CSS
+- import maps
 - Phlex for view components (for experimentation...)
 - Devise for authentication
 - Kamal for deployment
 
 ## Setup
-
-Requires Ruby 3.4.7. Install with `rbenv install 3.4.7` or your version manager of choice.
 
 ```bash
 git clone https://github.com/jg-k/homeboard.git

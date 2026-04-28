@@ -1,0 +1,86 @@
+<% content_for :title, "Dashboard" %>
+<div class="page pt-4 pb-8">
+  <% if @boards.any? %>
+    <div class="mb-6">
+      <div class="board-tabs">
+        <nav class="tabs-nav">
+          <% @boards.each do |board| %>
+            <%= link_to board_problems_path(board, filter_params),
+                        class: "tab-link #{@current_board == board ? 'tab-active' : ''}" do %>
+              <%= board.name %>
+            <% end %>
+          <% end %>
+        </nav>
+      </div>
+    </div>
+    <% if @current_board %>
+      <%# Desktop: sidebar + detail layout (shown for both on edit) %>
+      <div class="dashboard-grid <%= 'dashboard-grid-edit' if @editing %>">
+        <div class="problems-sidebar">
+          <div class="card">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-semibold">Problems</h2>
+              <%= render "problems_header_actions" %>
+            </div>
+            <div class="problems-list">
+              <% if @problems.any? %>
+                <% @problems.each do |problem| %>
+                  <%= render "problem_list_item", problem: problem %>
+                <% end %>
+              <% elsif params[:filter].present? || params[:sort].present? %>
+                <%= render "empty_state", message: "No problems match your filter.", link_text: "Clear filters", link_path: board_problems_path(@current_board), center: true, small: true %>
+              <% else %>
+                <%= render "empty_state_no_problems", center: true, small: true %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <div class="problem-detail-area">
+          <%= render "problem_detail", problem: @selected_problem,
+                     prev_problem: @prev_problem,
+                     next_problem: @next_problem %>
+        </div>
+      </div>
+
+      <%# Mobile: single problem view with navigation %>
+      <div class="problems-mobile">
+        <% if @editing %>
+          <div class="problem-detail-mobile">
+            <%= render "problem_detail", problem: @selected_problem %>
+          </div>
+        <% else %>
+          <%= render "problems_header_mobile" %>
+
+          <% if @problems.any? %>
+            <div class="problem-detail-mobile">
+              <%= render "problem_detail", problem: @selected_problem,
+                         show_nav: true,
+                         prev_problem: @prev_problem,
+                         next_problem: @next_problem,
+                         problem_position: @problem_position,
+                         problem_count: @problem_count %>
+            </div>
+          <% elsif params[:filter].present? || params[:sort].present? %>
+            <%= render "empty_state", message: "No problems match your filter.", link_text: "Clear filters", link_path: board_problems_path(@current_board) %>
+          <% else %>
+            <div class="problem-detail-mobile">
+              <%= render "problem_detail", problem: nil %>
+            </div>
+          <% end %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="text-center py-12">
+        <h2 class="text-xl font-bold mb-4">No boards selected</h2>
+        <p class="text-muted mb-8">Create a board to get started.</p>
+        <%= link_to "Create Your First Board", new_board_path, class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  <% else %>
+    <div class="text-center py-12">
+      <h1 class="text-2xl font-bold mb-4">Welcome to Homeboard!</h1>
+      <p class="text-muted mb-8">You don't have any boards yet.</p>
+      <%= link_to "Create Your First Board", new_board_path, class: "btn btn-primary" %>
+    </div>
+  <% end %>
+</div>

@@ -1,0 +1,14 @@
+<div class="flex gap-2">
+  <%= link_to filter_board_problems_path(@current_board, filter_params),
+              class: "btn-icon",
+              title: "Filter problems" do %>
+    <%= icon(:filter) %>
+  <% end %>
+  <% if @current_board.active_layout %>
+    <%= link_to new_board_problem_path(@current_board, board_layout_id: @current_board.active_layout.id, **filter_params),
+                class: "btn-icon btn-icon-primary",
+                title: "New Problem" do %>
+      <%= icon(:plus) %>
+    <% end %>
+  <% end %>
+</div>

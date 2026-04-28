@@ -1,0 +1,38 @@
+<% content_for :title, @grading_system.name %>
+
+<div class="page">
+  <div class="mb-6">
+    <%= link_to "&larr; Back to Settings".html_safe, settings_path %>
+  </div>
+
+  <div class="card">
+    <div class="flex justify-between items-start mb-4">
+      <div>
+        <h1 class="text-2xl font-bold">
+          <%= @grading_system.name %>
+          <% if @grading_system.system_type == "built_in" %>
+            <%= render Badge.new(:gray, size: :base, class: "ml-2") { "Built-in" } %>
+          <% end %>
+          <% if current_user.default_grading_system == @grading_system %>
+            <%= render Badge.new(:green, size: :base, class: "ml-2") { "Default" } %>
+          <% end %>
+        </h1>
+      </div>
+      <div class="flex gap-2">
+        <% if @grading_system.system_type == "custom" %>
+          <%= link_to "Edit", edit_grading_system_path(@grading_system), class: "btn btn-primary btn-sm" %>
+        <% end %>
+        <% unless current_user.default_grading_system == @grading_system %>
+          <%= button_to "Set as Default", set_as_default_grading_system_path(@grading_system), method: :post, class: "btn btn-success btn-sm" %>
+        <% end %>
+      </div>
+    </div>
+
+    <h2 class="text-xl font-semibold mb-3">Grades (<%= @grading_system.grades.size %>)</h2>
+    <div class="flex flex-wrap gap-2">
+      <% @grading_system.grades.each do |grade| %>
+        <%= render Badge.new(:gray, size: :base) { grade } %>
+      <% end %>
+    </div>
+  </div>
+</div>

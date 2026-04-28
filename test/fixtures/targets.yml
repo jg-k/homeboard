@@ -1,0 +1,27 @@
+running_target_one:
+  targetable: running (ExerciseType)
+  value: 30
+  applicable_from: <%= 1.month.ago %>
+
+running_target_two:
+  targetable: running (ExerciseType)
+  value: 45
+  applicable_from: <%= 1.week.ago %>
+
+# == Schema Information
+#
+# Table name: targets
+#
+#  id              :integer          not null, primary key
+#  applicable_from :datetime         not null
+#  targetable_type :string           not null
+#  value           :decimal(, )      not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  targetable_id   :integer          not null
+#
+# Indexes
+#
+#  index_targets_on_targetable_and_applicable_from     (targetable_type,targetable_id,applicable_from)
+#  index_targets_on_targetable_type_and_targetable_id  (targetable_type,targetable_id)
+#

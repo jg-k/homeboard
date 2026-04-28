@@ -1,0 +1,60 @@
+<%= form_with model: exercise_type do |f| %>
+  <% if local_assigns[:return_to].present? %>
+    <%= hidden_field_tag :return_to, return_to %>
+  <% end %>
+  <% if exercise_type.errors.any? %>
+    <div class="form-errors">
+      <h2><%= pluralize(exercise_type.errors.count, "error") %> prohibited this exercise type from being saved:</h2>
+      <ul>
+        <% exercise_type.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :name, class: "form-label" %>
+    <%= f.text_field :name, class: "form-input", placeholder: "e.g., Deadhang, 5km run, max weighted pull up" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :unit, class: "form-label" %>
+    <%= f.text_field :unit, class: "form-input", placeholder: "e.g., seconds, minutes, kg" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :category, class: "form-label" %>
+    <%= f.select :category, ExerciseType.categories.keys.map { |c| [c.titleize, c] }, {}, class: "form-select" %>
+  </div>
+
+  <div class="form-group">
+    <label class="form-checkbox-label">
+      <%= f.check_box :added_weight_possible %>
+      Added weight possible
+    </label>
+  </div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <%= f.label :reps, "Reps per set", class: "form-label" %>
+      <%= f.number_field :reps, class: "form-input", placeholder: "Optional" %>
+    </div>
+    <div class="form-group">
+      <%= f.label :rest_seconds, "Rest between sets (s)", class: "form-label" %>
+      <%= f.number_field :rest_seconds, class: "form-input", placeholder: "Optional" %>
+    </div>
+  </div>
+
+  <% if exercise_type.new_record? %>
+    <div class="form-group">
+      <%= f.label :initial_target, "Initial Target (optional)", class: "form-label" %>
+      <%= f.number_field :initial_target, step: :any, class: "form-input", placeholder: "e.g., 60" %>
+    </div>
+  <% end %>
+
+  <div class="form-actions">
+    <%= f.submit exercise_type.new_record? ? "Create" : "Update", class: "btn btn-primary" %>
+    <%= link_to "Cancel", local_assigns[:return_to] || exercise_types_path, class: "btn btn-outline" %>
+  </div>
+<% end %>

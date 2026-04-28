@@ -1,0 +1,156 @@
+<% frame_id = local_assigns[:show_nav] ? dom_id(@board, :problem_detail_mobile) : dom_id(@board, :problem_detail) %>
+<% if problem && problem.board_layout.image_layout.attached? && !@editing %>
+  <div id="hold-marker-container-<%= local_assigns[:show_nav] ? 'mobile' : 'desktop' %>"
+       data-controller="hold-marker swipe-nav"
+       data-action="touchstart->swipe-nav#touchstart touchend->swipe-nav#touchend"
+       data-swipe-nav-prev-url-value="<%= local_assigns[:prev_problem] ? board_problem_path(@current_board, local_assigns[:prev_problem], filter_params) : '' %>"
+       data-swipe-nav-next-url-value="<%= local_assigns[:next_problem] ? board_problem_path(@current_board, local_assigns[:next_problem], filter_params) : '' %>"
+       data-swipe-nav-frame-id-value="<%= frame_id %>"
+       data-problem-data-current-image-url="<%= url_for(problem.board_layout.display_image) %>"
+       class="mb-4">
+    <div data-hold-marker-target="container" class="image-container">
+      <%= image_tag problem.board_layout.display_image, data: { hold_marker_target: "image" } %>
+    </div>
+  </div>
+<% end %>
+
+<%= turbo_frame_tag frame_id, data: {turbo_action: "advance"} do %>
+  <% if problem %>
+    <% if problem.board_layout.image_layout.attached? && !(@editing) %>
+      <div data-controller="problem-data"
+           data-problem-data-start-holds-value="<%= problem.start_holds.to_json %>"
+           data-problem-data-finish-holds-value="<%= problem.finish_holds.to_json %>"
+           data-problem-data-hand-holds-value="<%= problem.hand_holds.to_json %>"
+           data-problem-data-foot-holds-value="<%= problem.foot_holds.to_json %>"
+           data-problem-data-image-url-value="<%= url_for(problem.board_layout.display_image) %>"
+           data-problem-data-prev-url-value="<%= local_assigns[:prev_problem] ? board_problem_path(@current_board, local_assigns[:prev_problem], filter_params) : '' %>"
+           data-problem-data-next-url-value="<%= local_assigns[:next_problem] ? board_problem_path(@current_board, local_assigns[:next_problem], filter_params) : '' %>"
+           data-problem-data-frame-id-value="<%= frame_id %>"
+           style="display: none;">
+      </div>
+
+      <% if defined?(show_nav) && show_nav && problem.persisted? %>
+        <%# Mobile: title + grade + icons above nav %>
+        <div class="problem-header-mobile mb-2">
+          <div class="flex justify-between items-center">
+            <div>
+              <span class="font-semibold"><%= problem.name %></span>
+              <span class="text-muted ml-2"><%= problem.grade %></span>
+            </div>
+            <div class="flex gap-2">
+              <%= link_to edit_board_problem_path(@current_board, problem),
+                          class: "btn-icon",
+                          title: "Edit",
+                          data: { turbo: false } do %>
+                <%= icon(:edit) %>
+              <% end %>
+              <%= link_to soft_delete_board_problem_path(@current_board, problem),
+                          class: "btn-icon",
+                          title: "Delete",
+                          data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to delete this problem?" } do %>
+                <%= icon(:trash) %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+        <%= render "problem_nav",
+                   prev_problem: local_assigns[:prev_problem],
+                   next_problem: local_assigns[:next_problem],
+                   problem_position: local_assigns[:problem_position],
+                   problem_count: local_assigns[:problem_count] %>
+      <% end %>
+    <% end %>
+
+    <% if defined?(show_nav) && show_nav && problem.persisted? %>
+      <%# Mobile: card starts at Log a Board Climb %>
+      <div class="card"
+           data-controller="swipe-nav"
+           data-action="touchstart->swipe-nav#touchstart touchend->swipe-nav#touchend"
+           data-swipe-nav-prev-url-value="<%= local_assigns[:prev_problem] ? board_problem_path(@current_board, local_assigns[:prev_problem], filter_params) : '' %>"
+           data-swipe-nav-next-url-value="<%= local_assigns[:next_problem] ? board_problem_path(@current_board, local_assigns[:next_problem], filter_params) : '' %>"
+           data-swipe-nav-frame-id-value="<%= frame_id %>">
+        <% if @editing %>
+          <%= render "problem_form", problem: problem %>
+        <% else %>
+          <%= render "board_climb_form", problem: problem %>
+          <%= render "board_climb_history", problem: problem, board_climbs: problem.board_climbs.for_user(current_user).chronological %>
+        <% end %>
+      </div>
+    <% else %>
+      <%# Desktop: full card with header %>
+      <div class="card">
+        <% if @editing %>
+          <%= render "problem_form", problem: problem %>
+        <% else %>
+          <div class="mb-4">
+            <div class="flex justify-between items-start mb-2">
+              <div>
+                <h2 class="text-xl font-semibold"><%= problem.name %></h2>
+                <div class="text-sm text-muted mt-1">
+                  <span class="font-medium">Grade:</span> <%= problem.grade %><% if @current_board.grading_system %> (<%= @current_board.grading_system.name %>)<% end %> •
+                  <span class="font-medium">Created:</span> <%= problem.created_at.strftime("%B %d, %Y") %>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <%= link_to edit_board_problem_path(@current_board, problem),
+                            class: "btn-icon",
+                            title: "Edit",
+                            data: { turbo: false } do %>
+                  <%= icon(:edit) %>
+                <% end %>
+                <%= link_to soft_delete_board_problem_path(@current_board, problem),
+                            class: "btn-icon",
+                            title: "Delete",
+                            data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to delete this problem?" } do %>
+                  <%= icon(:trash) %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+
+          <% if problem.board_layout.image_layout.attached? %>
+            <div class="problem-info-grid mt-4">
+              <div><strong>Board:</strong> <%= problem.board_layout.board.name %></div>
+              <div><strong>Layout:</strong> <%= problem.board_layout.name %></div>
+            </div>
+          <% else %>
+            <div class="empty-image-placeholder">
+              <p class="text-muted">No image uploaded for this layout</p>
+            </div>
+            <div class="problem-info-grid mt-4">
+              <div><strong>Board:</strong> <%= problem.board_layout.board.name %></div>
+              <div><strong>Layout:</strong> <%= problem.board_layout.name %></div>
+            </div>
+          <% end %>
+
+          <%= render "board_climb_form", problem: problem %>
+          <%= render "board_climb_history", problem: problem, board_climbs: problem.board_climbs.for_user(current_user).chronological %>
+        <% end %>
+      </div>
+    <% end %>
+  <% else %>
+    <% if @current_board.active_layout&.image_layout&.attached? %>
+      <div class="empty-problems-image-container">
+        <%= image_tag @current_board.active_layout.display_image, class: "empty-problems-image", alt: "Board layout" %>
+        <div class="empty-problems-overlay">
+          <%= link_to "Create First Problem",
+                      new_board_problem_path(@current_board, board_layout_id: @current_board.active_layout.id),
+                      class: "btn btn-primary" %>
+        </div>
+      </div>
+    <% else %>
+      <div class="card">
+        <div class="empty-image-placeholder">
+          <div class="text-center">
+            <p class="text-muted mb-4">Select a problem to view</p>
+            <% if @current_board.active_layout %>
+              <%= link_to "Create First Problem",
+                          new_board_problem_path(@current_board, board_layout_id: @current_board.active_layout.id),
+                          class: "btn-link" %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

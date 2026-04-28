@@ -1,0 +1,58 @@
+<%= form_with(model: board) do |form| %>
+  <% if board.errors.any? %>
+    <div class="form-errors">
+      <h2><%= pluralize(board.errors.count, "error") %> prohibited this board from being saved:</h2>
+      <ul>
+        <% board.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :name, class: "form-label" %>
+    <%= form.text_field :name, class: "form-input" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :description, class: "form-label" %>
+    <%= form.textarea :description, rows: 2, class: "form-textarea" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :grading_system_id, "Grading System", class: "form-label" %>
+    <%= form.collection_select :grading_system_id,
+        GradingSystem.for_user(current_user).order(:name),
+        :id, :name,
+        { include_blank: "Select grading system" },
+        { class: "form-select" } %>
+  </div>
+
+  <% if board.new_record? %>
+    <%= form.fields_for :board_layouts do |layout_form| %>
+      <h3 class="font-medium mt-6 mb-4">First Layout</h3>
+
+      <div class="form-group">
+        <%= layout_form.label :name, "Layout name", class: "form-label" %>
+        <%= layout_form.text_field :name, class: "form-input" %>
+      </div>
+
+      <div class="form-group">
+        <%= layout_form.label :image_layout, "Choose file:", class: "form-label" %>
+        <%= layout_form.file_field :image_layout, class: "form-input file-input-empty", accept: "image/*", data: { controller: "file-input", action: "change->file-input#change" } %>
+      </div>
+
+      <div class="sample-option">
+        <label class="checkbox-group">
+          <%= layout_form.check_box :use_sample_image %>
+          <span class="checkbox-label">Homeboard not built yet? Select this to use a sample image</span>
+        </label>
+      </div>
+    <% end %>
+  <% end %>
+
+  <div class="form-actions">
+    <%= form.submit class: "btn btn-primary" %>
+  </div>
+<% end %>

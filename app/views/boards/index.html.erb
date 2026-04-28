@@ -1,0 +1,77 @@
+<%= render PageLayout.new(title: "My Boards") do %>
+  <% if @boards.any? %>
+    <div class="stack-md">
+      <% @boards.each do |board| %>
+        <div class="card">
+          <div class="flex-between mb-2">
+            <h2 class="text-2xl font-semibold"><%= board.name %></h2>
+            <div class="flex gap-2">
+              <%= link_to board, class: "btn-icon", title: "Show" do %>
+                <%= icon(:eye) %>
+              <% end %>
+              <%= link_to edit_board_path(board), class: "btn-icon", title: "Edit" do %>
+                <%= icon(:edit) %>
+              <% end %>
+              <%= link_to export_board_path(board, format: :pdf), class: "btn-icon", title: "Export PDF", data: { turbo: false } do %>
+                <%= icon(:download) %>
+              <% end %>
+              <%= button_to board, method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "btn-icon btn-icon-danger", title: "Delete" do %>
+                <%= icon(:trash) %>
+              <% end %>
+            </div>
+          </div>
+          <p class="text-muted mb-2"><%= board.description %></p>
+          <% if board.grading_system %>
+            <p class="text-sm text-muted mb-4">Grading system: <%= board.grading_system.name %></p>
+          <% end %>
+
+          <% board.board_layouts.kept.order(active: :desc, created_at: :desc).each do |layout| %>
+            <div class="layout-item">
+              <h3 class="text-xl font-medium mb-2">
+                Layout: <%= layout.name %>
+                <% if layout.active? %>
+                  <%= render Badge.new(:blue, class: "ml-2") { "Active" } %>
+                <% end %>
+              </h3>
+              <p class="text-muted text-sm mb-2">Created <%= layout.created_at.strftime("%b %d, %Y") %></p>
+
+              <p class="text-sm text-muted mb-2">Problems:</p>
+              <% if layout.problems.kept.any? %>
+                <ul class="list-bullet">
+                  <% layout.problems.kept.each do |problem| %>
+                    <li>
+                      <div class="flex-between">
+                        <span><%= problem.name %> - <%= problem.grade %></span>
+                        <%= link_to soft_delete_board_problem_path(board, problem),
+                              class: "btn-icon",
+                              title: "Delete",
+                              data: { turbo_method: :patch, turbo_confirm: "Delete this problem?" } do %>
+                          <%= icon(:trash) %>
+                        <% end %>
+                      </div>
+                    </li>
+                  <% end %>
+                </ul>
+              <% else %>
+                <p class="text-muted italic">No problems in this layout</p>
+              <% end %>
+            </div>
+          <% end %>
+
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <h3>No boards found</h3>
+      <p>Create a board to start adding climbing problems.</p>
+      <div class="empty-state-actions">
+        <%= link_to "New Board", new_board_path, class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="mt-6">
+    <%= link_to "New board", new_board_path, class: "btn btn-primary" %>
+  </div>
+<% end %>

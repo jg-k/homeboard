@@ -1,0 +1,53 @@
+<%= form_with model: gym_session do |f| %>
+  <% if gym_session.errors.any? %>
+    <div class="form-errors">
+      <h2><%= pluralize(gym_session.errors.count, "error") %> prohibited this activity from being saved:</h2>
+      <ul>
+        <% gym_session.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :number_of_boulders, class: "form-label" do %>
+      Number of Boulders <span class="text-muted font-normal">(total attempts)</span>
+    <% end %>
+    <%= f.number_field :number_of_boulders, min: 0, class: "form-input", placeholder: "e.g., 10" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :number_of_routes, class: "form-label" do %>
+      Number of Routes <span class="text-muted font-normal">(total attempts)</span>
+    <% end %>
+    <%= f.number_field :number_of_routes, min: 0, class: "form-input", placeholder: "e.g., 5" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :number_of_circuits, "Number of Circuits", class: "form-label" %>
+    <%= f.number_field :number_of_circuits, min: 0, class: "form-input", placeholder: "e.g., 3" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :duration_minutes, class: "form-label" do %>
+      Total session duration <span class="text-muted font-normal">(minutes)</span>
+    <% end %>
+    <%= f.number_field :duration_minutes, min: 0, class: "form-input", placeholder: "e.g., 90" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :performed_at, "Date & Time", class: "form-label" %>
+    <%= f.datetime_local_field :performed_at, value: (gym_session.performed_at.is_a?(String) ? gym_session.performed_at : (gym_session.performed_at || Time.current).strftime("%Y-%m-%dT%H:%M")), step: 60, class: "form-input" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :notes, class: "form-label" %>
+    <%= f.text_area :notes, rows: 3, class: "form-textarea", placeholder: "Optional notes..." %>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit gym_session.persisted? ? "Update Gym Session" : "Log Gym Session", class: "btn btn-primary" %>
+    <%= link_to "Cancel", activity_path, class: "btn-link-muted" %>
+  </div>
+<% end %>

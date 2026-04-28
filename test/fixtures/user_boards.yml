@@ -1,0 +1,29 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+one:
+  user: one
+  board: one
+
+two:
+  user: two
+  board: two
+
+# == Schema Information
+#
+# Table name: user_boards
+#
+#  id         :integer          not null, primary key
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  board_id   :bigint           not null
+#  user_id    :bigint           not null
+#
+# Indexes
+#
+#  index_user_boards_on_board_id  (board_id)
+#  index_user_boards_on_user_id   (user_id)
+#
+# Foreign Keys
+#
+#  board_id  (board_id => boards.id)
+#  user_id   (user_id => users.id)
+#

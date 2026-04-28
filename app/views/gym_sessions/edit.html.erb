@@ -1,0 +1,56 @@
+<% content_for :title, "Edit Gym Session" %>
+
+<div class="page-sm">
+  <div class="mb-6">
+    <%= link_to "&larr; Back to Activity Log".html_safe, activity_path %>
+  </div>
+
+  <h1 class="page-title mb-6">Edit Gym Session</h1>
+
+  <div class="card">
+    <%= form_with model: @gym_session do |f| %>
+      <% if @gym_session.errors.any? %>
+        <div class="form-errors">
+          <h2><%= pluralize(@gym_session.errors.count, "error") %> prohibited this activity from being saved:</h2>
+          <ul>
+            <% @gym_session.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="form-group">
+        <%= f.label :number_of_boulders, class: "form-label" do %>
+          Number of Boulders <span class="text-muted font-normal">(total attempts)</span>
+        <% end %>
+        <%= f.number_field :number_of_boulders, min: 0, class: "form-input", placeholder: "e.g., 10" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :number_of_circuits, "Number of Circuits", class: "form-label" %>
+        <%= f.number_field :number_of_circuits, min: 0, class: "form-input", placeholder: "e.g., 3" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :duration_minutes, "Duration (minutes)", class: "form-label" %>
+        <%= f.number_field :duration_minutes, min: 0, class: "form-input", placeholder: "e.g., 90" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :performed_at, "Date & Time", class: "form-label" %>
+        <%= f.datetime_local_field :performed_at, value: @gym_session.activity_log.performed_at.strftime("%Y-%m-%dT%H:%M"), step: 60, class: "form-input" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :notes, class: "form-label" %>
+        <%= f.text_area :notes, rows: 3, class: "form-textarea", placeholder: "Optional notes..." %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Update Gym Session", class: "btn btn-primary" %>
+        <%= link_to "Cancel", activity_path, class: "btn-link-muted" %>
+      </div>
+    <% end %>
+  </div>
+</div>

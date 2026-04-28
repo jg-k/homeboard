@@ -1,0 +1,13 @@
+<% content_for :title, "New Metric" %>
+
+<div class="page-sm">
+  <div class="mb-6">
+    <%= link_to "&larr; Back to Metrics".html_safe, metrics_path %>
+  </div>
+
+  <h1 class="page-title mb-6">New Metric</h1>
+
+  <div class="card">
+    <%= render "form", metric: @metric %>
+  </div>
+</div>

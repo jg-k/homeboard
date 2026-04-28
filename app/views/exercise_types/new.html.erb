@@ -1,0 +1,13 @@
+<% content_for :title, "New Exercise Type" %>
+
+<div class="page-sm">
+  <div class="mb-6">
+    <%= link_to "&larr; Back to Exercise Types".html_safe, exercise_types_path %>
+  </div>
+
+  <h1 class="page-title mb-6">New Exercise Type</h1>
+
+  <div class="card">
+    <%= render "form", exercise_type: @exercise_type %>
+  </div>
+</div>

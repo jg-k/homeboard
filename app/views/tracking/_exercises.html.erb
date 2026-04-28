@@ -1,0 +1,53 @@
+<div class="tab-content">
+  <div class="tab-header-flex">
+    <%= link_to "New Exercise Type", new_exercise_type_path, class: "btn btn-primary" %>
+  </div>
+
+  <% if @categories.any? %>
+    <div class="tabs-nav mb-6">
+      <% @categories.each do |category| %>
+        <%= link_to category.titleize, tracking_path(tab: "exercises", category: category),
+            class: "tab-link #{@category == category ? 'tab-active' : ''}",
+            data: { turbo_action: "replace" } %>
+      <% end %>
+    </div>
+
+    <% if @exercise_types.any? %>
+      <div class="stack">
+        <% @exercise_types.each do |exercise_type| %>
+          <div class="card">
+            <div class="flex-between">
+              <div>
+                <h2 class="text-xl font-semibold"><%= exercise_type.name %></h2>
+                <p class="text-gray mt-1">
+                  Unit: <span class="font-medium"><%= exercise_type.unit %></span><%
+                  %><%= " · #{exercise_type.reps} reps" if exercise_type.reps.present? %><%
+                  %><%= " · #{exercise_type.rest_seconds}s rest" if exercise_type.rest_seconds.present? %>
+                </p>
+              </div>
+              <div class="flex gap-2">
+                <%= link_to exercise_type_path(exercise_type), class: "icon-link", title: "Chart & Logs" do %>
+                  <%= icon(:bar_chart, size: :sm) %>
+                <% end %>
+                <%= link_to edit_exercise_type_path(exercise_type, return_to: tracking_path(tab: "exercises", category: @category)), class: "icon-link", title: "Edit" do %>
+                  <%= icon(:edit, size: :sm) %>
+                <% end %>
+                <%= button_to exercise_type, method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "icon-link icon-link-danger", title: "Delete" do %>
+                  <%= icon(:trash, size: :sm) %>
+                <% end %>
+              </div>
+            </div>
+            <%= render "shared/targets",
+                       targetable: exercise_type,
+                       delete_target_path: ->(target) { exercise_type_target_path(exercise_type, target) },
+                       create_target_path: exercise_type_targets_path(exercise_type) %>
+          </div>
+        <% end %>
+      </div>
+    <% else %>
+      <p class="text-muted">No exercises in this category.</p>
+    <% end %>
+  <% else %>
+    <p class="text-muted">No exercise types defined yet. Create one to start logging activities.</p>
+  <% end %>
+</div>

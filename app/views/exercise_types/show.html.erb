@@ -1,0 +1,74 @@
+<%= render PageLayout.new(title: @exercise_type.name, subtitle: "#{@exercise_type.category.titleize} &bull; #{@exercise_type.unit}".html_safe) do %>
+  <div class="mb-6">
+    <%= link_to "&larr; Back to Tracking".html_safe, tracking_path(tab: "exercises", category: @exercise_type.category) %>
+  </div>
+
+  <div class="card">
+    <% has_data = @chart_data.is_a?(Array) && @chart_data.first.is_a?(Hash) ? @chart_data.any? { |s| s[:data].any? } : @chart_data.any? %>
+    <% if has_data %>
+      <% series_count = @chart_data.is_a?(Array) && @chart_data.first.is_a?(Hash) ? @chart_data.size : 1 %>
+      <% has_target = series_count > 1 && @chart_data.last[:name] == "Target" %>
+      <% datasets = (series_count - 1).times.map { {} } + (has_target ? [{ borderDash: [5, 5] }] : []) %>
+      <%= line_chart @chart_data,
+                     ytitle: @exercise_type.unit,
+                     curve: false,
+                     colors: ["#14b8a6", "#3b82f6", "#a855f7", "#f97316", "#22c55e", "#f59e0b"],
+                     library: {
+                       spanGaps: true,
+                       datasets: datasets,
+                       scales: {
+                         x: {
+                           ticks: { color: "#9ca3af" },
+                           grid: { color: "rgba(156, 163, 175, 0.2)" }
+                         },
+                         y: {
+                           ticks: { color: "#9ca3af" },
+                           grid: { color: "rgba(156, 163, 175, 0.2)" },
+                           **Charts::YAxis.range(@chart_data)
+                         }
+                       }
+                     } %>
+    <% else %>
+      <p class="text-muted text-center py-8">No data yet. <%= link_to "Log an activity", new_exercise_path(exercise_type_id: @exercise_type.id, category: @exercise_type.category) %>.</p>
+    <% end %>
+  </div>
+
+  <div class="mt-8">
+    <div class="flex-between mb-4">
+      <h2 class="text-lg font-semibold">Logs <span class="text-muted font-normal">(<%= @exercises.size %>)</span></h2>
+      <%= link_to "Log New", new_exercise_path(exercise_type_id: @exercise_type.id, category: @exercise_type.category), class: "btn btn-primary btn-sm" %>
+    </div>
+
+    <% if @exercises.any? %>
+      <div class="stack">
+        <% @exercises.each do |exercise| %>
+          <div class="card">
+            <div class="flex-between">
+              <div>
+                <span class="text-lg font-medium text-teal">
+                  <%= exercise.value %> <%= exercise.unit %><%
+                  %><%= " &times; #{exercise.effective_reps} reps".html_safe if exercise.effective_reps.present? %><%
+                  %><%= ", + #{exercise.added_weight.to_i}kg" if exercise.added_weight.present? %><%
+                  %><%= " @ RPE #{exercise.rpe}" if exercise.rpe.present? %><%
+                  %><%= ", #{exercise.rest_seconds}s rest" if exercise.rest_seconds.present? %>
+                </span>
+                <div class="text-sm text-muted mt-1"><%= smart_date(exercise.activity_log.performed_at) %></div>
+                <% if exercise.notes.present? %>
+                  <div class="text-sm text-gray mt-1"><%= exercise.notes %></div>
+                <% end %>
+              </div>
+              <div class="flex gap-2">
+                <%= link_to edit_exercise_path(exercise, return_to: exercise_type_path(@exercise_type)), class: "icon-link", title: "Edit" do %>
+                  <%= icon(:edit, size: :sm) %>
+                <% end %>
+                <%= button_to exercise_path(exercise, return_to: exercise_type_path(@exercise_type)), method: :delete, data: { turbo_confirm: "Delete this log?" }, class: "icon-link icon-link-danger", title: "Delete" do %>
+                  <%= icon(:trash, size: :sm) %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

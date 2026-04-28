@@ -1,0 +1,91 @@
+<%= form_with model: exercise do |f| %>
+  <% if exercise.errors.any? %>
+    <div class="form-errors">
+      <h2><%= pluralize(exercise.errors.count, "error") %> prohibited this activity from being saved:</h2>
+      <ul>
+        <% exercise.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group" data-controller="category-filter" data-category-filter-url-value="<%= exercise.persisted? ? edit_exercise_path(exercise) : new_exercise_path %>">
+    <%= label_tag :category, "Category", class: "form-label" %>
+    <%= select_tag :category,
+        options_for_select(ExerciseType.categories.keys.map { |c| [c.titleize, c] }, category),
+        prompt: "All categories",
+        class: "form-select",
+        data: { category_filter_target: "select", action: "change->category-filter#filter" } %>
+  </div>
+
+  <div data-controller="unit-display">
+    <div class="form-group">
+      <%= f.label :exercise_type_id, "Exercise Type", class: "form-label" %>
+      <% if exercise_types.empty? %>
+        <p class="text-muted">No exercise types found. <%= link_to "Create one", new_exercise_type_path %>.</p>
+      <% else %>
+        <%= f.select :exercise_type_id,
+            options_for_select(
+              exercise_types.map { |et| [et.name, et.id, { data: { unit: et.unit, added_weight: et.added_weight_possible, reps: et.reps } }] },
+              f.object.exercise_type_id
+            ),
+            { prompt: "Select an exercise type" },
+            class: "form-select",
+            data: { unit_display_target: "select", action: "change->unit-display#update" } %>
+      <% end %>
+    </div>
+
+    <div class="form-group">
+      <%= f.label :value, class: "form-label" do %>
+        Value <span data-unit-display-target="unit" class="text-muted font-normal"></span>
+      <% end %>
+      <%= f.number_field :value, step: "any", class: "form-input", placeholder: "e.g., 100" %>
+    </div>
+
+    <div class="form-group" data-unit-display-target="addedWeightGroup" style="display: none;">
+      <%= f.label :added_weight, "Added Weight (kg)", class: "form-label" %>
+      <%= f.number_field :added_weight, step: "any", class: "form-input", placeholder: "Optional" %>
+    </div>
+  </div>
+
+  <div data-controller="toggle">
+    <button type="button" class="btn-link text-sm mb-4" data-action="click->toggle#toggle">
+      <span data-toggle-target="label">More options</span>
+    </button>
+
+    <div data-toggle-target="content" class="hidden">
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :reps, "Reps per set", class: "form-label" %>
+          <%= f.number_field :reps, class: "form-input", placeholder: "Optional", data: { unit_display_target: "reps" } %>
+        </div>
+        <div class="form-group" data-controller="rpe-slider">
+          <%= f.label :rpe, class: "form-label" do %>
+            RPE <span class="text-muted font-normal" data-rpe-slider-target="display"><%= exercise.rpe.present? ? exercise.rpe : "–" %></span>
+            <button type="button" class="btn-icon-inline <%= 'hidden' unless exercise.rpe.present? %>" data-rpe-slider-target="clear" data-action="click->rpe-slider#clear" title="Clear RPE"><%= icon(:trash, size: :sm) %></button>
+          <% end %>
+          <%= f.hidden_field :rpe, data: { rpe_slider_target: "hidden" } %>
+          <%= tag.input type: "range", min: 1, max: 10, step: 0.5, class: "form-range",
+              value: exercise.rpe || 5,
+              data: { rpe_slider_target: "slider", action: "input->rpe-slider#update" } %>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :performed_at, "Date & Time", class: "form-label" %>
+        <%= f.datetime_local_field :performed_at, value: (exercise.performed_at.is_a?(String) ? exercise.performed_at : (exercise.performed_at || Time.current).strftime("%Y-%m-%dT%H:%M")), step: 60, class: "form-input" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :notes, class: "form-label" %>
+        <%= f.text_area :notes, rows: 3, class: "form-textarea", placeholder: "Optional notes..." %>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit exercise.persisted? ? "Update Exercise" : "Log Exercise", class: "btn btn-primary" %>
+    <%= link_to "Cancel", activity_path, class: "btn btn-outline" %>
+  </div>
+<% end %>

@@ -1,0 +1,9 @@
+<%= render PageLayout.new(title: "Settings", subtitle:"Manage your account and preferences") do %>
+  <div class="settings-sections">
+    <%= render Settings::AccountSection %>
+    <%= render Settings::GradingSystemsSection.new(grading_systems: @grading_systems, current_user: current_user) %>
+    <%= render Settings::IntegrationsSection.new(current_user: current_user) %>
+    <%= render Settings::ImportSection %>
+    <%= render Settings::ExportSection %>
+  </div>
+<% end %>

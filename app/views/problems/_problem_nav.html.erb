@@ -1,0 +1,27 @@
+<div class="problem-nav mb-4">
+  <% if prev_problem %>
+    <%= link_to board_problem_path(@current_board, prev_problem, filter_params),
+                class: "problem-nav-btn",
+                data: { turbo_frame: dom_id(@current_board, :problem_detail_mobile) } do %>
+      <%= icon(:chevron_left) %>
+    <% end %>
+  <% else %>
+    <span class="problem-nav-btn problem-nav-disabled">
+      <%= icon(:chevron_left) %>
+    </span>
+  <% end %>
+  <span class="problem-nav-position">
+    <%= problem_position %> / <%= problem_count %>
+  </span>
+  <% if next_problem %>
+    <%= link_to board_problem_path(@current_board, next_problem, filter_params),
+                class: "problem-nav-btn",
+                data: { turbo_frame: dom_id(@current_board, :problem_detail_mobile) } do %>
+      <%= icon(:chevron_right) %>
+    <% end %>
+  <% else %>
+    <span class="problem-nav-btn problem-nav-disabled">
+      <%= icon(:chevron_right) %>
+    </span>
+  <% end %>
+</div>

@@ -1,0 +1,29 @@
+<%= render PageLayout.new(title: @problem.name, subtitle: "#{@problem.grade} &bull; Circuit Progress".html_safe) do %>
+  <div class="mb-6">
+    <%= link_to "&larr; Back to Activity Log".html_safe, activity_path %>
+  </div>
+
+  <div class="card">
+    <% if @chart_data.any? %>
+      <%= line_chart @chart_data,
+                     ytitle: "Moves",
+                     xtitle: "Date",
+                     curve: false,
+                     colors: ["#3b82f6"],
+                     library: {
+                       scales: {
+                         x: {
+                           ticks: { color: "#9ca3af" },
+                           grid: { color: "rgba(156, 163, 175, 0.2)" }
+                         },
+                         y: {
+                           ticks: { color: "#9ca3af", stepSize: 1 },
+                           grid: { color: "rgba(156, 163, 175, 0.2)" }
+                         }
+                       }
+                     } %>
+    <% else %>
+      <p class="text-muted text-center py-8">No circuit data with move counts yet.</p>
+    <% end %>
+  </div>
+<% end %>

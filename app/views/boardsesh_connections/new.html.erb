@@ -1,0 +1,28 @@
+<div class="container-narrow">
+  <h1>Connect Boardsesh</h1>
+
+  <div class="card">
+    <p class="text-sm text-muted mb-4">
+      Enter your <a href="https://www.boardsesh.com" target="_blank">Boardsesh</a> user ID to import
+      your Kilter and Tension logbook.
+    </p>
+
+    <p class="text-sm text-muted mb-4">
+      To find your ID, log in to Boardsesh, then visit
+      <a href="https://www.boardsesh.com/api/internal/profile" target="_blank">boardsesh.com/api/internal/profile</a>
+      and copy the <code>id</code> field from the JSON response.
+    </p>
+
+    <%= form_with url: boardsesh_connection_path, method: :post do |f| %>
+      <div class="form-group">
+        <%= f.label :user_id, "Boardsesh user ID", class: "form-label" %>
+        <%= f.text_field :user_id, class: "form-control", required: true, autocomplete: "off" %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Connect", class: "btn btn-primary" %>
+        <%= link_to "Cancel", settings_path, class: "btn btn-outline" %>
+      </div>
+    <% end %>
+  </div>
+</div>

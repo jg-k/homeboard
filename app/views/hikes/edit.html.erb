@@ -1,0 +1,59 @@
+<% content_for :title, "Edit Hike" %>
+
+<div class="page-sm">
+  <div class="mb-6">
+    <%= link_to "&larr; Back to Activity Log".html_safe, activity_path %>
+  </div>
+
+  <h1 class="page-title mb-6">Edit Hike</h1>
+
+  <div class="card">
+    <%= form_with model: @hike do |f| %>
+      <% if @hike.errors.any? %>
+        <div class="form-errors">
+          <h2><%= pluralize(@hike.errors.count, "error") %> prohibited this activity from being saved:</h2>
+          <ul>
+            <% @hike.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <div class="form-group">
+        <%= f.label :name, class: "form-label" %>
+        <%= f.text_field :name, class: "form-input", placeholder: "e.g., Mount Tamalpais" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :distance_km, "Distance (km)", class: "form-label" %>
+        <%= f.number_field :distance_km, min: 0, step: 0.1, class: "form-input", placeholder: "e.g., 8.5" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :elevation_gain_m, "Elevation Gain (m)", class: "form-label" %>
+        <%= f.number_field :elevation_gain_m, min: 0, class: "form-input", placeholder: "e.g., 450" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :duration_hours, "Duration (hours)", class: "form-label" %>
+        <%= f.number_field :duration_hours, min: 0, step: 0.5, class: "form-input", placeholder: "e.g., 2.5" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :performed_at, "Date & Time", class: "form-label" %>
+        <%= f.datetime_local_field :performed_at, value: @hike.activity_log.performed_at.strftime("%Y-%m-%dT%H:%M"), step: 60, class: "form-input" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :notes, class: "form-label" %>
+        <%= f.text_area :notes, rows: 3, class: "form-textarea", placeholder: "Optional notes..." %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Update Hike", class: "btn btn-primary" %>
+        <%= link_to "Cancel", activity_path, class: "btn-link-muted" %>
+      </div>
+    <% end %>
+  </div>
+</div>

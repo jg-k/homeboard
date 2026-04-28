@@ -1,0 +1,20 @@
+<% content_for :title, "Tracking" %>
+
+<div class="page">
+  <h1 class="page-title">Tracking</h1>
+
+  <div class="tabs">
+    <%= link_to "Exercises", tracking_path(tab: "exercises"),
+        class: "tab-link #{@tab == 'exercises' ? 'tab-active' : ''}",
+        data: { turbo_action: "replace" } %>
+    <%= link_to "Metrics", tracking_path(tab: "metrics"),
+        class: "tab-link #{@tab == 'metrics' ? 'tab-active' : ''}",
+        data: { turbo_action: "replace" } %>
+  </div>
+
+  <% if @tab == "exercises" %>
+    <%= render "tracking/exercises" %>
+  <% else %>
+    <%= render "tracking/metrics" %>
+  <% end %>
+</div>

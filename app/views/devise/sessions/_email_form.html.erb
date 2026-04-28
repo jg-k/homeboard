@@ -1,0 +1,30 @@
+<div class="my-6">
+  <div class="divider">
+    <span>Or sign in with email</span>
+  </div>
+</div>
+
+<%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
+  <%= render "devise/shared/error_messages", resource: resource %>
+
+  <div class="form-group">
+    <%= f.label :email, class: "form-label" %>
+    <%= f.email_field :email, autofocus: true, autocomplete: "email", class: "form-input", placeholder: "Enter your email" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :password, class: "form-label" %>
+    <%= f.password_field :password, autocomplete: "current-password", class: "form-input", placeholder: "Enter your password" %>
+  </div>
+
+  <% if devise_mapping.rememberable? %>
+    <div class="form-group checkbox-group">
+      <%= f.check_box :remember_me, class: "checkbox" %>
+      <%= f.label :remember_me, class: "checkbox-label" %>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.submit "Log in", class: "btn btn-primary btn-full" %>
+  </div>
+<% end %>

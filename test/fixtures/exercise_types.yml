@@ -1,0 +1,34 @@
+running:
+  name: Running
+  unit: minutes
+  user: one
+
+deadhang:
+  name: Dead Hang
+  unit: seconds
+  user: one
+
+# == Schema Information
+#
+# Table name: exercise_types
+#
+#  id                    :integer          not null, primary key
+#  added_weight_possible :boolean          default(FALSE), not null
+#  category              :string           default("other"), not null
+#  name                  :string           not null
+#  reps                  :integer
+#  rest_seconds          :integer
+#  unit                  :string           not null
+#  created_at            :datetime         not null
+#  updated_at            :datetime         not null
+#  user_id               :integer          not null
+#
+# Indexes
+#
+#  index_exercise_types_on_user_id           (user_id)
+#  index_exercise_types_on_user_id_and_name  (user_id,name) UNIQUE
+#
+# Foreign Keys
+#
+#  user_id  (user_id => users.id)
+#

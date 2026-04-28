@@ -1,0 +1,55 @@
+<%= form_with model: grading_system do |f| %>
+  <% if grading_system.errors.any? %>
+    <div class="form-errors">
+      <h2><%= pluralize(grading_system.errors.count, "error") %> prohibited this grading system from being saved:</h2>
+      <ul>
+        <% grading_system.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :name, class: "form-label" %>
+    <%= f.text_field :name, class: "form-input", placeholder: "e.g., My Gym Grades" %>
+  </div>
+
+  <div class="form-group" data-controller="grades-input">
+    <%= f.label :grades, "Grades (in order from easiest to hardest)", class: "form-label" %>
+    <%= f.hidden_field :grades, data: { grades_input_target: "input" } %>
+
+    <div class="grades-container" data-grades-input-target="container">
+      <% grading_system.grades.each do |grade| %>
+        <span class="grade-tag" draggable="true" data-grade="<%= grade %>">
+          <%= grade %>
+          <button type="button" data-action="click->grades-input#removeGrade" class="grade-remove">&times;</button>
+        </span>
+      <% end %>
+    </div>
+
+    <div class="grades-input-row">
+      <input type="text"
+             data-grades-input-target="newGrade"
+             data-action="keydown.enter->grades-input#addGrade"
+             class="form-input"
+             placeholder="Type a grade and press Enter or click Add">
+      <button type="button"
+              data-action="click->grades-input#prependGrade"
+              class="btn btn-success">
+        Add First
+      </button>
+      <button type="button"
+              data-action="click->grades-input#addGrade"
+              class="btn btn-outline">
+        Add Last
+      </button>
+    </div>
+    <p class="form-hint">Add grades in order from easiest to hardest. Drag grades to reorder.</p>
+  </div>
+
+  <div class="form-actions">
+    <%= f.submit class: "btn btn-primary" %>
+    <%= link_to "Cancel", settings_path, class: "btn-link-muted" %>
+  </div>
+<% end %>

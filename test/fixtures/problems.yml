@@ -1,0 +1,36 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+one:
+  name: Problem One
+  grade: V5
+  board_layout: one
+
+two:
+  name: Problem Two
+  grade: V7
+  board_layout: one
+
+# == Schema Information
+#
+# Table name: problems
+#
+#  id              :integer          not null, primary key
+#  circuit         :boolean          default(FALSE), not null
+#  discarded_at    :datetime
+#  grade           :string
+#  name            :string
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  board_layout_id :bigint           not null
+#  created_by_id   :integer
+#
+# Indexes
+#
+#  index_problems_on_board_layout_id  (board_layout_id)
+#  index_problems_on_created_by_id    (created_by_id)
+#  index_problems_on_discarded_at     (discarded_at)
+#
+# Foreign Keys
+#
+#  board_layout_id  (board_layout_id => board_layouts.id)
+#  created_by_id    (created_by_id => users.id)
+#

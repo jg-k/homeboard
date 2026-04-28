@@ -1,0 +1,43 @@
+<div class="board-climb-section">
+  <h3 class="text-lg font-semibold mb-3">Log a Board Climb</h3>
+  <%= form_with model: [@current_board, problem, problem.board_climbs.build], url: board_problem_board_climbs_path(@current_board, problem), local: true do |f| %>
+    <% if problem.circuit? %>
+      <%= f.hidden_field :climb_type, value: "circuit" %>
+      <div class="form-group">
+        <%= f.label :number_of_moves, "Number of Moves", class: "form-label" %>
+        <%= f.number_field :number_of_moves, min: 1, class: "form-input form-input-sm", placeholder: "Moves completed", style: "width: 8rem" %>
+      </div>
+    <% else %>
+      <div class="form-group">
+        <label class="form-label">Type</label>
+        <div class="board-climb-type-options">
+          <label class="radio-label">
+            <%= f.radio_button :climb_type, "attempt", checked: true %>
+            <span>Attempt</span>
+          </label>
+          <label class="radio-label">
+            <%= f.radio_button :climb_type, "sent" %>
+            <span>Sent</span>
+          </label>
+          <label class="radio-label">
+            <%= f.radio_button :climb_type, "flash" %>
+            <span>Flash</span>
+          </label>
+        </div>
+      </div>
+      <div class="form-group">
+        <%= f.label :attempts, class: "form-label" %>
+        <%= f.number_field :attempts, min: 1, value: 1, class: "form-input form-input-sm", style: "width: 8rem" %>
+      </div>
+    <% end %>
+    <div class="form-group">
+      <%= f.label :notes, class: "form-label" %>
+      <%= f.text_area :notes, rows: 2, class: "form-textarea text-sm", placeholder: "Optional notes about this board climb..." %>
+    </div>
+    <div class="form-group">
+      <%= f.label :climbed_at, "Date & Time", class: "form-label" %>
+      <%= f.datetime_local_field :climbed_at, value: Time.current.strftime("%Y-%m-%dT%H:%M"), step: 60, class: "form-input form-input-sm" %>
+    </div>
+    <%= f.submit "Log Board Climb", class: "btn btn-primary btn-sm" %>
+  <% end %>
+</div>

@@ -1,0 +1,95 @@
+<% content_for :title, @board.name %>
+<div class="page">
+  <h1 class="page-title mb-2"><%= @board.name %></h1>
+  <p class="text-muted mb-6"><%= @board.description %></p>
+  <div class="mb-8">
+    <h2 class="text-2xl font-semibold mb-4">Layouts</h2>
+    <% @board.board_layouts.kept.order(active: :desc, created_at: :desc).each do |layout| %>
+      <div class="card mb-4 <%= 'card-active' if layout.active? %>">
+        <div class="flex justify-between items-start mb-4">
+          <div>
+            <h3 class="text-xl font-medium">
+              <%= layout.name %>
+              <% if layout.active? %>
+                <%= render Badge.new(:blue, class: "ml-2") { "Active" } %>
+              <% end %>
+              <% if layout.archived? %>
+                <%= render Badge.new(class: "ml-2") { "Archived" } %>
+              <% end %>
+            </h3>
+            <p class="text-muted text-sm">Created <%= layout.created_at.strftime("%b %d, %Y") %></p>
+          </div>
+          <div class="flex gap-2">
+            <% unless layout.active? %>
+              <%= button_to board_board_layout_path(@board, layout),
+                  method: :patch,
+                  params: { board_layout: { active: true } },
+                  class: "btn btn-outline btn-sm",
+                  title: "Set Active" do %>
+                Set Active
+              <% end %>
+            <% end %>
+            <%= button_to archive_board_board_layout_path(@board, layout),
+                method: :patch,
+                class: "btn btn-outline btn-sm",
+                title: layout.archived? ? "Unarchive" : "Archive" do %>
+              <%= layout.archived? ? "Unarchive" : "Archive" %>
+            <% end %>
+            <%= button_to soft_delete_board_board_layout_path(@board, layout),
+                method: :patch,
+                data: { turbo_confirm: "Are you sure?" },
+                class: "btn btn-outline btn-sm icon-link-danger",
+                title: "Delete Layout" do %>
+              <%= icon(:trash, size: :sm) %>
+            <% end %>
+          </div>
+        </div>
+        <% if layout.image_layout.attached? %>
+          <div class="mb-4">
+            <%= image_tag layout.display_image, class: "layout-image", alt: "Layout image for #{layout.name}" %>
+          </div>
+        <% end %>
+        <div class="upload-form mb-4">
+          <h5 class="text-sm font-medium mb-2">Upload Layout Image</h5>
+          <%= form_with model: [layout], url: board_board_layout_path(@board, layout), method: :patch, data: { turbo: false } do |form| %>
+            <div class="upload-row">
+              <%= form.file_field :image_layout, class: "form-input file-input-empty", accept: "image/*", data: { controller: "file-input", action: "change->file-input#change" } %>
+              <%= form.submit "Upload Image", class: "btn btn-primary btn-sm" %>
+            </div>
+          <% end %>
+        </div>
+        <div class="flex items-center gap-4">
+          <span class="text-muted"><%= pluralize(layout.problems.kept.count, "problem") %></span>
+          <%= link_to "Add Problem", new_board_problem_path(@board, board_layout_id: layout.id), class: "btn btn-primary btn-sm" %>
+        </div>
+      </div>
+    <% end %>
+    <div class="card">
+      <h3 class="font-medium mb-4">Add New Layout</h3>
+      <%= form_with model: [BoardLayout.new], url: board_board_layouts_path(@board), data: { turbo: false } do |form| %>
+        <div class="form-group">
+          <%= form.text_field :name, value: default_layout_name, class: "form-input", required: true %>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Choose file:</label>
+          <%= form.file_field :image_layout, class: "form-input file-input-empty", accept: "image/*", data: { controller: "file-input", action: "change->file-input#change" } %>
+        </div>
+        <div class="sample-option">
+          <label class="checkbox-group">
+            <%= form.check_box :use_sample_image %>
+            <span class="checkbox-label">Homeboard not built yet? Select this to use a sample image</span>
+          </label>
+        </div>
+        <%= form.submit "Add Layout", class: "btn btn-success" %>
+      <% end %>
+    </div>
+  </div>
+  <div class="flex gap-2">
+    <%= link_to "Edit Board", edit_board_path(@board), class: "btn btn-outline" %>
+    <%= link_to "Download PDF", export_board_path(@board, format: :pdf), class: "btn btn-outline", data: { turbo: false } %>
+    <%= link_to "Back to Boards", boards_path, class: "btn btn-outline" %>
+    <%= button_to "Delete Board", @board, method: :delete,
+        data: { turbo_confirm: "Are you sure? This will also delete all layouts and problems." },
+        class: "btn btn-danger" %>
+  </div>
+</div>

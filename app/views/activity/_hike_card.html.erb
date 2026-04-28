@@ -1,0 +1,38 @@
+<div class="card card-bordered card-hike activity-card">
+  <div class="flex-between">
+    <div>
+      <div class="activity-header">
+        <%= render Badge.new(:purple) { "Hike" } %>
+        <span class="activity-title"><%= hike.name %></span>
+      </div>
+
+      <div class="activity-meta">
+        <span><%= smart_date(activity_log.performed_at) %></span>
+        <% if hike.distance_km.present? %>
+          <span><%= hike.distance_km %> km</span>
+        <% end %>
+        <% if hike.elevation_gain_m.present? %>
+          <span><%= hike.elevation_gain_m %> m gain</span>
+        <% end %>
+        <% if hike.duration_hours.present? %>
+          <span><%= hike.duration_hours %> hrs</span>
+        <% end %>
+      </div>
+
+      <% if hike.notes.present? %>
+        <div class="activity-notes">
+          <%= simple_format(hike.notes) %>
+        </div>
+      <% end %>
+    </div>
+
+    <% unless local_assigns[:readonly] %>
+      <%= render ActivityActions.new(
+        edit_path: edit_hike_path(hike),
+        delete_path: hike_path(hike),
+        delete_confirm: "Are you sure you want to delete this hike?",
+        primary_action: { path: new_hike_path, title: "Log another hike", icon: :copy }
+      ) %>
+    <% end %>
+  </div>
+</div>

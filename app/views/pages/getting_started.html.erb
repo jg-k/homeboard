@@ -1,0 +1,36 @@
+<div class="container">
+  <h1>Get Started</h1>
+  <ol class="getting-started-list">
+    <li>
+      <strong>Set up a new board</strong>
+      <p>Create your first board and upload an image of it as your first layout.</p>
+      <% if current_user.boards.any? %>
+        <span class="btn btn-disabled">Create Board</span>
+      <% else %>
+        <%= link_to "Create Board", new_board_path, class: "btn btn-primary" %>
+      <% end %>
+    </li>
+    <li>
+      <strong>Create a new problem</strong>
+      <p>Define climbing problems on your board by marking holds and setting grades.</p>
+      <%= link_to "Create Problems", problems_landing_path, class: "btn btn-primary" %>
+    </li>
+    <li>
+      <strong>Define other fitness exercises</strong>
+      <p>Add custom exercises like hangboard, pull-ups, or stretches to track alongside your climbs.</p>
+      <%= link_to "Exercise Types", exercise_types_path, class: "btn btn-primary" %>
+    </li>
+    <li>
+      <strong>Start logging!</strong>
+      <p>Log your climbs and exercises to track your progress over time.</p>
+    </li>
+    <li>
+      <strong>Check your progress</strong>
+      <p>View your <%= link_to "Activity Log", activity_path %> and <%= link_to "Stats", stats_path %> to see where you stand.</p>
+    </li>
+    <li>
+      <strong>Import your climbing history</strong>
+      <p>Check the <%= link_to "Settings", settings_path %> page to sync your system board ticks via Boardsesh and import your logbook from UKC or theCrag.</p>
+    </li>
+  </ol>
+</div>

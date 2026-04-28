@@ -1,0 +1,81 @@
+<%= render PageLayout.new(title: @metric.name, subtitle: @metric.unit) do %>
+  <div class="mb-6">
+    <%= link_to "&larr; Back to Metrics".html_safe, metrics_path %>
+  </div>
+
+  <div class="card mb-6">
+    <% has_data = @chart_data.is_a?(Array) && @chart_data.first.is_a?(Hash) ? @chart_data.any? { |s| s[:data].any? } : @chart_data.any? %>
+    <% if has_data %>
+      <%= line_chart @chart_data,
+                     ytitle: @metric.unit,
+                     curve: false,
+                     colors: ["#14b8a6", "#f59e0b"],
+                     library: {
+                       spanGaps: true,
+                       datasets: [
+                         {},
+                         { borderDash: [5, 5] }
+                       ],
+                       scales: {
+                         x: {
+                           ticks: { color: "#9ca3af" },
+                           grid: { color: "rgba(156, 163, 175, 0.2)" }
+                         },
+                         y: {
+                           ticks: { color: "#9ca3af" },
+                           grid: { color: "rgba(156, 163, 175, 0.2)" },
+                           **Charts::YAxis.range(@chart_data)
+                         }
+                       }
+                     } %>
+    <% else %>
+      <p class="text-muted text-center py-8">No measurements yet. Log one below.</p>
+    <% end %>
+  </div>
+
+  <div class="card mb-6">
+    <h2 class="text-lg font-semibold mb-4">Log Measurement</h2>
+    <%= form_with url: metric_measurements_path(@metric), scope: :measurement, method: :post, class: "measurement-form-full" do |f| %>
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :value, class: "form-label" %>
+          <%= f.number_field :value, step: :any, class: "form-input", placeholder: "Value", required: true %>
+        </div>
+        <div class="form-group">
+          <%= f.label :recorded_at, "Date & Time", class: "form-label" %>
+          <%= f.datetime_local_field :recorded_at, value: Time.current.strftime("%Y-%m-%dT%H:%M"), class: "form-input" %>
+        </div>
+      </div>
+      <div class="form-group">
+        <%= f.label :notes, class: "form-label" %>
+        <%= f.text_area :notes, class: "form-input", rows: 2, placeholder: "Optional notes" %>
+      </div>
+      <div class="form-actions">
+        <%= f.submit "Log Measurement", class: "btn btn-primary" %>
+      </div>
+    <% end %>
+  </div>
+
+  <% if @measurements.any? %>
+    <div class="card">
+      <h2 class="text-lg font-semibold mb-4">Recent Measurements</h2>
+      <div class="stack">
+        <% @measurements.each do |measurement| %>
+          <div class="flex-between py-2 border-b border-gray-700">
+            <div>
+              <span class="font-medium"><%= measurement.value %> <%= @metric.unit %></span>
+              <span class="text-sm text-muted ml-2"><%= measurement.recorded_at.strftime("%b %d, %Y at %H:%M") %></span>
+              <% if measurement.notes.present? %>
+                <p class="text-sm text-muted mt-1"><%= measurement.notes %></p>
+              <% end %>
+            </div>
+            <div class="flex gap-2">
+              <%= link_to "Edit", edit_metric_measurement_path(@metric, measurement), class: "text-sm" %>
+              <%= button_to "Delete", metric_measurement_path(@metric, measurement), method: :delete, data: { turbo_confirm: "Delete this measurement?" }, class: "btn-link-danger text-sm" %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+<% end %>

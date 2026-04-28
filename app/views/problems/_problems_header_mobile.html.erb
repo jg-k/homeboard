@@ -1,0 +1,14 @@
+<div class="problems-mobile-header">
+  <%= link_to filter_board_problems_path(@current_board, filter_params),
+              class: "btn btn-secondary btn-sm" do %>
+    <%= icon(:filter) %>
+    Filter
+  <% end %>
+  <% if @current_board.active_layout %>
+    <%= link_to new_board_problem_path(@current_board, board_layout_id: @current_board.active_layout.id, **filter_params),
+                class: "btn-icon btn-icon-primary",
+                title: "New Problem" do %>
+      <%= icon(:plus) %>
+    <% end %>
+  <% end %>
+</div>

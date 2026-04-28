@@ -1,0 +1,67 @@
+<% content_for :title, "Filter Problems" %>
+<div class="page page-sm pt-4 pb-8">
+  <h1 class="text-2xl font-bold mb-4">Filter Problems</h1>
+
+  <%= form_with url: board_problems_path(@current_board), method: :get, local: true, class: "stack" do |f| %>
+    <% if @current_board.grading_system&.grades&.any? %>
+      <div class="card">
+        <h2 class="text-lg font-semibold mb-4">Grade Range</h2>
+        <div class="flex gap-4">
+          <div class="flex-1">
+            <%= label_tag :min_grade, "Min Grade", class: "form-label" %>
+            <%= select_tag :min_grade,
+                options_for_select([["Any", ""]] + @current_board.grading_system.grades.map { |g| [g, g] }, params[:min_grade]),
+                class: "form-select" %>
+          </div>
+          <div class="flex-1">
+            <%= label_tag :max_grade, "Max Grade", class: "form-label" %>
+            <%= select_tag :max_grade,
+                options_for_select([["Any", ""]] + @current_board.grading_system.grades.map { |g| [g, g] }, params[:max_grade]),
+                class: "form-select" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+
+    <div class="card">
+      <h2 class="text-lg font-semibold mb-4">Sort by</h2>
+      <div class="radio-group">
+        <label class="radio-option">
+          <%= radio_button_tag :sort, "date", params[:sort].blank? || params[:sort] == "date" %>
+          <span class="radio-label">Date created (newest first)</span>
+        </label>
+        <label class="radio-option">
+          <%= radio_button_tag :sort, "grade", params[:sort] == "grade" %>
+          <span class="radio-label">Grade (easiest first)</span>
+        </label>
+        <label class="radio-option">
+          <%= radio_button_tag :sort, "grade_desc", params[:sort] == "grade_desc" %>
+          <span class="radio-label">Grade (hardest first)</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="text-lg font-semibold mb-4">Filter</h2>
+      <div class="radio-group">
+        <label class="radio-option">
+          <%= radio_button_tag :filter, "", params[:filter].blank? %>
+          <span class="radio-label">Show all</span>
+        </label>
+        <label class="radio-option">
+          <%= radio_button_tag :filter, "sent", params[:filter] == "sent" %>
+          <span class="radio-label">Sent/flashed only</span>
+        </label>
+        <label class="radio-option">
+          <%= radio_button_tag :filter, "unsent", params[:filter] == "unsent" %>
+          <span class="radio-label">Unsent only</span>
+        </label>
+      </div>
+    </div>
+
+    <div class="flex gap-4">
+      <%= submit_tag "Apply", class: "btn btn-primary flex-1" %>
+      <%= link_to "Cancel", board_problems_path(@current_board, filter_params), class: "btn btn-secondary flex-1 text-center" %>
+    </div>
+  <% end %>
+</div>

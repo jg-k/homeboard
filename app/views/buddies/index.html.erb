@@ -1,0 +1,70 @@
+<%= render PageLayout.new(title: "Climbing Buddies", subtitle: "Connect with other climbers") do %>
+  <div class="buddies-grid">
+    <section class="buddies-section">
+      <h2 class="buddies-section-title">Follow a Climber</h2>
+      <div class="card">
+        <%= form_with url: buddies_path, method: :post, class: "follow-form" do |f| %>
+          <div class="form-group">
+            <%= f.label :email, "Email address", class: "form-label" %>
+            <%= f.email_field :email, class: "form-input", placeholder: "climber@example.com", required: true %>
+            <p class="form-hint">Enter the email of a climber you want to follow. They must have enabled followers in their settings.</p>
+          </div>
+          <div class="form-actions">
+            <%= f.submit "Follow", class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </section>
+
+    <section class="buddies-section">
+      <h2 class="buddies-section-title">Following (<%= @following.count %>)</h2>
+      <% if @following.any? %>
+        <div class="stack">
+          <% @following.each do |user| %>
+            <div class="card buddy-card">
+              <div class="flex-between">
+                <div class="buddy-info">
+                  <span class="buddy-email"><%= user.email %></span>
+                </div>
+                <div class="buddy-actions">
+                  <%= link_to "Activity", activity_buddy_path(user), class: "btn btn-sm btn-outline" %>
+                  <%= button_to "Unfollow", buddy_path(user), method: :delete, class: "btn-link-danger", data: { turbo_confirm: "Unfollow #{user.email}?" } %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state-sm">
+          <p class="text-muted">You're not following anyone yet.</p>
+        </div>
+      <% end %>
+    </section>
+
+    <section class="buddies-section">
+      <h2 class="buddies-section-title">Followers (<%= @followers.count %>)</h2>
+      <% if @followers.any? %>
+        <div class="stack">
+          <% @followers.each do |user| %>
+            <div class="card buddy-card">
+              <div class="flex-between">
+                <div class="buddy-info">
+                  <span class="buddy-email"><%= user.email %></span>
+                </div>
+                <% if current_user.following?(user) %>
+                  <%= link_to "Activity", activity_buddy_path(user), class: "btn btn-sm btn-outline" %>
+                <% elsif user.allow_follows %>
+                  <%= button_to "Follow Back", buddies_path(email: user.email), method: :post, class: "btn btn-sm btn-outline" %>
+                <% end %>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state-sm">
+          <p class="text-muted">No one is following you yet.</p>
+        </div>
+      <% end %>
+    </section>
+  </div>
+<% end %>

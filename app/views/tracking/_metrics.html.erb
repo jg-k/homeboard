@@ -1,0 +1,57 @@
+<div class="tab-content">
+  <div class="tab-header-flex">
+    <%= link_to "New Metric", new_metric_path, class: "btn btn-primary" %>
+  </div>
+
+  <% if @metrics.any? %>
+    <div class="stack">
+      <% @metrics.each do |metric| %>
+        <div class="card">
+          <div class="flex-between">
+            <div>
+              <h2 class="text-xl font-semibold">
+                <%= link_to metric.name, metric_path(metric) %>
+              </h2>
+              <p class="text-gray mt-1">
+                Unit: <span class="font-medium"><%= metric.unit %></span>
+                <% if metric.measurements.any? %>
+                  <span class="ml-3">Latest: <span class="font-medium"><%= metric.measurements.order(recorded_at: :desc).first.value %> <%= metric.unit %></span></span>
+                <% end %>
+              </p>
+            </div>
+            <div class="flex gap-2">
+              <%= link_to metric_path(metric), class: "icon-link", title: "View Chart" do %>
+                <%= icon(:bar_chart, size: :sm) %>
+              <% end %>
+              <%= link_to edit_metric_path(metric), class: "icon-link", title: "Edit" do %>
+                <%= icon(:edit, size: :sm) %>
+              <% end %>
+              <%= button_to metric, method: :delete, data: { turbo_confirm: "Are you sure? This will delete all measurements." }, class: "icon-link icon-link-danger", title: "Delete" do %>
+                <%= icon(:trash, size: :sm) %>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="mt-4">
+            <p class="text-sm text-muted mb-2">Log measurement:</p>
+            <%= form_with url: metric_measurements_path(metric), scope: :measurement, method: :post, class: "measurement-form" do |f| %>
+              <%= f.number_field :value, step: :any, class: "form-input form-input-sm", placeholder: "Value", required: true %>
+              <label class="measurement-form-date">
+                <span class="text-sm text-muted">Date:</span>
+                <%= f.datetime_local_field :recorded_at, value: Time.current.strftime("%Y-%m-%dT%H:%M"), class: "form-input form-input-sm" %>
+              </label>
+              <%= f.submit "Log", class: "btn btn-secondary btn-sm" %>
+            <% end %>
+          </div>
+
+          <%= render "shared/targets",
+                     targetable: metric,
+                     delete_target_path: ->(target) { metric_target_path(metric, target) },
+                     create_target_path: metric_targets_path(metric) %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-muted">No metrics defined yet. Create one to start tracking measurements like body weight or body measurements.</p>
+  <% end %>
+</div>

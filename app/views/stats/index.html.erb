@@ -1,0 +1,93 @@
+<%= render PageLayout.new(title: "Stats") do %>
+  <div class="tabs">
+    <%= link_to "Overview", stats_path(tab: "overview"),
+        class: "tab-link #{@tab == 'overview' ? 'tab-active' : ''}" %>
+    <%= link_to "Fitness", stats_path(tab: "fitness"),
+        class: "tab-link #{@tab == 'fitness' ? 'tab-active' : ''}" %>
+  </div>
+  <% if @tab == "overview" %>
+    <div class="card mb-6">
+      <h2 class="text-xl font-semibold mb-4">Climbing attempts and sends per week</h2>
+      <%= column_chart @climbing_chart_data,
+                       stacked: true,
+                       height: "240px",
+                       colors: chart_palette,
+                       dataset: modern_bar_dataset,
+                       library: modern_column_chart_options(stacked: true) %>
+    </div>
+    <% if @exercise_chart_data.any? %>
+      <div class="card">
+        <h2 class="text-xl font-semibold mb-4">Conditioning training per week</h2>
+        <%= column_chart @exercise_chart_data,
+                         stacked: true,
+                         height: "240px",
+                         colors: chart_palette,
+                         library: modern_column_chart_options(stacked: true) %>
+      </div>
+    <% end %>
+  <% elsif @tab == "fitness" %>
+    <% if @categories.any? %>
+      <div class="tabs-nav mb-6">
+        <% @categories.each do |category| %>
+          <%= link_to category.titleize, stats_path(tab: "fitness", category: category),
+              class: "tab-link #{@category == category ? 'tab-active' : ''}" %>
+        <% end %>
+      </div>
+      <% if @exercise_types.any? %>
+        <div class="stack-lg">
+          <% @exercise_types.each do |exercise_type| %>
+            <div class="card">
+              <h2 class="text-xl font-semibold mb-4">
+                <%= exercise_type.name %>
+                <span class="text-sm font-normal text-muted">(<%= exercise_type.unit %>)</span>
+              </h2>
+              <% chart_data = exercise_type.chart_data_with_targets %>
+              <% has_data = chart_data.is_a?(Array) && chart_data.first.is_a?(Hash) ? chart_data.any? { |s| s[:data].any? } : chart_data.any? %>
+              <% if has_data %>
+                <%= line_chart chart_data,
+                               ytitle: exercise_type.unit,
+                               curve: false,
+                               colors: ["#14b8a6", "#f59e0b"],
+                               library: {
+                                 spanGaps: true,
+                                 datasets: [
+                                   {},
+                                   { borderDash: [5, 5] }
+                                 ],
+                                 scales: {
+                                   x: {
+                                     ticks: { color: "#9ca3af" },
+                                     grid: { color: "rgba(156, 163, 175, 0.2)" }
+                                   },
+                                   y: {
+                                     ticks: { color: "#9ca3af" },
+                                     grid: { color: "rgba(156, 163, 175, 0.2)" }
+                                   }
+                                 }
+                               } %>
+              <% else %>
+                <p class="text-muted text-center py-8">No data yet. <%= link_to "Log an activity", new_exercise_path %>.</p>
+              <% end %>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="empty-state">
+          <h3>No exercises in this category</h3>
+          <p>Create exercise types to start tracking stats.</p>
+          <div class="empty-state-actions">
+            <%= link_to "Create Exercise Type", new_exercise_type_path, class: "btn btn-primary" %>
+          </div>
+        </div>
+      <% end %>
+    <% else %>
+      <div class="empty-state">
+        <h3>No exercise types defined</h3>
+        <p>Create exercise types to start tracking stats.</p>
+        <div class="empty-state-actions">
+          <%= link_to "Create Exercise Type", new_exercise_type_path, class: "btn btn-primary" %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

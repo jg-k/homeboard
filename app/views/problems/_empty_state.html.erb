@@ -1,0 +1,6 @@
+<div class="<%= local_assigns[:center] ? 'text-center py-8' : 'empty-state' %>">
+  <p class="text-muted mb-4"><%= message %></p>
+  <% if local_assigns[:link_text] && local_assigns[:link_path] %>
+    <%= link_to link_text, link_path, class: "btn-link#{' text-sm' if local_assigns[:small]}" %>
+  <% end %>
+</div>

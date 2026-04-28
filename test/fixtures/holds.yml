@@ -1,0 +1,50 @@
+one_start:
+  problem: one
+  kind: start
+  x: 0.1
+  y: 0.1
+  position: 0
+
+one_finish:
+  problem: one
+  kind: finish
+  x: 0.9
+  y: 0.9
+  position: 0
+
+two_start:
+  problem: two
+  kind: start
+  x: 0.2
+  y: 0.2
+  position: 0
+
+two_hand:
+  problem: two
+  kind: hand
+  x: 0.5
+  y: 0.5
+  position: 0
+
+# == Schema Information
+#
+# Table name: holds
+#
+#  id         :integer          not null, primary key
+#  kind       :string           not null
+#  position   :integer          default(0), not null
+#  x          :float            not null
+#  y          :float            not null
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  problem_id :integer          not null
+#
+# Indexes
+#
+#  index_holds_on_problem_id                        (problem_id)
+#  index_holds_on_problem_id_and_kind_and_position  (problem_id,kind,position)
+#
+# Foreign Keys
+#
+#  problem_id  (problem_id => problems.id)
+#

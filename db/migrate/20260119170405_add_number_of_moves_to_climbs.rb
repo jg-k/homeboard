@@ -1,0 +1,5 @@
+class AddNumberOfMovesToClimbs < ActiveRecord::Migration[8.1]
+  def change
+    add_column :climbs, :number_of_moves, :integer
+  end
+end

@@ -1,0 +1,29 @@
+crag_ascent_one:
+  user: one
+  loggable_type: CragAscent
+  loggable_id: 1
+  performed_at: 2025-06-15 10:00:00
+
+# == Schema Information
+#
+# Table name: activity_logs
+#
+#  id            :integer          not null, primary key
+#  loggable_type :string           not null
+#  performed_at  :datetime         not null
+#  created_at    :datetime         not null
+#  updated_at    :datetime         not null
+#  loggable_id   :integer          not null
+#  user_id       :integer          not null
+#
+# Indexes
+#
+#  index_activity_logs_on_loggable                   (loggable_type,loggable_id)
+#  index_activity_logs_on_loggable_type_and_user_id  (loggable_type,user_id)
+#  index_activity_logs_on_user_id                    (user_id)
+#  index_activity_logs_on_user_id_and_performed_at   (user_id,performed_at)
+#
+# Foreign Keys
+#
+#  user_id  (user_id => users.id)
+#

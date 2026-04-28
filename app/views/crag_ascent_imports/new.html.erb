@@ -1,0 +1,51 @@
+<% content_for :title, "Import Climbing Log" %>
+
+<div class="page-sm">
+  <div class="mb-6">
+    <%= link_to "&larr; Back to Activity Log".html_safe, activity_path %>
+  </div>
+
+  <h1 class="page-title mb-6">Import Climbing Log</h1>
+
+  <div class="card">
+    <%= form_with url: crag_ascent_imports_path, method: :post, multipart: true do |f| %>
+      <div class="form-group">
+        <%= f.label :file, "CSV File", class: "form-label" %>
+        <%= f.file_field :file, accept: ".csv", class: "form-input",
+            data: { controller: "file-input", action: "change->file-input#change" } %>
+        <p class="form-hint">
+          Upload a CSV logbook export from
+          <a href="https://www.thecrag.com" target="_blank" rel="noopener noreferrer">theCrag</a>
+          or <a href="https://www.ukclimbing.com" target="_blank" rel="noopener noreferrer">UKC DLOG</a>.
+          The format is detected automatically.
+        </p>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Import", class: "btn btn-primary" %>
+        <%= link_to "Cancel", activity_path, class: "btn-link-muted" %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="card mt-6">
+    <h2>Sync from theCrag</h2>
+    <p class="form-hint">
+      Pulls your most recent ascents directly from theCrag (newest 100). Use this after the initial CSV import to keep up to date.
+    </p>
+
+    <%= form_with url: sync_thecrag_crag_ascent_imports_path, method: :post do |f| %>
+      <div class="form-group">
+        <%= f.label :thecrag_username, "theCrag username", class: "form-label" %>
+        <%= f.text_field :thecrag_username, value: current_user.thecrag_username, class: "form-input", required: true %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Sync now", class: "btn btn-primary" %>
+        <% if current_user.thecrag_synced_at %>
+          <span class="form-hint">Last synced <%= time_ago_in_words(current_user.thecrag_synced_at) %> ago</span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

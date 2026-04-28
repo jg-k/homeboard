@@ -1,0 +1,65 @@
+<% content_for :title, "Activity Log" %>
+
+<div class="page">
+  <div class="page-header-flex">
+    <h1 class="page-title">Activity Log</h1>
+    <%= link_to stats_path, class: "btn-icon", title: "Stats" do %>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    <% end %>
+  </div>
+
+  <%= render "activity/activity_grid", activity_data: @activity_data %>
+
+  <%= turbo_frame_tag "activity_day_detail" do %>
+    <div class="text-right mb-6">
+      <%= link_to "View previous years &rarr;".html_safe, activity_history_path, class: "text-sm text-muted", data: { turbo_frame: "_top" } %>
+    </div>
+
+    <% if @activity_logs.any? %>
+      <div class="activity-list">
+        <% @activity_logs_by_date.each do |date, logs| %>
+          <div class="activity-date-group">
+            <div class="date-divider">
+              <span class="date-divider-text"><%= date.strftime("%A, %B %d, %Y") %></span>
+            </div>
+            <div class="stack">
+            <% logs.each do |activity_log| %>
+              <% if activity_log.board_climb? %>
+                <% board_climb = @board_climbs_with_associations[activity_log.loggable_id] %>
+                <%= render "activity/board_climb_card", board_climb: board_climb, activity_log: activity_log if board_climb %>
+              <% elsif activity_log.exercise? %>
+                <% exercise = @exercises_with_associations[activity_log.loggable_id] %>
+                <%= render "activity/exercise_card", exercise: exercise, activity_log: activity_log if exercise %>
+              <% elsif activity_log.gym_session? %>
+                <% gym_session = @gym_sessions_with_associations[activity_log.loggable_id] %>
+                <%= render "activity/gym_session_card", gym_session: gym_session, activity_log: activity_log if gym_session %>
+              <% elsif activity_log.crag_ascent? %>
+                <% crag_ascent = @crag_ascents_with_associations[activity_log.loggable_id] %>
+                <%= render "activity/crag_ascent_card", crag_ascent: crag_ascent, activity_log: activity_log if crag_ascent %>
+              <% elsif activity_log.system_board_climb? %>
+                <% system_board_climb = @system_board_climbs_with_associations[activity_log.loggable_id] %>
+                <%= render "activity/system_board_climb_card", system_board_climb: system_board_climb, activity_log: activity_log if system_board_climb %>
+              <% elsif activity_log.hike? %>
+                <% hike = @hikes_with_associations[activity_log.loggable_id] %>
+                <%= render "activity/hike_card", hike: hike, activity_log: activity_log if hike %>
+              <% end %>
+            <% end %>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+    <% else %>
+      <div class="empty-state">
+        <h3>No activity yet</h3>
+        <p>Start logging your board climbs and exercises to see them here!</p>
+        <div class="empty-state-actions">
+          <%= link_to "Go to Board Problems", problems_landing_path, class: "btn btn-primary", data: { turbo_frame: "_top" } %>
+          <span class="text-muted">or</span>
+          <%= link_to "Go to Exercises", exercise_types_path, class: "btn btn-primary", data: { turbo_frame: "_top" } %>
+        </div>
+      </div>
+    <% end %>
+  <% end %>
+</div>

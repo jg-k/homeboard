@@ -1,0 +1,27 @@
+<%= render PageLayout.new(title: @date.strftime("%A, %B %d, %Y"), subtitle: @user.email) do %>
+  <div class="mb-6">
+    <%= link_to "&larr; Back to #{@user.email}'s Activity".html_safe, activity_buddy_path(@user) %>
+  </div>
+
+  <% if @activity_logs.any? %>
+    <div class="stack">
+      <% @activity_logs.each do |activity_log| %>
+        <% if activity_log.board_climb? %>
+          <% board_climb = @board_climbs_with_associations[activity_log.loggable_id] %>
+          <%= render "activity/board_climb_card", board_climb: board_climb, activity_log: activity_log, readonly: true if board_climb %>
+        <% elsif activity_log.exercise? %>
+          <% exercise = @exercises_with_associations[activity_log.loggable_id] %>
+          <%= render "activity/exercise_card", exercise: exercise, activity_log: activity_log, readonly: true, buddy: @user if exercise %>
+        <% elsif activity_log.gym_session? %>
+          <% gym_session = @gym_sessions_with_associations[activity_log.loggable_id] %>
+          <%= render "activity/gym_session_card", gym_session: gym_session, activity_log: activity_log, readonly: true if gym_session %>
+        <% elsif activity_log.crag_ascent? %>
+          <% crag_ascent = @crag_ascents_with_associations[activity_log.loggable_id] %>
+          <%= render "activity/crag_ascent_card", crag_ascent: crag_ascent, activity_log: activity_log, readonly: true if crag_ascent %>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-muted">No activities on this day.</p>
+  <% end %>
+<% end %>

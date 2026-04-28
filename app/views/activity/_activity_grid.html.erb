@@ -1,0 +1,70 @@
+<%
+  end_date = local_assigns.fetch(:grid_end_date, Date.current)
+  label_start_date = local_assigns.fetch(:grid_start_date, (end_date - 52.weeks))
+  start_date = label_start_date.beginning_of_week(:sunday)
+  show_legend = local_assigns.fetch(:show_legend, true)
+
+  weeks = []
+  current_date = start_date
+  while current_date <= end_date
+    week = []
+    7.times do
+      week << current_date if current_date <= end_date
+      current_date += 1.day
+    end
+    weeks << week
+  end
+%>
+
+<div class="card activity-grid mb-6">
+  <% if show_legend %>
+    <div class="grid-legend">
+      <div class="legend-item">
+        <span class="legend-dot grid-day-board-climb intensity-5"></span>
+        <span>Board</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot grid-day-exercise intensity-5"></span>
+        <span>Conditioning</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot grid-day-gym-session intensity-5"></span>
+        <span>Indoor</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot grid-day-crag-ascent intensity-5"></span>
+        <span>Outdoor</span>
+      </div>
+      <div class="legend-item">
+        <span class="legend-dot grid-day-hike intensity-5"></span>
+        <span>Hike</span>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="grid-container">
+    <div class="grid-weeks">
+      <% weeks.each do |week| %>
+        <div class="grid-week">
+          <% week.each do |date| %>
+            <% day = activity_data[date] || ActivityCalendar::DayActivity.new %>
+            <% if day.any? %>
+              <% day_url = local_assigns[:grid_day_url] ? grid_day_url.call(date) : activity_day_path(date: date.iso8601) %>
+              <%= link_to day_url,
+                          class: day.css_class,
+                          title: day.tooltip(date),
+                          data: local_assigns[:grid_link_data] || { turbo_frame: "activity_day_detail" } do %><% end %>
+            <% else %>
+              <div class="<%= day.css_class %>" title="<%= day.tooltip(date) %>"></div>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="grid-dates">
+    <span><%= label_start_date.strftime('%b %Y') %></span>
+    <span><%= end_date.strftime('%b %Y') %></span>
+  </div>
+</div>

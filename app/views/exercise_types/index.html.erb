@@ -1,0 +1,73 @@
+<% content_for :title, "Exercise Types" %>
+
+<div class="page">
+  <div class="page-header-flex">
+    <h1 class="page-title">Exercise Types</h1>
+    <%= link_to "New Exercise Type", new_exercise_type_path, class: "btn btn-primary" %>
+  </div>
+
+  <% if @exercise_types_by_category.any? %>
+    <div class="category-list">
+      <% ExerciseType.categories.keys.each do |category| %>
+        <% exercise_types = @exercise_types_by_category[category] %>
+        <% if exercise_types.present? %>
+          <div class="category-group">
+            <div class="category-divider">
+              <span class="category-divider-text"><%= category.titleize %></span>
+            </div>
+            <div class="stack">
+              <% exercise_types.each do |exercise_type| %>
+                <div class="card">
+                  <div class="flex-between">
+                    <div>
+                      <h2 class="text-xl font-semibold"><%= exercise_type.name %></h2>
+                      <p class="text-gray mt-1">
+                        Unit: <span class="font-medium"><%= exercise_type.unit %></span><%
+                        %><%= " · #{exercise_type.reps} reps" if exercise_type.reps.present? %><%
+                        %><%= " · #{exercise_type.rest_seconds}s rest" if exercise_type.rest_seconds.present? %>
+                      </p>
+                    </div>
+                    <div class="flex gap-2">
+                      <%= link_to exercise_type_path(exercise_type), class: "icon-link", title: "View Chart" do %>
+                        <%= icon(:bar_chart, size: :sm) %>
+                      <% end %>
+                      <%= link_to edit_exercise_type_path(exercise_type), class: "icon-link", title: "Edit" do %>
+                        <%= icon(:edit, size: :sm) %>
+                      <% end %>
+                      <%= button_to exercise_type, method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "icon-link icon-link-danger", title: "Delete" do %>
+                        <%= icon(:trash, size: :sm) %>
+                      <% end %>
+                    </div>
+                  </div>
+                  <div class="mt-4">
+                    <p class="text-sm text-muted mb-2">Targets:</p>
+                    <% if exercise_type.targets.any? %>
+                      <div class="stack-sm mb-3">
+                        <% exercise_type.targets.reorder(applicable_from: :asc).each do |target| %>
+                          <div class="flex-between text-sm">
+                            <span><%= target.value %> <%= exercise_type.unit %> from <%= target.applicable_from.to_date.strftime("%b %d, %Y") %></span>
+                            <%= button_to "Delete", exercise_type_target_path(exercise_type, target), method: :delete, data: { turbo_confirm: "Delete this target?" }, class: "btn-link-danger text-xs" %>
+                          </div>
+                        <% end %>
+                      </div>
+                    <% end %>
+                    <%= form_with url: exercise_type_targets_path(exercise_type), scope: :target, method: :post, class: "target-form" do |f| %>
+                      <%= f.number_field :value, step: :any, class: "form-input form-input-sm target-form-value", placeholder: "Value" %>
+                      <label class="target-form-date">
+                        <span class="text-sm text-muted">From:</span>
+                        <%= f.date_field :applicable_from, value: Date.current, class: "form-input form-input-sm" %>
+                      </label>
+                      <%= f.submit "Add", class: "btn btn-secondary btn-sm" %>
+                    <% end %>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <p class="text-muted">No exercise types defined yet. Create one to start logging activities.</p>
+  <% end %>
+</div>

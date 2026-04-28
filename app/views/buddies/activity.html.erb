@@ -1,0 +1,52 @@
+<% content_for :title, "#{@user.email}'s Activity" %>
+
+<div class="page">
+  <div class="page-header-flex">
+    <div>
+      <h1 class="page-title"><%= @user.email %></h1>
+      <p class="page-subtitle">Activity Log</p>
+    </div>
+    <div>
+      <%= link_to "Back to Buddies", buddies_path, class: "btn btn-outline" %>
+    </div>
+  </div>
+
+  <%= render "activity/activity_grid",
+             activity_data: @activity_data,
+             grid_day_url: ->(date) { day_buddy_path(@user, date: date.iso8601) },
+             grid_link_data: { turbo_frame: "_top" } %>
+
+  <% if @activity_logs.any? %>
+    <div class="activity-list">
+      <% @activity_logs_by_date.each do |date, logs| %>
+        <div class="date-divider">
+          <span class="date-divider-text"><%= date.strftime("%A, %B %d, %Y") %></span>
+        </div>
+        <div class="stack">
+          <% logs.each do |activity_log| %>
+            <% if activity_log.board_climb? %>
+              <% board_climb = @board_climbs_with_associations[activity_log.loggable_id] %>
+              <%= render "activity/board_climb_card", board_climb: board_climb, activity_log: activity_log, readonly: true if board_climb %>
+            <% elsif activity_log.exercise? %>
+              <% exercise = @exercises_with_associations[activity_log.loggable_id] %>
+              <%= render "activity/exercise_card", exercise: exercise, activity_log: activity_log, readonly: true, buddy: @user if exercise %>
+            <% elsif activity_log.gym_session? %>
+              <% gym_session = @gym_sessions_with_associations[activity_log.loggable_id] %>
+              <%= render "activity/gym_session_card", gym_session: gym_session, activity_log: activity_log, readonly: true if gym_session %>
+            <% elsif activity_log.crag_ascent? %>
+              <% crag_ascent = @crag_ascents_with_associations[activity_log.loggable_id] %>
+              <%= render "activity/crag_ascent_card", crag_ascent: crag_ascent, activity_log: activity_log, readonly: true if crag_ascent %>
+            <% end %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+  <% else %>
+    <div class="empty-state">
+      <h3>No activity yet</h3>
+      <p><%= @user.email %> hasn't logged any activity yet.</p>
+    </div>
+  <% end %>
+</div>

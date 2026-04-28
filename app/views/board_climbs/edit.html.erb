@@ -1,0 +1,76 @@
+<% content_for :title, "Edit Board Climb" %>
+
+<div class="page-sm">
+  <div class="mb-6">
+    <%= link_to "&larr; Back to Activity Log".html_safe, activity_path %>
+  </div>
+
+  <h1 class="page-title mb-6">Edit Board Climb</h1>
+
+  <div class="card">
+    <div class="mb-4">
+      <span class="text-muted">Problem:</span>
+      <span class="font-medium"><%= @board_climb.problem.name %></span>
+      <span class="text-sm text-muted">(<%= @board_climb.problem.grade %>)</span>
+    </div>
+
+    <%= form_with model: [@board, @problem, @board_climb] do |f| %>
+      <% if @board_climb.errors.any? %>
+        <div class="form-errors">
+          <h2><%= pluralize(@board_climb.errors.count, "error") %> prohibited this board climb from being saved:</h2>
+          <ul>
+            <% @board_climb.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        </div>
+      <% end %>
+
+      <% if @board_climb.problem.circuit? %>
+        <%= f.hidden_field :climb_type, value: "circuit" %>
+        <div class="form-group">
+          <%= f.label :number_of_moves, "Number of Moves", class: "form-label" %>
+          <%= f.number_field :number_of_moves, min: 1, class: "form-input", placeholder: "Moves completed", style: "width: 8rem" %>
+        </div>
+      <% else %>
+        <div class="form-group">
+          <label class="form-label">Type</label>
+          <div class="board-climb-type-options">
+            <label class="radio-label">
+              <%= f.radio_button :climb_type, "attempt" %>
+              <span>Attempt</span>
+            </label>
+            <label class="radio-label">
+              <%= f.radio_button :climb_type, "sent" %>
+              <span>Sent</span>
+            </label>
+            <label class="radio-label">
+              <%= f.radio_button :climb_type, "flash" %>
+              <span>Flash</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <%= f.label :attempts, class: "form-label" %>
+          <%= f.number_field :attempts, min: 1, class: "form-input", style: "width: 8rem" %>
+        </div>
+      <% end %>
+
+      <div class="form-group">
+        <%= f.label :climbed_at, "Date & Time", class: "form-label" %>
+        <%= f.datetime_local_field :climbed_at, value: @board_climb.climbed_at.strftime("%Y-%m-%dT%H:%M"), step: 60, class: "form-input" %>
+      </div>
+
+      <div class="form-group">
+        <%= f.label :notes, class: "form-label" %>
+        <%= f.text_area :notes, rows: 3, class: "form-textarea", placeholder: "Optional notes..." %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Update Board Climb", class: "btn btn-primary" %>
+        <%= link_to "Cancel", activity_path, class: "btn-link-muted" %>
+      </div>
+    <% end %>
+  </div>
+</div>

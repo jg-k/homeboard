@@ -1,0 +1,39 @@
+one:
+  route_name: The Nose
+  ascent_type: redpoint
+  gear_style: sport
+  grade: "7a"
+  crag_name: El Capitan
+  crag_path: "Europe > Spain > Catalonia"
+  country: Spain
+  comment: Great climb
+  quality: 3
+  ascent_date: 2025-06-15 10:00:00
+  thecrag_ascent_id: "12345678"
+
+# == Schema Information
+#
+# Table name: crag_ascents
+#
+#  id                :integer          not null, primary key
+#  ascent_date       :datetime         not null
+#  ascent_type       :string
+#  comment           :text
+#  country           :string
+#  crag_name         :string
+#  crag_path         :string
+#  gear_style        :string
+#  grade             :string
+#  partners          :string
+#  quality           :integer
+#  route_height      :integer
+#  route_name        :string           not null
+#  source            :string
+#  created_at        :datetime         not null
+#  updated_at        :datetime         not null
+#  thecrag_ascent_id :string
+#
+# Indexes
+#
+#  index_crag_ascents_on_thecrag_ascent_id  (thecrag_ascent_id) UNIQUE WHERE thecrag_ascent_id IS NOT NULL
+#

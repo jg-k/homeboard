@@ -1,0 +1,23 @@
+<div class="mt-4">
+  <p class="text-sm text-muted mb-2">Targets:</p>
+  <% if targetable.targets.any? %>
+    <div class="stack-sm mb-3">
+      <% targetable.targets.reorder(applicable_from: :asc).each do |target| %>
+        <div class="flex-between text-sm">
+          <span><%= target.value %> <%= targetable.unit %> from <%= target.applicable_from.to_date.strftime("%b %d, %Y") %></span>
+          <%= button_to delete_target_path.call(target), method: :delete, data: { turbo_confirm: "Delete this target?" }, class: "icon-link icon-link-danger", title: "Delete target" do %>
+            <%= icon(:trash, size: :sm) %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+  <%= form_with url: create_target_path, scope: :target, method: :post, class: "target-form" do |f| %>
+    <%= f.number_field :value, step: :any, class: "form-input form-input-sm target-form-value", placeholder: "Value" %>
+    <label class="target-form-date">
+      <span class="text-sm text-muted">From:</span>
+      <%= f.date_field :applicable_from, value: Date.current, class: "form-input form-input-sm" %>
+    </label>
+    <%= f.submit "Add", class: "btn btn-secondary btn-sm" %>
+  <% end %>
+</div>

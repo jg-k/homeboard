@@ -1,0 +1,30 @@
+<% if board_climbs.any? %>
+  <div class="board-climb-section mt-6">
+    <h3 class="text-lg font-semibold mb-3">Your Board Climb History</h3>
+    <div class="board-climb-history">
+      <% board_climbs.each do |board_climb| %>
+        <div class="board-climb-entry">
+          <div class="flex items-center gap-3">
+            <%= render Badge.new(board_climb.flash? ? :purple : (board_climb.sent? ? :green : (board_climb.circuit? ? :blue : :yellow))) { board_climb.climb_type.titleize } %>
+            <% if board_climb.attempts > 1 %>
+              <span class="text-sm text-muted"><%= board_climb.attempts %> attempts</span>
+            <% end %>
+            <% if board_climb.number_of_moves.present? %>
+              <span class="text-sm text-muted"><%= board_climb.number_of_moves %> moves</span>
+            <% end %>
+            <span class="text-sm text-muted">
+              <%= time_ago_in_words(board_climb.climbed_at) %> ago
+            </span>
+            <% if board_climb.notes.present? %>
+              <span class="text-sm"><%= truncate(board_climb.notes, length: 50) %></span>
+            <% end %>
+          </div>
+          <%= button_to "Delete",
+              board_problem_board_climb_path(@current_board, problem, board_climb),
+              method: :delete,
+              class: "btn-link-danger text-xs" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% end %>

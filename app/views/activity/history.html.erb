@@ -1,0 +1,15 @@
+<%= render PageLayout.new(title: "Activity History", subtitle: "Year by year") do %>
+  <div class="mb-6">
+    <%= link_to "&larr; Back to Activity Log".html_safe, activity_path %>
+  </div>
+
+  <% @years.each_with_index do |year_data, index| %>
+    <%= render "activity/activity_grid",
+               activity_data: year_data[:data],
+               grid_title: year_data[:year].to_s,
+               grid_start_date: year_data[:start_date],
+               grid_end_date: year_data[:end_date],
+               show_legend: index == 0,
+               grid_link_data: { turbo_frame: "_top" } %>
+  <% end %>
+<% end %>

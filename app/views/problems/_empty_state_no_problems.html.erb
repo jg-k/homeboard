@@ -1,0 +1,12 @@
+<div class="text-center py-8">
+  <p class="text-muted mb-4">No problems yet</p>
+  <% if @current_board.active_layout %>
+    <%= link_to "Create First Problem",
+                new_board_problem_path(@current_board, board_layout_id: @current_board.active_layout.id),
+                class: "btn-link#{' text-sm' if local_assigns[:small]}" %>
+  <% else %>
+    <%= link_to "Add Board Layout First",
+                @current_board,
+                class: "btn-link#{' text-sm' if local_assigns[:small]}" %>
+  <% end %>
+</div>

@@ -1,0 +1,34 @@
+<%= form_with model: metric do |f| %>
+  <% if metric.errors.any? %>
+    <div class="form-errors">
+      <h2><%= pluralize(metric.errors.count, "error") %> prohibited this metric from being saved:</h2>
+      <ul>
+        <% metric.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= f.label :name, class: "form-label" %>
+    <%= f.text_field :name, class: "form-input", placeholder: "e.g., Body Weight, Waist, Body Fat %" %>
+  </div>
+
+  <div class="form-group">
+    <%= f.label :unit, class: "form-label" %>
+    <%= f.text_field :unit, class: "form-input", placeholder: "e.g., kg, cm, %" %>
+  </div>
+
+  <% if metric.new_record? %>
+    <div class="form-group">
+      <%= f.label :initial_target, "Initial Target (optional)", class: "form-label" %>
+      <%= f.number_field :initial_target, step: :any, class: "form-input", placeholder: "e.g., 75" %>
+    </div>
+  <% end %>
+
+  <div class="form-actions">
+    <%= f.submit metric.new_record? ? "Create" : "Update", class: "btn btn-primary" %>
+    <%= link_to "Cancel", metrics_path, class: "btn btn-outline" %>
+  </div>
+<% end %>

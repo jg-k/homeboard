@@ -2,7 +2,7 @@
 
 A Rails app for climbers with a home spray wall who want to centralize all their climbing and related training data in one place. Build problems on your wall and track sends; log outdoor crag sessions; record conditioning exercises and metrics; sync your system board ticks (Kilter / Tension / MoonBoard) via [Boardsesh](https://www.boardsesh.com/); and watch it all add up week by week.
 
-Live at [homeboard.zone](https://homeboard.zone).
+Live at [homeboard.zone](https://homeboard.zone). Web app — works in any browser, and "Add to Home Screen" installs it as a PWA on iOS / Android for an offline-capable, full-screen experience.
 
 Hobby project — contributions welcome.
 
@@ -17,19 +17,16 @@ Hobby project — contributions welcome.
 
 ## Stack
 
-Standard Rails, plus Phlex for view components. Nothing exotic.
+Standard Rails, plus Phlex for view components.
 
-- Ruby 3.4, Rails 8.1
-- SQLite
-- Hotwire (Turbo + Stimulus), pure CSS
-- Solid Queue and Solid Cache
+- Rails + SQLite + Hotwire (Turbo + Stimulus) + Solis queue and cach
+- pure CSS
+- import maps
 - Phlex for view components (for experimentation...)
 - Devise for authentication
 - Kamal for deployment
 
 ## Setup
-
-Requires Ruby 3.4.7. Install with `rbenv install 3.4.7` or your version manager of choice.
 
 ```bash
 git clone https://github.com/jg-k/homeboard.git

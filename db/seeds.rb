@@ -59,19 +59,19 @@ Problem.create!(
   name: "Crimson Eagle Summit",
   grade: "6c",
   board_layout: layout,
-  start_holds: [ { x: 50, y: 85 } ],
-  hand_holds: [ { x: 40, y: 65 }, { x: 55, y: 45 }, { x: 45, y: 28 } ],
-  finish_holds: [ { x: 50, y: 12 } ]
+  start_holds: [ { x: 10, y: 88 } ],
+  hand_holds: [ { x: 25, y: 72 }, { x: 42, y: 55 }, { x: 58, y: 38 } ],
+  finish_holds: [ { x: 75, y: 20 } ]
 )
 
 Problem.create!(
   name: "Midnight Wolf Traverse",
   grade: "7b",
   board_layout: layout,
-  start_holds: [ { x: 30, y: 88 } ],
-  hand_holds: [ { x: 35, y: 70 }, { x: 50, y: 55 }, { x: 60, y: 38 }, { x: 70, y: 22 } ],
-  foot_holds: [ { x: 28, y: 60 }, { x: 40, y: 45 } ],
-  finish_holds: [ { x: 75, y: 10 } ]
+  start_holds: [ { x: 18, y: 88 } ],
+  hand_holds: [ { x: 32, y: 72 }, { x: 48, y: 58 }, { x: 62, y: 42 }, { x: 78, y: 28 } ],
+  foot_holds: [ { x: 24, y: 85 }, { x: 40, y: 70 } ],
+  finish_holds: [ { x: 85, y: 12 } ]
 )
 
 # Create exercise types and exercises for user1

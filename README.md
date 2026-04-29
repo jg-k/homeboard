@@ -2,7 +2,7 @@
 
 A Rails app for climbers with a home spray wall who want to centralize all their climbing and related training data in one place. Build problems on your wall and track sends; log outdoor crag sessions; record conditioning exercises and metrics; sync your system board ticks (Kilter / Tension / MoonBoard) via [Boardsesh](https://www.boardsesh.com/); and watch it all add up week by week.
 
-Live at [homeboard.zone](https://homeboard.zone).
+Live at [homeboard.zone](https://homeboard.zone). Web app — works in any browser, and "Add to Home Screen" installs it as a PWA on iOS / Android for an offline-capable, full-screen experience.
 
 Hobby project — contributions welcome.
 

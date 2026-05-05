@@ -47,12 +47,6 @@ class ActivityController < ApplicationController
   private
 
   def assign_loggable_associations(activity_logs)
-    loaded = ActivityLog::Loggables.for(activity_logs)
-    @board_climbs_with_associations = loaded[:board_climb]
-    @exercises_with_associations = loaded[:exercise]
-    @gym_sessions_with_associations = loaded[:gym_session]
-    @crag_ascents_with_associations = loaded[:crag_ascent]
-    @system_board_climbs_with_associations = loaded[:system_board_climb]
-    @hikes_with_associations = loaded[:hike]
+    @loggables_by_log_id = ActivityLog::Loggables.preload(activity_logs)
   end
 end

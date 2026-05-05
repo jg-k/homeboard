@@ -18,4 +18,11 @@ class ActivityLog::Loggables
       result[kind] = ids.any? ? loader.call(ids) : {}
     end
   end
+
+  def self.preload(activity_logs)
+    by_kind = self.for(activity_logs)
+    activity_logs.each_with_object({}) do |log, result|
+      result[log.id] = by_kind.dig(log.loggable_type.underscore.to_sym, log.loggable_id)
+    end
+  end
 end

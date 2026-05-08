@@ -10,7 +10,9 @@ class CragAscentCard < ActivityCard
       render Badge.new(ascent_badge_color) { crag_ascent.ascent_type.titleize }
     end
     if crag_ascent.gear_style.present?
-      render Badge.new(:blue) { crag_ascent.gear_style.titleize }
+      span(class: "gear-style-icon", title: crag_ascent.gear_style.titleize, aria_label: crag_ascent.gear_style.titleize) do
+        icon(crag_ascent.gear_style.to_sym, size: :sm)
+      end
     end
     span(class: "activity-title") { crag_ascent.route_name }
     if crag_ascent.grade.present?

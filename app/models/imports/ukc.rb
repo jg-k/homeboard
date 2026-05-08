@@ -7,6 +7,8 @@ class Imports::Ukc
     "Sent O/S" => "onsight",
     "AltLd O/S" => "onsight",
     "2nd O/S" => "onsight",
+    "2nd β" => "flash",
+    "2nd RP" => "redpoint",
     "O/S" => "onsight",
     "Lead Flash" => "flash",
     "Sent Flash" => "flash",

@@ -22,8 +22,14 @@ class Imports::Ukc::Scraper
   ALLOWED_NRESULTS = [ 25, 50, 75, 100 ].freeze
   CF_TITLE = /just a moment|attention required|sorry/i
 
+  GRADETYPE_TO_GEAR_STYLE = {
+    1 => "sport",
+    2 => "trad",
+    4 => "boulder"
+  }.freeze
+
   Row = Struct.new(:ukc_route_id, :ascent_date, :route_name, :grade, :quality,
-                   :ascent_type, :partners, :crag_name, :crag_path,
+                   :ascent_type, :gear_style, :partners, :crag_name, :crag_path,
                    :route_path, keyword_init: true)
 
   def initialize(user_id, limit: DEFAULT_LIMIT, browser_path: ENV["CHROME_BIN"] || "/usr/bin/google-chrome")
@@ -33,33 +39,42 @@ class Imports::Ukc::Scraper
   end
 
   def call
-    if @limit
-      parse_rows(fetch(nresults: nresults_for(@limit)))
-    else
-      full_scrape
+    rows = GRADETYPE_TO_GEAR_STYLE.flat_map do |gradetype, gear_style|
+      scrape_discipline(gradetype: gradetype, gear_style: gear_style)
     end
+
+    rows = rows.sort_by { |r| r.ascent_date || Time.zone.at(0) }.reverse
+    @limit ? rows.first(@limit) : rows
   end
 
   private
+
+  def scrape_discipline(gradetype:, gear_style:)
+    if @limit
+      parse_rows(fetch(gradetype: gradetype, nresults: nresults_for(@limit)), gear_style: gear_style)
+    else
+      full_scrape(gradetype: gradetype, gear_style: gear_style)
+    end
+  end
 
   def nresults_for(limit)
     ALLOWED_NRESULTS.find { |n| n >= limit } || ALLOWED_NRESULTS.last
   end
 
-  def full_scrape
-    first_html = fetch(nresults: ALLOWED_NRESULTS.last)
+  def full_scrape(gradetype:, gear_style:)
+    first_html = fetch(gradetype: gradetype, nresults: ALLOWED_NRESULTS.last)
     years = parse_years(Nokogiri::HTML(first_html))
-    return parse_rows(first_html) if years.empty?
+    return parse_rows(first_html, gear_style: gear_style) if years.empty?
 
-    years.flat_map { |year| scrape_year(year) }
+    years.flat_map { |year| scrape_year(year, gradetype: gradetype, gear_style: gear_style) }
   end
 
-  def scrape_year(year)
+  def scrape_year(year, gradetype:, gear_style:)
     rows = []
     pg = 1
     loop do
-      html = fetch(year: year, pg: pg, nresults: ALLOWED_NRESULTS.last)
-      page_rows = parse_rows(html, fixed_year: year)
+      html = fetch(gradetype: gradetype, year: year, pg: pg, nresults: ALLOWED_NRESULTS.last)
+      page_rows = parse_rows(html, fixed_year: year, gear_style: gear_style)
       rows.concat(page_rows)
 
       max_pg = parse_max_page(Nokogiri::HTML(html))
@@ -70,7 +85,7 @@ class Imports::Ukc::Scraper
     rows
   end
 
-  def fetch(year: nil, pg: 1, nresults: ALLOWED_NRESULTS.last)
+  def fetch(gradetype: nil, year: nil, pg: 1, nresults: ALLOWED_NRESULTS.last)
     browser = Ferrum::Browser.new(
       headless: true,
       browser_path: @browser_path,
@@ -89,15 +104,16 @@ class Imports::Ukc::Scraper
     page.headers.set("User-Agent" => USER_AGENT, "Accept-Language" => "en-US,en;q=0.9")
     page.command("Page.addScriptToEvaluateOnNewDocument", source: STEALTH_JS)
     page.command("Network.setUserAgentOverride", userAgent: USER_AGENT, acceptLanguage: "en-US,en", platform: "Linux x86_64")
-    page.go_to(url_for(year: year, pg: pg, nresults: nresults))
+    page.go_to(url_for(gradetype: gradetype, year: year, pg: pg, nresults: nresults))
     wait_for_logbook(page)
     page.body
   ensure
     browser&.quit
   end
 
-  def url_for(year:, pg:, nresults:)
+  def url_for(gradetype:, year:, pg:, nresults:)
     params = { id: @user_id, nresults: nresults, pg: pg }
+    params[:gradetype] = gradetype if gradetype
     params[:year] = year if year
     "https://www.ukclimbing.com/logbook/showlog.php?#{params.to_query}"
   end
@@ -110,7 +126,7 @@ class Imports::Ukc::Scraper
     raise "ukc blocked the request (CF challenge): #{page.title}" if page.title.to_s.match?(CF_TITLE)
   end
 
-  def parse_rows(html, fixed_year: nil)
+  def parse_rows(html, fixed_year: nil, gear_style: nil)
     doc = Nokogiri::HTML(html)
     table = doc.at_css("#myLogbookTable table")
     return [] unless table
@@ -118,17 +134,15 @@ class Imports::Ukc::Scraper
     current_year = fixed_year || parse_years(doc).max || Time.zone.today.year
     prev_md = nil
 
-    rows = table.css("tbody tr").filter_map do |tr|
+    table.css("tbody tr").filter_map do |tr|
       md = parse_month_day(tr.at_css("td.logdate")&.text)
       next nil unless md
 
       current_year -= 1 if !fixed_year && prev_md && md > prev_md
       prev_md = md
 
-      parse_row(tr, current_year)
+      parse_row(tr, current_year, gear_style)
     end
-
-    @limit ? rows.first(@limit) : rows
   end
 
   def parse_years(doc)
@@ -142,7 +156,7 @@ class Imports::Ukc::Scraper
     pg_input&.[]("data-slider-max").to_i.then { |n| n.positive? ? n : 1 }
   end
 
-  def parse_row(tr, year)
+  def parse_row(tr, year, gear_style)
     route_anchor = tr.at_css("td.climb a.climbName")
     return nil unless route_anchor
 
@@ -161,6 +175,7 @@ class Imports::Ukc::Scraper
       grade: grade,
       quality: quality,
       ascent_type: ascent_label,
+      gear_style: gear_style,
       partners: partners,
       crag_name: crag_anchor&.text&.strip,
       crag_path: crag_anchor&.[]("href"),

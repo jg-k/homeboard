@@ -6,8 +6,8 @@ class Imports::Ukc::ScraperTest < ActiveSupport::TestCase
     @scraper = Imports::Ukc::Scraper.new("363619")
   end
 
-  test "parses ascent rows from logbook table" do
-    rows = @scraper.send(:parse_rows, @html)
+  test "parses ascent rows and tags them with the supplied gear_style" do
+    rows = @scraper.send(:parse_rows, @html, gear_style: "boulder")
 
     assert_equal 2, rows.size
 
@@ -16,6 +16,7 @@ class Imports::Ukc::ScraperTest < ActiveSupport::TestCase
     assert_equal "f5", white_wine.grade
     assert_nil white_wine.quality
     assert_equal "Sent O/S", white_wine.ascent_type
+    assert_equal "boulder", white_wine.gear_style
     assert_equal "Kyloe-in-the-woods (Kyloe-In)", white_wine.crag_name
     assert_equal Date.new(2026, 5, 6), white_wine.ascent_date.to_date
 
@@ -24,13 +25,14 @@ class Imports::Ukc::ScraperTest < ActiveSupport::TestCase
     assert_equal "E1 5b", magic_flute.grade
     assert_equal 2, magic_flute.quality
     assert_equal "Lead O/S", magic_flute.ascent_type
+    assert_equal "boulder", magic_flute.gear_style
     assert_equal "Back Bowden Doors", magic_flute.crag_name
     assert_equal Date.new(2026, 1, 28), magic_flute.ascent_date.to_date
   end
 
   test "decrements year when month/day jumps forward (rows are date-desc)" do
     html = synthetic_logbook(2024, [ "5 Aug", "12 Mar", "20 Dec", "1 Feb" ])
-    rows = @scraper.send(:parse_rows, html)
+    rows = @scraper.send(:parse_rows, html, gear_style: "trad")
 
     assert_equal [
       Date.new(2024, 8, 5),
@@ -38,6 +40,7 @@ class Imports::Ukc::ScraperTest < ActiveSupport::TestCase
       Date.new(2023, 12, 20),
       Date.new(2023, 2, 1)
     ], rows.map { |r| r.ascent_date.to_date }
+    assert rows.all? { |r| r.gear_style == "trad" }
   end
 
   test "parse_grade_cell separates stars from grade" do

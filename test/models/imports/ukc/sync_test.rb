@@ -10,14 +10,14 @@ class Imports::Ukc::SyncTest < ActiveSupport::TestCase
       Imports::Ukc::Scraper::Row.new(
         ukc_route_id: "43768", ascent_date: Time.zone.local(2026, 5, 6),
         route_name: "White Wine", grade: "f5", quality: nil,
-        ascent_type: "Sent O/S", partners: nil,
+        ascent_type: "Sent O/S", gear_style: "boulder", partners: nil,
         crag_name: "Kyloe-in-the-woods", crag_path: "/logbook/crags/kyloe-838/",
         route_path: "/logbook/crags/kyloe-838/white_wine-43768"
       ),
       Imports::Ukc::Scraper::Row.new(
         ukc_route_id: "324", ascent_date: Time.zone.local(2026, 1, 28),
         route_name: "Magic Flute", grade: "E1 5b", quality: 2,
-        ascent_type: "Lead O/S", partners: "Sam",
+        ascent_type: "Lead O/S", gear_style: "trad", partners: "Sam",
         crag_name: "Back Bowden Doors", crag_path: "/logbook/crags/back_bowden-822/",
         route_path: "/logbook/crags/back_bowden-822/magic_flute-324"
       )
@@ -43,9 +43,12 @@ class Imports::Ukc::SyncTest < ActiveSupport::TestCase
     assert_equal "onsight", ascent.ascent_type
     assert_equal "ukc_scrape", ascent.source
 
+    assert_equal "boulder", ascent.gear_style
+
     trad = CragAscent.find_by(ukc_route_id: "324")
     assert_equal 2, trad.quality
     assert_equal "onsight", trad.ascent_type
+    assert_equal "trad", trad.gear_style
     assert_equal "Sam", trad.partners
   end
 

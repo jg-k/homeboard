@@ -36,6 +36,7 @@ class Imports::Ukc::Sync
           grade: row.grade,
           quality: row.quality,
           ascent_type: Imports::Ukc::ASCENT_TYPE_MAP[row.ascent_type],
+          gear_style: row.gear_style,
           partners: row.partners,
           crag_name: row.crag_name,
           crag_path: row.crag_path,

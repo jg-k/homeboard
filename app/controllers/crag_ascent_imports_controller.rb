@@ -47,26 +47,26 @@ class CragAscentImportsController < ApplicationController
   def sync_thecrag
     username = params[:thecrag_username].to_s.strip
     if username.blank?
-      redirect_to new_crag_ascent_import_path, alert: "Please enter your theCrag username."
+      redirect_to settings_path, alert: "Please enter your theCrag username."
       return
     end
 
     current_user.update(thecrag_username: username)
     ThecragSyncJob.perform_later(current_user.id, username)
-    redirect_to new_crag_ascent_import_path,
+    redirect_to settings_path,
                 notice: "Syncing your latest ascents from theCrag — refresh in a moment."
   end
 
   def sync_ukc
     ukc_user_id = extract_ukc_user_id(params[:ukc_user_id])
     if ukc_user_id.blank?
-      redirect_to new_crag_ascent_import_path, alert: "Please enter your UKC user ID or logbook URL."
+      redirect_to settings_path, alert: "Please enter your UKC user ID or logbook URL."
       return
     end
 
     current_user.update(ukc_user_id: ukc_user_id)
     UkcSyncJob.perform_later(current_user.id, ukc_user_id)
-    redirect_to new_crag_ascent_import_path,
+    redirect_to settings_path,
                 notice: "Syncing your latest ascents from UKC — refresh in a moment."
   end
 

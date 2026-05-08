@@ -6,6 +6,8 @@ class Settings::IntegrationsSection < ApplicationComponent
   def view_template
     render SettingsSection.new(title: "Integrations") do
       boardsesh_row
+      thecrag_row
+      ukc_row
     end
   end
 
@@ -50,6 +52,46 @@ class Settings::IntegrationsSection < ApplicationComponent
             data: { turbo_confirm: "Disconnect your Boardsesh account?" }
           button_to "Clear data", boardsesh_data_path, method: :delete, class: "btn btn-danger btn-sm",
             data: { turbo_confirm: "Delete all imported Boardsesh climbs? This cannot be undone." }
+        end
+      end
+    end
+  end
+
+  def thecrag_row
+    div(class: "settings-row") do
+      div(class: "settings-label") do
+        span(class: "font-medium") { "theCrag" }
+        p(class: "text-sm text-muted") { "Sync your latest ascents from theCrag." }
+        if @current_user.thecrag_synced_at
+          p(class: "text-sm text-muted") { "Last synced: #{helpers.time_ago_in_words(@current_user.thecrag_synced_at)} ago" }
+        end
+      end
+      div(class: "settings-value") do
+        form_with url: sync_thecrag_crag_ascent_imports_path, method: :post, data: { turbo_frame: "_top" } do |f|
+          div(class: "flex gap-2 flex-wrap items-center") do
+            f.text_field :thecrag_username, value: @current_user.thecrag_username, placeholder: "username", class: "form-input form-input-sm", required: true
+            f.submit @current_user.thecrag_username.present? ? "Sync" : "Connect & sync", class: "btn btn-primary btn-sm"
+          end
+        end
+      end
+    end
+  end
+
+  def ukc_row
+    div(class: "settings-row") do
+      div(class: "settings-label") do
+        span(class: "font-medium") { "UKC" }
+        p(class: "text-sm text-muted") { "Sync your latest ascents from UK Climbing." }
+        if @current_user.ukc_synced_at
+          p(class: "text-sm text-muted") { "Last synced: #{helpers.time_ago_in_words(@current_user.ukc_synced_at)} ago" }
+        end
+      end
+      div(class: "settings-value") do
+        form_with url: sync_ukc_crag_ascent_imports_path, method: :post, data: { turbo_frame: "_top" } do |f|
+          div(class: "flex gap-2 flex-wrap items-center") do
+            f.text_field :ukc_user_id, value: @current_user.ukc_user_id, placeholder: "user ID or logbook URL", class: "form-input form-input-sm", required: true
+            f.submit @current_user.ukc_user_id.present? ? "Sync" : "Connect & sync", class: "btn btn-primary btn-sm"
+          end
         end
       end
     end

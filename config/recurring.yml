@@ -20,9 +20,11 @@ production:
     schedule: at 5am every monday
 
   # Sync UKC ascents for all connected users (weekly)
-  ukc_sync_all:
-    class: UkcSyncAllJob
-    schedule: at 6am every monday
+  # Disabled: UKC's Cloudflare hard-blocks (1020) requests from the prod IP.
+  # See memory project_offprod_ukc_scrape.md for the off-prod plan.
+  # ukc_sync_all:
+  #   class: UkcSyncAllJob
+  #   schedule: at 6am every monday
 
   # Sync Boardsesh ticks (kilter/tension) for all connected users
   boardsesh_sync_all:

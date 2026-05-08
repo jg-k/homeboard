@@ -78,6 +78,8 @@ class Settings::IntegrationsSection < ApplicationComponent
   end
 
   def ukc_row
+    return if Rails.env.production?
+
     div(class: "settings-row") do
       div(class: "settings-label") do
         span(class: "font-medium") { "UKC" }

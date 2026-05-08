@@ -1,0 +1,42 @@
+class Imports::Ukc
+  Result = Struct.new(:imported_count, :skipped_count, :errors, keyword_init: true)
+
+  ASCENT_TYPE_MAP = {
+    "Lead O/S" => "onsight",
+    "Solo O/S" => "onsight",
+    "Sent O/S" => "onsight",
+    "AltLd O/S" => "onsight",
+    "2nd O/S" => "onsight",
+    "O/S" => "onsight",
+    "Lead Flash" => "flash",
+    "Sent Flash" => "flash",
+    "Flash" => "flash",
+    "Lead β" => "flash",
+    "Solo β" => "flash",
+    "Sent β" => "flash",
+    "Lead RP" => "redpoint",
+    "Solo RP" => "redpoint",
+    "Lead" => "redpoint",
+    "AltLd" => "redpoint",
+    "Lead G/U" => "send",
+    "Solo G/U" => "send",
+    "Solo" => "send",
+    "Sent" => "send",
+    "Sent x" => "send",
+    "DWS" => "send",
+    "Lead rpt" => "tick",
+    "Solo rpt" => "tick",
+    "Sent rpt" => "tick",
+    "Top Rope" => "tick",
+    "TR" => "tick",
+    "2nd" => "tick",
+    "Hang" => "hang_dog",
+    "Lead dog" => "hang_dog",
+    "Dog" => "hang_dog",
+    "Lead dnf" => "attempt",
+    "Solo dnf" => "attempt",
+    "Sent dnf" => "attempt",
+    "Attempt" => "attempt",
+    "DNF" => "attempt"
+  }.freeze
+end

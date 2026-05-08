@@ -19,6 +19,11 @@ production:
     class: ThecragSyncAllJob
     schedule: at 5am every monday
 
+  # Sync UKC ascents for all connected users (weekly)
+  ukc_sync_all:
+    class: UkcSyncAllJob
+    schedule: at 6am every monday
+
   # Sync Boardsesh ticks (kilter/tension) for all connected users
   boardsesh_sync_all:
     class: BoardseshSyncAllJob

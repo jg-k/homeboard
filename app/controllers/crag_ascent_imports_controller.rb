@@ -57,7 +57,27 @@ class CragAscentImportsController < ApplicationController
                 notice: "Syncing your latest ascents from theCrag — refresh in a moment."
   end
 
+  def sync_ukc
+    ukc_user_id = extract_ukc_user_id(params[:ukc_user_id])
+    if ukc_user_id.blank?
+      redirect_to new_crag_ascent_import_path, alert: "Please enter your UKC user ID or logbook URL."
+      return
+    end
+
+    current_user.update(ukc_user_id: ukc_user_id)
+    UkcSyncJob.perform_later(current_user.id, ukc_user_id)
+    redirect_to new_crag_ascent_import_path,
+                notice: "Syncing your latest ascents from UKC — refresh in a moment."
+  end
+
   private
+
+  def extract_ukc_user_id(input)
+    raw = input.to_s.strip
+    return nil if raw.blank?
+
+    raw[/\bid=(\d+)/, 1] || raw[/\A\d+\z/]
+  end
 
   def import_service_for(csv_content)
     first_line = csv_content.force_encoding("UTF-8").delete_prefix("\uFEFF").lines.first.to_s

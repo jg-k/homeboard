@@ -73,10 +73,12 @@ end
 #  thecrag_synced_at         :datetime
 #  thecrag_username          :string
 #  uid                       :string
+#  ukc_synced_at             :datetime
 #  created_at                :datetime         not null
 #  updated_at                :datetime         not null
 #  boardsesh_user_id         :string
 #  default_grading_system_id :integer
+#  ukc_user_id               :string
 #
 # Indexes
 #

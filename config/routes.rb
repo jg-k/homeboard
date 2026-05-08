@@ -50,6 +50,7 @@ Rails.application.routes.draw do
   resources :crag_ascent_imports, only: [ :new, :create ] do
     collection do
       post :sync_thecrag
+      post :sync_ukc
     end
   end
   resources :crag_ascents, only: [ :destroy ]

@@ -29,6 +29,27 @@
   </div>
 
   <div class="card mt-6">
+    <h2>Sync from UKC</h2>
+    <p class="form-hint">
+      Pulls your most recent UKC ascents (latest 100). Use the DLOG CSV import above for the initial backfill, then this to keep up to date. Enter your numeric UKC user ID or paste your logbook URL (e.g. <code>https://www.ukclimbing.com/logbook/showlog.php?id=363619</code>).
+    </p>
+
+    <%= form_with url: sync_ukc_crag_ascent_imports_path, method: :post do |f| %>
+      <div class="form-group">
+        <%= f.label :ukc_user_id, "UKC user ID or logbook URL", class: "form-label" %>
+        <%= f.text_field :ukc_user_id, value: current_user.ukc_user_id, class: "form-input", required: true %>
+      </div>
+
+      <div class="form-actions">
+        <%= f.submit "Sync now", class: "btn btn-primary" %>
+        <% if current_user.ukc_synced_at %>
+          <span class="form-hint">Last synced <%= time_ago_in_words(current_user.ukc_synced_at) %> ago</span>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="card mt-6">
     <h2>Sync from theCrag</h2>
     <p class="form-hint">
       Pulls your most recent ascents directly from theCrag (newest 100). Use this after the initial CSV import to keep up to date.

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_28_213130) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_08_205332) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -105,8 +105,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_28_213130) do
     t.string "route_name", null: false
     t.string "source"
     t.string "thecrag_ascent_id"
+    t.string "ukc_route_id"
     t.datetime "updated_at", null: false
     t.index ["thecrag_ascent_id"], name: "index_crag_ascents_on_thecrag_ascent_id", unique: true, where: "thecrag_ascent_id IS NOT NULL"
+    t.index ["ukc_route_id"], name: "index_crag_ascents_on_ukc_route_id", where: "ukc_route_id IS NOT NULL"
   end
 
   create_table "exercise_types", force: :cascade do |t|
@@ -288,6 +290,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_28_213130) do
     t.datetime "thecrag_synced_at"
     t.string "thecrag_username"
     t.string "uid"
+    t.datetime "ukc_synced_at"
+    t.string "ukc_user_id"
     t.datetime "updated_at", null: false
     t.index ["default_grading_system_id"], name: "index_users_on_default_grading_system_id"
     t.index ["email"], name: "index_users_on_email", unique: true

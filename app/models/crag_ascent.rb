@@ -45,8 +45,10 @@ end
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #  thecrag_ascent_id :string
+#  ukc_route_id      :string
 #
 # Indexes
 #
 #  index_crag_ascents_on_thecrag_ascent_id  (thecrag_ascent_id) UNIQUE WHERE thecrag_ascent_id IS NOT NULL
+#  index_crag_ascents_on_ukc_route_id       (ukc_route_id) WHERE ukc_route_id IS NOT NULL
 #

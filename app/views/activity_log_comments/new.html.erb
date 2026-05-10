@@ -1,0 +1,10 @@
+<% content_for :title, "Add Comment" %>
+
+<div class="page-sm">
+  <h1 class="page-title">Add Comment</h1>
+  <p class="text-muted mb-4">On <%= smart_date(@activity_log.performed_at) %></p>
+
+  <div class="card">
+    <%= render "form", comment: @comment, form_url: activity_log_comments_path(@activity_log) %>
+  </div>
+</div>

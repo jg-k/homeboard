@@ -1,6 +1,7 @@
 class ActivityLog < ApplicationRecord
   belongs_to :user
   delegated_type :loggable, types: %w[BoardClimb Exercise GymSession CragAscent SystemBoardClimb Hike]
+  has_many :comments, class_name: "ActivityLogComment", dependent: :destroy
 
   validates :performed_at, presence: true
 

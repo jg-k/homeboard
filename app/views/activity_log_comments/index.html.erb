@@ -1,0 +1,47 @@
+<% content_for :title, @category ? "#{@category.titleize} Comments" : "Activity Comments" %>
+
+<div class="page">
+  <div class="page-header-flex">
+    <h1 class="page-title">
+      <%= @category ? "#{@category.titleize} Comments" : "Activity Comments" %>
+    </h1>
+  </div>
+
+  <div class="tabs mb-4">
+    <%= link_to "All",
+        activity_comments_path,
+        class: "tab#{' tab-active' if @category.nil?}",
+        data: { turbo_action: "replace" } %>
+    <% ActivityLogComment::CATEGORIES.each do |cat| %>
+      <%= link_to "#{cat.titleize} (#{@counts[cat] || 0})",
+          activity_comments_path(category: cat),
+          class: "tab#{' tab-active' if @category == cat}",
+          data: { turbo_action: "replace" } %>
+    <% end %>
+  </div>
+
+  <% if @comments.any? %>
+    <div class="activity-list">
+      <% @comments.group_by { |c| c.created_at.to_date }.each do |date, comments| %>
+        <div class="activity-date-group">
+          <div class="date-divider">
+            <span class="date-divider-text"><%= date.strftime("%A, %B %d, %Y") %></span>
+          </div>
+          <div class="stack">
+            <% comments.each do |comment| %>
+              <%= render "comment_row", comment: comment %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="empty-state">
+      <h3>No <%= @category&.titleize || "" %> comments yet</h3>
+      <p>Add comments from any activity log entry to track <%= @category || "your" %> observations.</p>
+      <div class="empty-state-actions">
+        <%= link_to "Go to Activity Log", activity_path, class: "btn btn-primary" %>
+      </div>
+    </div>
+  <% end %>
+</div>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_08_205332) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_10_215040) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -37,6 +37,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_08_205332) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "activity_log_comments", force: :cascade do |t|
+    t.integer "activity_log_id", null: false
+    t.text "body", null: false
+    t.string "category", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["activity_log_id"], name: "index_activity_log_comments_on_activity_log_id"
+    t.index ["category"], name: "index_activity_log_comments_on_category"
   end
 
   create_table "activity_logs", force: :cascade do |t|
@@ -301,6 +311,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_08_205332) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "activity_log_comments", "activity_logs"
   add_foreign_key "activity_logs", "users"
   add_foreign_key "board_climbs", "problems"
   add_foreign_key "board_layouts", "boards"

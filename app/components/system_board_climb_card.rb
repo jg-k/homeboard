@@ -35,6 +35,12 @@ class SystemBoardClimbCard < ActivityCard
 
   def notes = system_board_climb.comment
 
+  def activity_actions
+    @activity_actions ||= ActivityActions.new(
+      comment_path: new_activity_log_comment_path(@activity_log)
+    )
+  end
+
   def attempts_present?
     system_board_climb.attempts.present? && system_board_climb.attempts > 0
   end

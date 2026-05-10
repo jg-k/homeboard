@@ -30,6 +30,7 @@ class ExerciseCard < ActivityCard
 
   def activity_actions
     @activity_actions ||= ActivityActions.new(
+      comment_path: new_activity_log_comment_path(@activity_log),
       edit_path: edit_exercise_path(exercise),
       delete_path: exercise_path(exercise),
       delete_confirm: "Are you sure you want to delete this activity?",

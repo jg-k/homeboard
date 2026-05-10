@@ -11,6 +11,13 @@ Rails.application.routes.draw do
   get "activity/history", to: "activity#history", as: :activity_history
   get "activity/day/:date", to: "activity#day", as: :activity_day
 
+  # Activity log comments
+  get "activity_comments", to: "activity_log_comments#index", as: :activity_comments
+  resources :activity_logs, only: [] do
+    resources :comments, only: %i[new create edit update destroy],
+              controller: "activity_log_comments"
+  end
+
   # Settings
   get "settings", to: "settings#index", as: :settings
   patch "settings/toggle_allow_follows", to: "settings#toggle_allow_follows", as: :toggle_allow_follows_settings

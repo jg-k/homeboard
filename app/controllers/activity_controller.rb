@@ -5,7 +5,7 @@ class ActivityController < ApplicationController
     @activity_data = ActivityCalendar.new(current_user).summary_by_date
 
     @pagy, @activity_logs = pagy(
-      current_user.activity_logs.includes(loggable: []).chronological,
+      current_user.activity_logs.includes(:comments, loggable: []).chronological,
       limit: 30
     )
 
@@ -17,7 +17,7 @@ class ActivityController < ApplicationController
     @date = Date.parse(params[:date])
     @activity_logs = current_user.activity_logs
       .where(performed_at: @date.all_day)
-      .includes(loggable: [])
+      .includes(:comments, loggable: [])
       .chronological
 
     assign_loggable_associations(@activity_logs)

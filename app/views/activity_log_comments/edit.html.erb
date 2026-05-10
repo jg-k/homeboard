@@ -1,0 +1,9 @@
+<% content_for :title, "Edit Comment" %>
+
+<div class="page-sm">
+  <h1 class="page-title">Edit Comment</h1>
+
+  <div class="card">
+    <%= render "form", comment: @comment, form_url: activity_log_comment_path(@activity_log, @comment) %>
+  </div>
+</div>

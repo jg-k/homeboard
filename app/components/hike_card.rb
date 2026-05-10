@@ -21,6 +21,7 @@ class HikeCard < ActivityCard
 
   def activity_actions
     @activity_actions ||= ActivityActions.new(
+      comment_path: new_activity_log_comment_path(@activity_log),
       edit_path: edit_hike_path(hike),
       delete_path: hike_path(hike),
       delete_confirm: "Are you sure you want to delete this hike?",

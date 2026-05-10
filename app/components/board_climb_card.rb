@@ -41,6 +41,7 @@ class BoardClimbCard < ActivityCard
 
   def activity_actions
     @activity_actions ||= ActivityActions.new(
+      comment_path: new_activity_log_comment_path(@activity_log),
       edit_path: edit_board_problem_board_climb_path(board_climb.problem.board_layout.board, board_climb.problem, board_climb),
       delete_path: board_problem_board_climb_path(board_climb.problem.board_layout.board, board_climb.problem, board_climb),
       delete_confirm: "Are you sure you want to delete this board climb?"

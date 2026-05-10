@@ -33,6 +33,7 @@ class ActivityCard < ApplicationComponent
           render actions
         end
       end
+      render_comments
     end
   end
 
@@ -46,4 +47,37 @@ class ActivityCard < ApplicationComponent
   def render_meta = raise NotImplementedError
   def notes = nil
   def activity_actions = nil
+
+  def render_comments
+    comments = @activity_log.comments.to_a
+    return if comments.empty?
+
+    div(class: "activity-comments") do
+      comments.each do |comment|
+        div(class: "activity-comment") do
+          render Badge.new(ActivityLogComment.category_badge_color(comment.category)) do
+            plain ActivityLogComment.category_label(comment.category)
+          end
+          span(class: "activity-comment-body") { comment.body }
+          unless @readonly
+            div(class: "activity-comment-actions") do
+              link_to edit_activity_log_comment_path(@activity_log, comment),
+                      class: "btn-icon",
+                      title: "Edit comment",
+                      data: { turbo_frame: "_top" } do
+                icon(:edit, size: :sm)
+              end
+              button_to activity_log_comment_path(@activity_log, comment),
+                        method: :delete,
+                        class: "btn-icon-danger",
+                        title: "Delete comment",
+                        data: { turbo_confirm: "Delete this comment?", turbo_frame: "_top" } do
+                icon(:trash, size: :sm)
+              end
+            end
+          end
+        end
+      end
+    end
+  end
 end

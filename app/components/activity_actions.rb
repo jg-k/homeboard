@@ -1,5 +1,6 @@
 class ActivityActions < ApplicationComponent
-  def initialize(delete_path:, delete_confirm:, edit_path: nil, primary_action: nil)
+  def initialize(comment_path:, edit_path: nil, delete_path: nil, delete_confirm: nil, primary_action: nil)
+    @comment_path = comment_path
     @edit_path = edit_path
     @delete_path = delete_path
     @delete_confirm = delete_confirm
@@ -15,11 +16,8 @@ class ActivityActions < ApplicationComponent
           data: { turbo_frame: "_top" } do
             icon(@primary_action[:icon])
           end
-        render_dropdown
-      else
-        render_edit_button if @edit_path
-        render_delete_button
       end
+      render_dropdown
     end
   end
 
@@ -32,6 +30,11 @@ class ActivityActions < ApplicationComponent
         icon(:more_vertical)
       end
       div(class: "dropdown-menu hidden", data: { dropdown_target: "menu" }) do
+        link_to @comment_path, class: "dropdown-item",
+                data: { turbo_frame: "_top" } do
+          icon(:message_circle)
+          plain " Add comment"
+        end
         if @edit_path
           link_to @edit_path, class: "dropdown-item",
                   data: { turbo_frame: "_top" } do
@@ -39,26 +42,15 @@ class ActivityActions < ApplicationComponent
             plain " Edit"
           end
         end
-        button_to @delete_path, method: :delete,
-                  data: { turbo_confirm: @delete_confirm, turbo_frame: "_top" },
-                  class: "dropdown-item dropdown-item-danger" do
-          icon(:trash)
-          plain "Delete"
+        if @delete_path
+          button_to @delete_path, method: :delete,
+                    data: { turbo_confirm: @delete_confirm, turbo_frame: "_top" },
+                    class: "dropdown-item dropdown-item-danger" do
+            icon(:trash)
+            plain " Delete"
+          end
         end
       end
-    end
-  end
-
-  def render_edit_button
-    link_to @edit_path, class: "btn-icon", title: "Edit", data: { turbo_frame: "_top" } do
-      icon(:edit)
-    end
-  end
-
-  def render_delete_button
-    button_to @delete_path, method: :delete, class: "btn-icon-danger", title: "Delete",
-      data: { turbo_confirm: @delete_confirm, turbo_frame: "_top" } do
-      icon(:trash)
     end
   end
 end

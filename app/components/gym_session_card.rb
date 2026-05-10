@@ -18,6 +18,7 @@ class GymSessionCard < ActivityCard
 
   def activity_actions
     @activity_actions ||= ActivityActions.new(
+      comment_path: new_activity_log_comment_path(@activity_log),
       primary_action: {
         path: new_gym_session_path(
           number_of_boulders: gym_session.number_of_boulders,

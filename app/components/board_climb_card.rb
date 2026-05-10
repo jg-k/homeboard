@@ -37,8 +37,6 @@ class BoardClimbCard < ActivityCard
     span { smart_date(@activity_log.performed_at) }
   end
 
-  def notes = board_climb.notes
-
   def activity_actions
     @activity_actions ||= ActivityActions.new(
       comment_path: new_activity_log_comment_path(@activity_log),

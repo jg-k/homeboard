@@ -15,9 +15,6 @@
             <span class="text-sm text-muted">
               <%= time_ago_in_words(board_climb.climbed_at) %> ago
             </span>
-            <% if board_climb.notes.present? %>
-              <span class="text-sm"><%= truncate(board_climb.notes, length: 50) %></span>
-            <% end %>
           </div>
           <%= button_to "Delete",
               board_problem_board_climb_path(@current_board, problem, board_climb),

@@ -28,9 +28,7 @@ end
 #
 #  id               :integer          not null, primary key
 #  added_weight     :decimal(, )
-#  notes            :text
 #  reps             :integer
-#  rpe              :decimal(, )
 #  value            :decimal(, )
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null

@@ -4,15 +4,15 @@ class ActivityExport
   CSV_SCHEMAS = {
     "BoardClimb" => {
       filename: "board_climbs.csv",
-      headers: %w[date name grade climb_type moves notes]
+      headers: %w[date name grade climb_type moves]
     },
     "Exercise" => {
       filename: "exercises.csv",
-      headers: %w[date name value unit notes]
+      headers: %w[date name value unit]
     },
     "GymSession" => {
       filename: "gym_sessions.csv",
-      headers: %w[date boulders circuits duration_minutes notes]
+      headers: %w[date boulders circuits duration_minutes]
     },
     "CragAscent" => {
       filename: "crag_ascents.csv",
@@ -111,22 +111,19 @@ class ActivityExport
         name: loggable.problem&.name,
         grade: loggable.problem&.grade,
         climb_type: loggable.climb_type,
-        moves: loggable.number_of_moves,
-        notes: loggable.notes
+        moves: loggable.number_of_moves
       )
     when "Exercise"
       base.merge(
         name: loggable.name,
         value: loggable.value,
-        unit: loggable.unit,
-        notes: loggable.notes
+        unit: loggable.unit
       )
     when "GymSession"
       base.merge(
         boulders: loggable.number_of_boulders,
         circuits: loggable.number_of_circuits,
-        duration_minutes: loggable.duration_minutes,
-        notes: loggable.notes
+        duration_minutes: loggable.duration_minutes
       )
     when "CragAscent"
       base.merge(
@@ -163,12 +160,12 @@ class ActivityExport
     case type
     when "BoardClimb"
       [ date, loggable.problem&.name, loggable.problem&.grade,
-        loggable.climb_type, loggable.number_of_moves, loggable.notes ]
+        loggable.climb_type, loggable.number_of_moves ]
     when "Exercise"
-      [ date, loggable.name, loggable.value, loggable.unit, loggable.notes ]
+      [ date, loggable.name, loggable.value, loggable.unit ]
     when "GymSession"
       [ date, loggable.number_of_boulders, loggable.number_of_circuits,
-        loggable.duration_minutes, loggable.notes ]
+        loggable.duration_minutes ]
     when "CragAscent"
       [ date, loggable.route_name, loggable.grade, loggable.ascent_type,
         loggable.gear_style, loggable.crag_name, loggable.country,

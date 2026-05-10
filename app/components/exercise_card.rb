@@ -26,8 +26,6 @@ class ExerciseCard < ActivityCard
     span { smart_date(@activity_log.performed_at) }
   end
 
-  def notes = exercise.notes
-
   def activity_actions
     @activity_actions ||= ActivityActions.new(
       comment_path: new_activity_log_comment_path(@activity_log),
@@ -60,7 +58,6 @@ class ExerciseCard < ActivityCard
     parts = +"#{exercise.value} #{exercise.unit}"
     parts << " × #{exercise.effective_reps} reps" if exercise.effective_reps.present?
     parts << ", + #{exercise.added_weight.to_i}kg" if exercise.added_weight.present?
-    parts << " @ RPE #{exercise.rpe}" if exercise.rpe.present?
     parts << ", #{exercise.rest_seconds}s rest" if exercise.rest_seconds.present?
     parts
   end

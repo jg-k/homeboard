@@ -48,6 +48,6 @@ class BoardClimbsController < ApplicationController
   end
 
   def board_climb_params
-    params.require(:board_climb).permit(:climb_type, :notes, :climbed_at, :number_of_moves, :attempts)
+    params.require(:board_climb).permit(:climb_type, :climbed_at, :number_of_moves, :attempts)
   end
 end

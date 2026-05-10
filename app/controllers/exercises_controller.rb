@@ -59,6 +59,6 @@ class ExercisesController < ApplicationController
   private
 
   def exercise_params
-    params.require(:exercise).permit(:value, :notes, :performed_at, :added_weight, :rpe, :reps)
+    params.require(:exercise).permit(:value, :performed_at, :added_weight, :reps)
   end
 end

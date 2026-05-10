@@ -5,6 +5,10 @@
     <%= link_to "Fitness", stats_path(tab: "fitness"),
         class: "tab-link #{@tab == 'fitness' ? 'tab-active' : ''}" %>
   </div>
+  <div class="text-right mb-6">
+    <%= link_to "View activity comments &rarr;".html_safe, activity_comments_path,
+        class: "text-sm text-muted" %>
+  </div>
   <% if @tab == "overview" %>
     <div class="card mb-6">
       <h2 class="text-xl font-semibold mb-4">Climbing attempts and sends per week</h2>

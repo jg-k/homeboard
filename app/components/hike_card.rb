@@ -17,8 +17,6 @@ class HikeCard < ActivityCard
     span { "#{hike.duration_hours} hrs" } if hike.duration_hours.present?
   end
 
-  def notes = hike.notes
-
   def activity_actions
     @activity_actions ||= ActivityActions.new(
       comment_path: new_activity_log_comment_path(@activity_log),

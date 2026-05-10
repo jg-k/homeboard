@@ -61,7 +61,7 @@ class ActivityExportTest < ActiveSupport::TestCase
     ActivityLog.where(user: @user).destroy_all
 
     exercise_type = exercise_types(:running)
-    Exercise.create!(exercise_type: exercise_type, value: 30, notes: "Morning run", performed_at: Time.current)
+    Exercise.create!(exercise_type: exercise_type, value: 30, performed_at: Time.current)
 
     data = JSON.parse(@service.to_json)
     entry = data.find { |e| e["type"] == "exercise" }
@@ -75,7 +75,7 @@ class ActivityExportTest < ActiveSupport::TestCase
   test "to_json exports gym session" do
     ActivityLog.where(user: @user).destroy_all
 
-    session = GymSession.create!(number_of_boulders: 15, duration_minutes: 90, notes: "Good session")
+    session = GymSession.create!(number_of_boulders: 15, duration_minutes: 90)
     session.create_activity_log!(user: @user, performed_at: Time.current)
 
     data = JSON.parse(@service.to_json)
@@ -84,7 +84,6 @@ class ActivityExportTest < ActiveSupport::TestCase
     assert_not_nil entry
     assert_equal 15, entry["boulders"]
     assert_equal 90, entry["duration_minutes"]
-    assert_equal "Good session", entry["notes"]
   end
 
   test "to_json only exports activities for the given user" do
@@ -134,7 +133,7 @@ class ActivityExportTest < ActiveSupport::TestCase
     gym_rows = CSV.parse(entries["gym_sessions.csv"], headers: true)
     assert_equal 1, gym_rows.size
     assert_equal "10", gym_rows[0]["boulders"]
-    assert_equal %w[date boulders circuits duration_minutes notes], gym_rows.headers
+    assert_equal %w[date boulders circuits duration_minutes], gym_rows.headers
   end
 
   test "to_csv_zip returns empty zip when no activities" do

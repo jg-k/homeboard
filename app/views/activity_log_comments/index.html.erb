@@ -9,16 +9,32 @@
 
   <div class="tabs mb-4">
     <%= link_to "All",
-        activity_comments_path,
+        activity_comments_path(type: @activity_type),
         class: "tab#{' tab-active' if @category.nil?}",
         data: { turbo_action: "replace" } %>
     <% ActivityLogComment::CATEGORIES.each do |cat| %>
       <%= link_to "#{cat.titleize} (#{@counts[cat] || 0})",
-          activity_comments_path(category: cat),
+          activity_comments_path(category: cat, type: @activity_type),
           class: "tab#{' tab-active' if @category == cat}",
           data: { turbo_action: "replace" } %>
     <% end %>
   </div>
+
+  <%= form_with url: activity_comments_path, method: :get, local: true,
+      class: "form-inline mb-4",
+      data: { controller: "auto-submit" } do %>
+    <% if @category %><%= hidden_field_tag :category, @category %><% end %>
+    <div class="form-group">
+      <%= label_tag :type, "Activity type", class: "form-label" %>
+      <%= select_tag :type,
+          options_for_select(
+            [ [ "All activities", "" ] ] + ActivityLogCommentsController::ACTIVITY_TYPES.map { |t| [ t.titleize, t ] },
+            @activity_type
+          ),
+          class: "form-select",
+          data: { action: "change->auto-submit#submit" } %>
+    </div>
+  <% end %>
 
   <% if @comments.any? %>
     <div class="activity-list">

@@ -14,8 +14,6 @@ class GymSessionCard < ActivityCard
     span { smart_date(@activity_log.performed_at) }
   end
 
-  def notes = gym_session.notes
-
   def activity_actions
     @activity_actions ||= ActivityActions.new(
       comment_path: new_activity_log_comment_path(@activity_log),
@@ -24,8 +22,7 @@ class GymSessionCard < ActivityCard
           number_of_boulders: gym_session.number_of_boulders,
           number_of_routes: gym_session.number_of_routes,
           number_of_circuits: gym_session.number_of_circuits,
-          duration_minutes: gym_session.duration_minutes,
-          notes: gym_session.notes
+          duration_minutes: gym_session.duration_minutes
         ),
         title: "Duplicate to today",
         icon: :copy

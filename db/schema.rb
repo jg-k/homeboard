@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_10_215040) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_10_221557) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -67,7 +67,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_10_215040) do
     t.string "climb_type", null: false
     t.datetime "climbed_at", null: false
     t.datetime "created_at", null: false
-    t.text "notes"
     t.integer "number_of_moves"
     t.integer "problem_id", null: false
     t.datetime "updated_at", null: false
@@ -139,9 +138,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_10_215040) do
     t.decimal "added_weight"
     t.datetime "created_at", null: false
     t.integer "exercise_type_id", null: false
-    t.text "notes"
     t.integer "reps"
-    t.decimal "rpe"
     t.datetime "updated_at", null: false
     t.decimal "value"
     t.index ["exercise_type_id"], name: "index_exercises_on_exercise_type_id"
@@ -172,7 +169,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_10_215040) do
   create_table "gym_sessions", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "duration_minutes"
-    t.text "notes"
     t.integer "number_of_boulders"
     t.integer "number_of_circuits"
     t.integer "number_of_routes"
@@ -185,7 +181,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_10_215040) do
     t.decimal "duration_hours", precision: 4, scale: 2
     t.integer "elevation_gain_m"
     t.string "name", null: false
-    t.text "notes"
     t.datetime "updated_at", null: false
   end
 

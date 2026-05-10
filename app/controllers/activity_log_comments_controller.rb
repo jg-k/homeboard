@@ -3,14 +3,18 @@ class ActivityLogCommentsController < ApplicationController
   before_action :set_activity_log, only: %i[new create edit update destroy]
   before_action :set_comment, only: %i[edit update destroy]
 
+  ACTIVITY_TYPES = %w[BoardClimb Exercise GymSession CragAscent SystemBoardClimb Hike].freeze
+
   def index
     @category = params[:category].presence_in(ActivityLogComment::CATEGORIES)
+    @activity_type = params[:type].presence_in(ACTIVITY_TYPES)
     scope = ActivityLogComment
       .joins(:activity_log)
       .where(activity_logs: { user_id: current_user.id })
       .includes(activity_log: :loggable)
       .order(created_at: :desc)
     scope = scope.where(category: @category) if @category
+    scope = scope.where(activity_logs: { loggable_type: @activity_type }) if @activity_type
     @comments = scope
     @counts = ActivityLogComment
       .joins(:activity_log)

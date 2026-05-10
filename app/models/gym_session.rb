@@ -28,7 +28,6 @@ end
 #
 #  id                 :integer          not null, primary key
 #  duration_minutes   :integer
-#  notes              :text
 #  number_of_boulders :integer
 #  number_of_circuits :integer
 #  number_of_routes   :integer

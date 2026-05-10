@@ -30,7 +30,6 @@ end
 #  attempts        :integer          default(1), not null
 #  climb_type      :string           not null
 #  climbed_at      :datetime         not null
-#  notes           :text
 #  number_of_moves :integer
 #  created_at      :datetime         not null
 #  updated_at      :datetime         not null

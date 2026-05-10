@@ -20,3 +20,24 @@ class ActivityLogComment < ApplicationRecord
     end
   end
 end
+
+# == Schema Information
+#
+# Table name: activity_log_comments
+#
+#  id              :integer          not null, primary key
+#  body            :text             not null
+#  category        :string           not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  activity_log_id :integer          not null
+#
+# Indexes
+#
+#  index_activity_log_comments_on_activity_log_id  (activity_log_id)
+#  index_activity_log_comments_on_category         (category)
+#
+# Foreign Keys
+#
+#  activity_log_id  (activity_log_id => activity_logs.id)
+#

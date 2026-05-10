@@ -15,7 +15,6 @@ end
 #  duration_hours   :decimal(4, 2)
 #  elevation_gain_m :integer
 #  name             :string           not null
-#  notes            :text
 #  created_at       :datetime         not null
 #  updated_at       :datetime         not null
 #

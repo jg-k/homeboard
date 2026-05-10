@@ -6,8 +6,7 @@ class GymSessionsController < ApplicationController
       number_of_boulders: params[:number_of_boulders],
       number_of_routes: params[:number_of_routes],
       number_of_circuits: params[:number_of_circuits],
-      duration_minutes: params[:duration_minutes],
-      notes: params[:notes]
+      duration_minutes: params[:duration_minutes]
     )
   end
 
@@ -52,6 +51,6 @@ class GymSessionsController < ApplicationController
   private
 
   def gym_session_params
-    params.require(:gym_session).permit(:number_of_boulders, :number_of_routes, :number_of_circuits, :duration_minutes, :notes, :performed_at)
+    params.require(:gym_session).permit(:number_of_boulders, :number_of_routes, :number_of_circuits, :duration_minutes, :performed_at)
   end
 end

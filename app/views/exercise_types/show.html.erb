@@ -49,13 +49,9 @@
                   <%= exercise.value %> <%= exercise.unit %><%
                   %><%= " &times; #{exercise.effective_reps} reps".html_safe if exercise.effective_reps.present? %><%
                   %><%= ", + #{exercise.added_weight.to_i}kg" if exercise.added_weight.present? %><%
-                  %><%= " @ RPE #{exercise.rpe}" if exercise.rpe.present? %><%
                   %><%= ", #{exercise.rest_seconds}s rest" if exercise.rest_seconds.present? %>
                 </span>
                 <div class="text-sm text-muted mt-1"><%= smart_date(exercise.activity_log.performed_at) %></div>
-                <% if exercise.notes.present? %>
-                  <div class="text-sm text-gray mt-1"><%= exercise.notes %></div>
-                <% end %>
               </div>
               <div class="flex gap-2">
                 <%= link_to edit_exercise_path(exercise, return_to: exercise_type_path(@exercise_type)), class: "icon-link", title: "Edit" do %>

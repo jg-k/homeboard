@@ -5,6 +5,7 @@ Rails.application.routes.draw do
 
   root "home#index"
   get "getting-started", to: "pages#getting_started", as: :getting_started
+  get "offline", to: "pages#offline", as: :offline
 
   # Activity log
   get "activity", to: "activity#index", as: :activity
@@ -90,11 +91,13 @@ Rails.application.routes.draw do
     member do
       patch :soft_delete
       get :export
+      get :offline_manifest
     end
     resources :board_layouts, only: [ :create, :update ] do
       member do
         patch :soft_delete
         patch :archive
+        get :image
       end
     end
     resources :problems, except: [ :destroy ] do

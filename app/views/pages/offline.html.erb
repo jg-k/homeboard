@@ -1,0 +1,10 @@
+<% content_for :title, "Offline" %>
+<div class="page text-center py-12" data-controller="offline-redirect">
+  <h1 class="text-2xl font-bold mb-4">This page isn't available offline</h1>
+  <p class="text-muted mb-8">
+    You're offline and this page wasn't pinned for offline use.
+    Pages and problems on a pinned board stay accessible — use the menu below
+    to head back to one of those.
+  </p>
+  <%= link_to "Go to your boards", boards_path, class: "btn btn-primary", data: { offline_redirect_target: "link" } %>
+</div>

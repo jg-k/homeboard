@@ -162,6 +162,10 @@ class ProblemsController < ApplicationController
     @boards = current_user.boards.kept.order(:name)
     @current_board = @board
     @problems = filtered_and_sorted_problems
+    @all_problems_for_offline = @board.problems.kept.joins(:board_layout).merge(BoardLayout.not_archived)
+    @sent_problem_ids = BoardClimb.for_user(current_user).successful
+      .where(problem_id: @all_problems_for_offline.select(:id)).pluck(:problem_id).to_set
+    @grades_order = @board.grading_system&.grades || []
   end
 
   def filtered_and_sorted_problems
@@ -214,7 +218,9 @@ class ProblemsController < ApplicationController
   end
 
   def filter_params
-    params.permit(:sort, :filter, :min_grade, :max_grade).to_h.compact_blank
+    params.slice(:sort, :filter, :min_grade, :max_grade)
+          .permit(:sort, :filter, :min_grade, :max_grade)
+          .to_h.compact_blank
   end
 
   helper_method :filter_params

@@ -2,6 +2,22 @@
 <div class="page">
   <h1 class="page-title mb-2"><%= @board.name %></h1>
   <p class="text-muted mb-6"><%= @board.description %></p>
+  <div class="card mb-6"
+       data-controller="board-offline"
+       data-board-offline-board-id-value="<%= @board.id %>"
+       data-board-offline-manifest-path-value="<%= offline_manifest_board_path(@board, format: :json) %>">
+    <div class="flex justify-between items-center gap-4">
+      <div>
+        <h3 class="font-medium">Offline access</h3>
+        <p class="text-sm text-muted">Cache problems and layout images for use without a connection.</p>
+        <p class="text-xs text-muted" data-board-offline-target="status"></p>
+      </div>
+      <button type="button"
+              data-board-offline-target="button"
+              data-action="board-offline#toggle"
+              class="btn btn-primary btn-sm">Make available offline</button>
+    </div>
+  </div>
   <div class="mb-8">
     <h2 class="text-2xl font-semibold mb-4">Layouts</h2>
     <% @board.board_layouts.kept.order(active: :desc, created_at: :desc).each do |layout| %>
@@ -46,7 +62,7 @@
         </div>
         <% if layout.image_layout.attached? %>
           <div class="mb-4">
-            <%= image_tag layout.display_image, class: "layout-image", alt: "Layout image for #{layout.name}" %>
+            <%= image_tag image_board_board_layout_path(@board, layout), class: "layout-image", alt: "Layout image for #{layout.name}" %>
           </div>
         <% end %>
         <div class="upload-form mb-4">

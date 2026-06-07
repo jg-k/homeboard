@@ -22,7 +22,7 @@
               <h2 class="text-xl font-semibold">Problems</h2>
               <%= render "problems_header_actions" %>
             </div>
-            <div class="problems-list">
+            <div class="problems-list" data-controller="offline-filter">
               <% if @problems.any? %>
                 <% @problems.each do |problem| %>
                   <%= render "problem_list_item", problem: problem %>

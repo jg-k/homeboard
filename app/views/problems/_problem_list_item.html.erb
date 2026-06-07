@@ -1,6 +1,19 @@
+<%
+  grade_index = (@grades_order || []).index(problem.grade) || -1
+  sent = (defined?(@sent_problem_ids) && @sent_problem_ids&.include?(problem.id)) ? true : false
+%>
 <%= link_to board_problem_path(@current_board, problem, filter_params),
             class: "problem-link #{problem == @selected_problem ? 'problem-selected' : ''}",
-            data: {turbo_frame: dom_id(@board, :problem_detail), turbo_action: "advance"} do %>
+            data: {
+              turbo_frame: dom_id(@board, :problem_detail),
+              turbo_action: "advance",
+              problem_id: problem.id,
+              grade: problem.grade,
+              grade_index: grade_index,
+              circuit: problem.circuit?,
+              sent: sent,
+              created_at: problem.created_at.to_i
+            } do %>
   <div class="flex justify-between items-center">
     <div>
       <h3 class="font-medium"><%= problem.name %></h3>

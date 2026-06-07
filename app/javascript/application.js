@@ -5,3 +5,7 @@ import "Chart.bundle"
 import "chartjs-adapter-date-fns"
 import "chart_plugins"
 import "chartkick"
+
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("/service-worker", { scope: "/" }).catch(() => {})
+}

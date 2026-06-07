@@ -1,6 +1,7 @@
-<div class="board-climb-section">
+<div class="board-climb-section" data-controller="offline-climb-form">
   <h3 class="text-lg font-semibold mb-3">Log a Board Climb</h3>
-  <%= form_with model: [@current_board, problem, problem.board_climbs.build], url: board_problem_board_climbs_path(@current_board, problem), local: true do |f| %>
+  <p class="text-xs text-muted mb-2" data-offline-climb-form-target="status"></p>
+  <%= form_with model: [@current_board, problem, problem.board_climbs.build], url: board_problem_board_climbs_path(@current_board, problem), local: true, html: { data: { turbo: false, action: "submit->offline-climb-form#submit" } } do |f| %>
     <% if problem.circuit? %>
       <%= f.hidden_field :climb_type, value: "circuit" %>
       <div class="form-group">

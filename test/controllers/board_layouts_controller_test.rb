@@ -25,4 +25,24 @@ class BoardLayoutsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to board_path(@board)
     assert @board_layout.reload.discarded?
   end
+
+  test "image action serves the layout image bytes" do
+    @board.users << @user unless @board.users.include?(@user)
+    @board_layout.image_layout.attach(
+      io: File.open(Rails.root.join("test/fixtures/files/test_image.png")),
+      filename: "test_image.png",
+      content_type: "image/png"
+    )
+
+    get image_board_board_layout_url(@board, @board_layout)
+    assert_response :success
+    assert_equal "image/png", response.media_type
+    assert response.body.bytesize.positive?
+  end
+
+  test "image action returns 404 when no image attached" do
+    @board.users << @user unless @board.users.include?(@user)
+    get image_board_board_layout_url(@board, @board_layout)
+    assert_response :not_found
+  end
 end

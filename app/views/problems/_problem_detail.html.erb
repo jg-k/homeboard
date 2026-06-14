@@ -6,10 +6,10 @@
        data-swipe-nav-prev-url-value="<%= local_assigns[:prev_problem] ? board_problem_path(@current_board, local_assigns[:prev_problem], filter_params) : '' %>"
        data-swipe-nav-next-url-value="<%= local_assigns[:next_problem] ? board_problem_path(@current_board, local_assigns[:next_problem], filter_params) : '' %>"
        data-swipe-nav-frame-id-value="<%= frame_id %>"
-       data-problem-data-current-image-url="<%= url_for(problem.board_layout.display_image) %>"
+       data-problem-data-current-image-url="<%= image_board_board_layout_path(@current_board, problem.board_layout) %>"
        class="mb-4">
     <div data-hold-marker-target="container" class="image-container">
-      <%= image_tag problem.board_layout.display_image, data: { hold_marker_target: "image" } %>
+      <%= image_tag image_board_board_layout_path(@current_board, problem.board_layout), data: { hold_marker_target: "image" } %>
     </div>
   </div>
 <% end %>
@@ -22,7 +22,7 @@
            data-problem-data-finish-holds-value="<%= problem.finish_holds.to_json %>"
            data-problem-data-hand-holds-value="<%= problem.hand_holds.to_json %>"
            data-problem-data-foot-holds-value="<%= problem.foot_holds.to_json %>"
-           data-problem-data-image-url-value="<%= url_for(problem.board_layout.display_image) %>"
+           data-problem-data-image-url-value="<%= image_board_board_layout_path(@current_board, problem.board_layout) %>"
            data-problem-data-prev-url-value="<%= local_assigns[:prev_problem] ? board_problem_path(@current_board, local_assigns[:prev_problem], filter_params) : '' %>"
            data-problem-data-next-url-value="<%= local_assigns[:next_problem] ? board_problem_path(@current_board, local_assigns[:next_problem], filter_params) : '' %>"
            data-problem-data-frame-id-value="<%= frame_id %>"
@@ -131,7 +131,7 @@
   <% else %>
     <% if @current_board.active_layout&.image_layout&.attached? %>
       <div class="empty-problems-image-container">
-        <%= image_tag @current_board.active_layout.display_image, class: "empty-problems-image", alt: "Board layout" %>
+        <%= image_tag image_board_board_layout_path(@current_board, @current_board.active_layout), class: "empty-problems-image", alt: "Board layout" %>
         <div class="empty-problems-overlay">
           <%= link_to "Create First Problem",
                       new_board_problem_path(@current_board, board_layout_id: @current_board.active_layout.id),

@@ -1,4 +1,12 @@
-<%= form_with model: [@current_board, problem], url: problem.persisted? ? board_problem_path(@current_board, problem) : board_problems_path(@current_board, board_layout_id: problem.board_layout.id), data: { turbo_frame: "_top" } do |form| %>
+<%
+  form_data = {
+    turbo: false,
+    controller: "offline-problem-form",
+    action: "submit->offline-problem-form#submit",
+    offline_problem_form_return_to: problem.persisted? ? board_problem_path(@current_board, problem) : board_problems_path(@current_board)
+  }
+%>
+<%= form_with model: [@current_board, problem], url: problem.persisted? ? board_problem_path(@current_board, problem) : board_problems_path(@current_board, board_layout_id: problem.board_layout.id), data: form_data do |form| %>
   <div class="mb-4"
                data-controller="hold-marker"
                data-hold-marker-editable-value="true"
@@ -40,7 +48,7 @@
                 data-hold-marker-target="container"
                 data-action="click->hold-marker#imageClicked resize@window->hold-marker#windowResized"
                 class="image-container mb-4">
-        <%= image_tag problem.board_layout.display_image,
+        <%= image_tag image_board_board_layout_path(@current_board, problem.board_layout),
                     data: { hold_marker_target: "image" } %>
       </div>
     <% end %>

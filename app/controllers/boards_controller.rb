@@ -2,7 +2,7 @@ class BoardsController < ApplicationController
   include BoardLayoutsHelper
 
   before_action :authenticate_user!
-  before_action :set_board, only: %i[ show edit update destroy export ]
+  before_action :set_board, only: %i[ show edit update destroy export offline_manifest ]
 
   # GET /boards or /boards.json
   def index
@@ -72,6 +72,32 @@ class BoardsController < ApplicationController
   def export
     pdf = BoardExport.new(@board, current_user).to_pdf
     send_data pdf, filename: "#{@board.name.parameterize}-problems.pdf", type: "application/pdf", disposition: "attachment"
+  end
+
+  def offline_manifest
+    layouts = @board.board_layouts.kept.includes(image_layout_attachment: :blob)
+    problems = Problem.kept.where(board_layout_id: layouts.map(&:id))
+
+    render json: {
+      board_id: @board.id,
+      board_url: board_url(@board),
+      generated_at: Time.current.to_i,
+      csrf_token: form_authenticity_token,
+      layouts: layouts.map { |l|
+        {
+          id: l.id,
+          image_url: (l.image_layout.attached? ? image_board_board_layout_url(@board, l) : nil),
+          image_etag: (l.image_layout.attached? ? l.image_layout.blob.checksum : nil)
+        }
+      },
+      problems: problems.map { |p|
+        {
+          id: p.id,
+          url: board_problem_url(@board, p),
+          updated_at: p.updated_at.to_i
+        }
+      }
+    }
   end
 
   private

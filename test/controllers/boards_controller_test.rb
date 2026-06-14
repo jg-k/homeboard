@@ -47,4 +47,14 @@ class BoardsControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to boards_url
   end
+
+  test "offline_manifest returns problems and layouts as JSON" do
+    get offline_manifest_board_url(@board, format: :json)
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert_equal @board.id, body["board_id"]
+    assert body.key?("problems")
+    assert body.key?("layouts")
+    assert body.key?("csrf_token")
+  end
 end

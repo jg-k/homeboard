@@ -1,27 +1,23 @@
+<%#
+  Prev/next always render as anchors, even when there is nowhere to go: the
+  offline-filter controller rewrites these in place when a cached page is
+  filtered client-side, and it needs an element to hand an href to. An
+  anchor without an href is inert, same as the span it replaces.
+%>
 <div class="problem-nav mb-4">
-  <% if prev_problem %>
-    <%= link_to board_problem_path(@current_board, prev_problem, filter_params),
-                class: "problem-nav-btn",
-                data: { turbo_frame: dom_id(@current_board, :problem_detail_mobile) } do %>
-      <%= icon(:chevron_left) %>
-    <% end %>
-  <% else %>
-    <span class="problem-nav-btn problem-nav-disabled">
-      <%= icon(:chevron_left) %>
-    </span>
+  <%= tag.a href: (prev_problem ? board_problem_path(@current_board, prev_problem, filter_params) : nil),
+            class: "problem-nav-btn #{'problem-nav-disabled' unless prev_problem}",
+            data: { turbo_frame: dom_id(@current_board, :problem_detail_mobile),
+                    offline_filter_target: "navPrev" } do %>
+    <%= icon(:chevron_left) %>
   <% end %>
-  <span class="problem-nav-position">
+  <span class="problem-nav-position" data-offline-filter-target="navPosition">
     <%= problem_position %> / <%= problem_count %>
   </span>
-  <% if next_problem %>
-    <%= link_to board_problem_path(@current_board, next_problem, filter_params),
-                class: "problem-nav-btn",
-                data: { turbo_frame: dom_id(@current_board, :problem_detail_mobile) } do %>
-      <%= icon(:chevron_right) %>
-    <% end %>
-  <% else %>
-    <span class="problem-nav-btn problem-nav-disabled">
-      <%= icon(:chevron_right) %>
-    </span>
+  <%= tag.a href: (next_problem ? board_problem_path(@current_board, next_problem, filter_params) : nil),
+            class: "problem-nav-btn #{'problem-nav-disabled' unless next_problem}",
+            data: { turbo_frame: dom_id(@current_board, :problem_detail_mobile),
+                    offline_filter_target: "navNext" } do %>
+    <%= icon(:chevron_right) %>
   <% end %>
 </div>

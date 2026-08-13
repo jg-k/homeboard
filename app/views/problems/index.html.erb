@@ -14,6 +14,17 @@
       </div>
     </div>
     <% if @current_board %>
+      <%#
+        offline-filter spans both breakpoints: the sidebar list it reads from
+        lives in the desktop branch but is present (just hidden) on mobile,
+        and the nav it rewrites lives in the mobile branch. `applied` records
+        what the server actually filtered by, so the controller can tell a
+        live render from a cached one whose query string the SW dropped.
+      %>
+      <div data-controller="offline-filter"
+           data-offline-filter-applied-value="<%= filter_params.to_json %>"
+           data-offline-filter-grades-value="<%= (@grades_order || []).to_json %>"
+           data-offline-filter-board-path-value="<%= board_problems_path(@current_board) %>">
       <%# Desktop: sidebar + detail layout (shown for both on edit) %>
       <div class="dashboard-grid <%= 'dashboard-grid-edit' if @editing %>">
         <div class="problems-sidebar">
@@ -22,7 +33,7 @@
               <h2 class="text-xl font-semibold">Problems</h2>
               <%= render "problems_header_actions" %>
             </div>
-            <div class="problems-list" data-controller="offline-filter">
+            <div class="problems-list" data-offline-filter-target="list">
               <% if @problems.any? %>
                 <% @problems.each do |problem| %>
                   <%= render "problem_list_item", problem: problem %>
@@ -68,6 +79,7 @@
             </div>
           <% end %>
         <% end %>
+      </div>
       </div>
     <% else %>
       <div class="text-center py-12">

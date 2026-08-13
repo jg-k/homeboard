@@ -14,7 +14,12 @@
   </div>
 <% end %>
 
-<%= turbo_frame_tag frame_id, data: {turbo_action: "advance"} do %>
+<%# problem_id lets offline-filter tell whether the pane's problem survived the
+    filter; editing stops it navigating away from a form with unsaved work. %>
+<%= turbo_frame_tag frame_id, data: { turbo_action: "advance",
+                                      problem_id: problem&.id,
+                                      editing: @editing.present?,
+                                      offline_filter_target: "detail" } do %>
   <% if problem %>
     <% if problem.board_layout.image_layout.attached? && !(@editing) %>
       <div data-controller="problem-data"

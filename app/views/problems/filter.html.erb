@@ -2,7 +2,9 @@
 <div class="page page-sm pt-4 pb-8">
   <h1 class="text-2xl font-bold mb-4">Filter Problems</h1>
 
-  <%= form_with url: board_problems_path(@current_board), method: :get, local: true, class: "stack" do |f| %>
+  <%= form_with url: board_problems_path(@current_board), method: :get, local: true, class: "stack",
+                data: { controller: "offline-filter-form",
+                        offline_filter_form_applied_value: filter_params.to_json } do |f| %>
     <% if @current_board.grading_system&.grades&.any? %>
       <div class="card">
         <h2 class="text-lg font-semibold mb-4">Grade Range</h2>

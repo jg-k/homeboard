@@ -87,6 +87,9 @@ export default class extends Controller {
     }
     // Default "new problem" form (uses the active layout).
     urls.push(`${manifest.board_url}/problems/new`)
+    // Filter form. Without this the filter button dead-ends on the offline
+    // shell, so the offline-filter controller never gets any params to apply.
+    urls.push(`${manifest.board_url}/problems/filter`)
     for (const u of this.assetUrlsFromDocument()) urls.push(u)
     return [...new Set(urls)]
   }

@@ -35,12 +35,14 @@ self.addEventListener("install", (event) => {
 
 self.addEventListener("activate", (event) => {
   event.waitUntil((async () => {
-    const names = await caches.keys()
-    await Promise.all(names.filter(n => !KNOWN_CACHES.includes(n)).map(n => caches.delete(n)))
-    // Re-fetch the offline shell on every SW update so changes to the
-    // /offline route or its auth posture take effect without forcing
-    // every user to re-pin their boards.
-    await refreshOfflineShell()
+    try {
+      const names = await caches.keys()
+      await Promise.all(names.filter(n => !KNOWN_CACHES.includes(n)).map(n => caches.delete(n)))
+      // Re-fetch the offline shell on every SW update so changes to the
+      // /offline route or its auth posture take effect without forcing
+      // every user to re-pin their boards.
+      await refreshOfflineShell()
+    } catch (_) { /* cache storage unavailable — still claim clients */ }
     await self.clients.claim()
   })())
 })
@@ -62,47 +64,65 @@ function isAssetRequest(request) {
   return false
 }
 
+// Cache storage can break independently of the network (corruption,
+// eviction under storage pressure). If it does, every branch here must
+// degrade to a plain network fetch — never take the app down with it.
 self.addEventListener("fetch", (event) => {
   const request = event.request
   if (request.method !== "GET") return
 
   event.respondWith((async () => {
-    const pinCache = await caches.open(PIN_CACHE)
-    const keyed = cacheKey(request.url)
-    const pinned = await pinCache.match(keyed)
-
-    if (pinned) {
-      event.waitUntil((async () => {
-        try {
-          const fresh = await fetch(keyed, { credentials: "same-origin" })
-          if (fresh.ok) await pinCache.put(keyed, fresh.clone())
-        } catch (_) { /* offline */ }
-      })())
-      return pinned
-    }
-
-    if (isAssetRequest(request)) {
-      const assetCache = await caches.open(ASSET_CACHE)
-      const cached = await assetCache.match(keyed)
-      const network = fetch(request).then(res => {
-        if (res.ok) assetCache.put(keyed, res.clone())
-        return res
-      }).catch(() => null)
-      return cached || (await network) || Response.error()
-    }
+    try {
+      const cached = await respondFromCache(event, request)
+      if (cached) return cached
+    } catch (_) { /* cache storage unavailable — fall through to network */ }
 
     try {
       return await fetch(request)
     } catch (_) {
       if (request.mode === "navigate") {
-        const cache = await caches.open(PIN_CACHE)
-        const fallback = await cache.match(OFFLINE_URL)
-        if (fallback) return fallback
+        try {
+          const cache = await caches.open(PIN_CACHE)
+          const fallback = await cache.match(OFFLINE_URL)
+          if (fallback) return fallback
+        } catch (_) { /* cache storage unavailable */ }
       }
       return Response.error()
     }
   })())
 })
+
+async function respondFromCache(event, request) {
+  const keyed = cacheKey(request.url)
+  const pinCache = await caches.open(PIN_CACHE)
+  const pinned = await pinCache.match(keyed)
+
+  if (pinned) {
+    event.waitUntil((async () => {
+      try {
+        const fresh = await fetch(keyed, { credentials: "same-origin" })
+        if (fresh.ok) await pinCache.put(keyed, fresh.clone())
+      } catch (_) { /* offline */ }
+    })())
+    return pinned
+  }
+
+  if (isAssetRequest(request)) {
+    const assetCache = await caches.open(ASSET_CACHE)
+    const cached = await assetCache.match(keyed)
+    if (cached) {
+      event.waitUntil(fetch(request).then(res => {
+        if (res.ok) return assetCache.put(keyed, res.clone())
+      }).catch(() => { /* offline */ }))
+      return cached
+    }
+    const res = await fetch(request)
+    if (res.ok) event.waitUntil(assetCache.put(keyed, res.clone()).catch(() => { /* quota */ }))
+    return res
+  }
+
+  return null
+}
 
 self.addEventListener("message", (event) => {
   const { type, payload } = event.data || {}

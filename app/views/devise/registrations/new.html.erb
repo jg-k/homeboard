@@ -6,6 +6,32 @@
       <h2 class="text-3xl font-bold">Create your account</h2>
     </div>
 
+    <%= form_with url: passkey_registration_path, method: :post, class: "passkey-signup", data: {
+          controller: "passkey",
+          passkey_options_url_value: new_passkey_registration_path,
+          turbo_frame: "_top"
+        } do |f| %>
+      <%= f.hidden_field :credential, data: { passkey_target: "credential" } %>
+      <div class="form-group">
+        <%= f.label :display_name, "Display name", class: "form-label" %>
+        <%= f.text_field :display_name, class: "form-input", placeholder: "climbername",
+              required: true, autocomplete: "username", data: { passkey_target: "name" } %>
+        <p class="form-hint">How other climbers find you. At least 3 characters: lowercase letters, numbers, dashes and underscores.</p>
+      </div>
+      <%= f.button type: "button", class: "btn btn-primary btn-full",
+            data: { passkey_target: "submit", action: "passkey#register" } do %>
+        <%= icon :key, css_class: "oauth-icon" %>
+        <span>Sign up with a passkey</span>
+      <% end %>
+      <p class="form-error" hidden data-passkey-target="error"></p>
+    <% end %>
+
+    <div class="my-6">
+      <div class="divider">
+        <span>Or use a provider</span>
+      </div>
+    </div>
+
     <div class="oauth-buttons">
       <%= button_to user_google_oauth2_omniauth_authorize_path, method: :post, data: { turbo: false }, class: "btn btn-outline btn-full" do %>
         <svg class="oauth-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

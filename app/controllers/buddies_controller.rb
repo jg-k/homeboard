@@ -35,17 +35,17 @@ class BuddiesController < ApplicationController
   end
 
   def create
-    email = params[:email]&.strip&.downcase
+    display_name = params[:display_name]&.strip&.downcase
 
-    if email.blank?
-      redirect_to buddies_path, alert: "Please enter an email address."
+    if display_name.blank?
+      redirect_to buddies_path, alert: "Please enter a display name."
       return
     end
 
-    user_to_follow = User.find_by("LOWER(email) = ?", email)
+    user_to_follow = User.find_by(display_name: display_name)
 
     if user_to_follow.nil?
-      redirect_to buddies_path, alert: "No user found with that email."
+      redirect_to buddies_path, alert: "No climber found with that display name."
     elsif user_to_follow == current_user
       redirect_to buddies_path, alert: "You can't follow yourself."
     elsif !user_to_follow.allow_follows
@@ -54,7 +54,7 @@ class BuddiesController < ApplicationController
       redirect_to buddies_path, alert: "You're already following this user."
     else
       current_user.follow(user_to_follow)
-      redirect_to buddies_path, notice: "You are now following #{user_to_follow.email}."
+      redirect_to buddies_path, notice: "You are now following #{user_to_follow.display_name}."
     end
   end
 

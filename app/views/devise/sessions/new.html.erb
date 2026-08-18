@@ -7,6 +7,20 @@
     </div>
 
     <div class="oauth-buttons">
+      <%= form_with url: passkey_session_path, method: :post, data: {
+            controller: "passkey",
+            passkey_options_url_value: new_passkey_session_path,
+            turbo_frame: "_top"
+          } do |f| %>
+        <%= f.hidden_field :credential, data: { passkey_target: "credential" } %>
+        <%= f.button type: "button", class: "btn btn-outline btn-full",
+              data: { passkey_target: "submit", action: "passkey#authenticate" } do %>
+          <%= icon :key, css_class: "oauth-icon" %>
+          <span>Sign in with a passkey</span>
+        <% end %>
+        <p class="form-error" hidden data-passkey-target="error"></p>
+      <% end %>
+
       <%= button_to user_google_oauth2_omniauth_authorize_path, method: :post, data: { turbo: false }, class: "btn btn-outline btn-full" do %>
         <svg class="oauth-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>

@@ -17,7 +17,10 @@
         <% @users.each do |user| %>
           <tr>
             <td>
-              <div class="font-medium"><%= user.email %></div>
+              <div class="font-medium"><%= user.display_name %></div>
+              <% if user.email.present? %>
+                <div class="text-xs text-muted"><%= user.email %></div>
+              <% end %>
               <% if user.provider.present? %>
                 <div class="text-xs text-muted">via <%= user.provider %></div>
               <% end %>

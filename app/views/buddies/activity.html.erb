@@ -1,9 +1,9 @@
-<% content_for :title, "#{@user.email}'s Activity" %>
+<% content_for :title, "#{@user.display_name}'s Activity" %>
 
 <div class="page">
   <div class="page-header-flex">
     <div>
-      <h1 class="page-title"><%= @user.email %></h1>
+      <h1 class="page-title"><%= @user.display_name %></h1>
       <p class="page-subtitle">Activity Log</p>
     </div>
     <div>
@@ -36,7 +36,7 @@
   <% else %>
     <div class="empty-state">
       <h3>No activity yet</h3>
-      <p><%= @user.email %> hasn't logged any activity yet.</p>
+      <p><%= @user.display_name %> hasn't logged any activity yet.</p>
     </div>
   <% end %>
 </div>

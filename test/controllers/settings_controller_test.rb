@@ -26,4 +26,19 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name='thecrag_username'][value=?]", "alice"
     assert_select "input[name='ukc_user_id'][value=?]", "12345"
   end
+
+  test "GET index lists passkeys and offers to add one" do
+    @user.passkeys.create!(external_id: SecureRandom.uuid, public_key: SecureRandom.uuid, nickname: "Pixel")
+    sign_in @user
+    get settings_url
+
+    assert_response :success
+    assert_select "form[action=?][data-controller='passkey'][data-passkey-options-url-value=?]",
+      passkeys_path, new_passkey_path
+    assert_select "input[type='hidden'][name='credential'][data-passkey-target='credential']"
+    assert_select "button[data-passkey-target='submit'][data-action='passkey#register'][type='button']"
+    assert_select "p[data-passkey-target='error'][hidden]"
+    assert_select "form[action=?]", passkey_path(@user.passkeys.first)
+    assert_match "Pixel", response.body
+  end
 end

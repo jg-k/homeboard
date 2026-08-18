@@ -1,21 +1,38 @@
 // Homeboard offline service worker.
 //
-// Two caches:
+// Three caches:
 //   - PIN_CACHE: pages + layout images explicitly pinned by the user.
 //     Strategy: cache-first.
 //   - ASSET_CACHE: stylesheets, JS, icons. Auto-populated as the user
 //     browses online. Strategy: stale-while-revalidate.
+//   - META_CACHE: bookkeeping only — records the last build we warmed for.
 // Everything else is network-only.
 
+// BUILD changes on every deploy (Kamal injects the git SHA as KAMAL_VERSION),
+// which is the whole point of rendering this file through ERB: a new build
+// means a byte-different script, so the browser installs it and we get an
+// activate event to re-warm caches on. Without it a template-only deploy is
+// invisible to anyone with a pinned board — they keep being served the HTML
+// they cached before the deploy.
+const BUILD = <%= raw Rails.application.config.x.build_version.to_json %>
+
+// Digested URLs for this build, precached because a deploy rewrites every
+// digest and the refreshed HTML points at assets nobody has fetched yet.
+const CORE_ASSETS = <%= raw Offline::Assets.urls.to_json %>
+
 // PIN_CACHE name is stable: it holds user-pinned data and must not be wiped
-// just because we shipped unrelated SW changes. Refreshing the cached
-// /offline shell happens explicitly in activate.
-// ASSET_CACHE is versioned: bumping it costs nothing because assets
-// re-download on first use.
+// just because we shipped unrelated SW changes. Deploy-time refreshing happens
+// explicitly in applyBuild.
+// ASSET_CACHE is versioned, but bumping it is not how deploys are picked up —
+// entries are digest-keyed, so a deploy misses them naturally. It stays put
+// across deploys so a user who goes offline mid-update keeps the old assets
+// their old HTML references.
 const PIN_CACHE = "homeboard-pin"
 const ASSET_CACHE = "homeboard-assets-v1"
+const META_CACHE = "homeboard-meta"
 const OFFLINE_URL = "/offline"
-const KNOWN_CACHES = [PIN_CACHE, ASSET_CACHE]
+const BUILD_KEY = "/__homeboard_build__"
+const KNOWN_CACHES = [PIN_CACHE, ASSET_CACHE, META_CACHE]
 
 async function refreshOfflineShell() {
   try {
@@ -24,6 +41,63 @@ async function refreshOfflineShell() {
     const cache = await caches.open(PIN_CACHE)
     await cache.put(OFFLINE_URL, res.clone())
   } catch (_) { /* offline at SW update time */ }
+}
+
+// ---- deploy-time cache warming ----
+
+async function warmedBuild() {
+  const cache = await caches.open(META_CACHE)
+  const res = await cache.match(BUILD_KEY)
+  return res ? await res.text() : null
+}
+
+function isHtml(res) {
+  return !!res && (res.headers.get("content-type") || "").includes("text/html")
+}
+
+// Bring every offline-critical cache entry up to the current build: this
+// build's assets, then each pinned HTML document (whose markup *and* importmap
+// both changed with the deploy). Layout images in PIN_CACHE are skipped —
+// they're content-addressed and a deploy doesn't touch them.
+//
+// Bails without recording the build if anything fails, so a partial warm is
+// retried rather than silently leaving a pinned board that renders unstyled.
+async function warmForBuild() {
+  if (await warmedBuild() === BUILD) return
+
+  const assetCache = await caches.open(ASSET_CACHE)
+  for (const url of CORE_ASSETS) {
+    if (!await recache(assetCache, url)) return
+  }
+
+  const pinCache = await caches.open(PIN_CACHE)
+  for (const request of await pinCache.keys()) {
+    if (!isHtml(await pinCache.match(request))) continue
+    if (!await recache(pinCache, request.url)) return
+  }
+
+  await (await caches.open(META_CACHE)).put(BUILD_KEY, new Response(BUILD))
+}
+
+async function recache(cache, url) {
+  try {
+    const res = await fetch(url, { credentials: "same-origin" })
+    if (!res.ok) return false
+    await cache.put(cacheKey(url), res.clone())
+    return true
+  } catch (_) {
+    return false
+  }
+}
+
+// Deploys land while the tab is open, and an installed PWA can go days without
+// a real navigation to trigger an update check, so the page nudges us too.
+// Collapse concurrent callers onto one run — warming is idempotent but not
+// cheap, and turbo:load fires often.
+let warming = null
+function applyBuild() {
+  warming ||= warmForBuild().finally(() => { warming = null })
+  return warming
 }
 
 self.addEventListener("install", (event) => {
@@ -40,15 +114,17 @@ self.addEventListener("activate", (event) => {
       await Promise.all(names.filter(n => !KNOWN_CACHES.includes(n)).map(n => caches.delete(n)))
       // Re-fetch the offline shell on every SW update so changes to the
       // /offline route or its auth posture take effect without forcing
-      // every user to re-pin their boards.
+      // every user to re-pin their boards. Unconditional, unlike applyBuild
+      // below, which is gated on the build stamp having moved.
       await refreshOfflineShell()
+      await applyBuild()
     } catch (_) { /* cache storage unavailable — still claim clients */ }
     await self.clients.claim()
   })())
 })
 
 function cacheKey(url) {
-  const u = new URL(url)
+  const u = new URL(url, self.location.origin)
   u.search = ""
   u.hash = ""
   return u.toString().replace(/\/$/, "")
@@ -132,6 +208,8 @@ self.addEventListener("message", (event) => {
     event.waitUntil(unpinUrls(payload.urls))
   } else if (type === "REFRESH") {
     event.waitUntil(refreshUrls(payload.add, payload.update, payload.remove, event.source))
+  } else if (type === "SYNC") {
+    event.waitUntil(applyBuild())
   }
 })
 

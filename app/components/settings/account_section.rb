@@ -1,15 +1,21 @@
 class Settings::AccountSection < ApplicationComponent
   def view_template
     render SettingsSection.new(title: "Account") do
+      render SettingsRow.new(title: "Display name", description: "How other climbers find and follow you") do
+        span { current_user.display_name }
+      end
+
       render SettingsRow.new(title: "Email") do
-        span { current_user.email }
+        span { current_user.email.presence || "Not set" }
       end
 
       render SettingsRow.new(title: "Sign-in method") do
         if current_user.provider.present?
           render Badge.new(:gray) { current_user.provider.titleize.gsub("Oauth2", "OAuth") }
-        else
+        elsif current_user.email.present?
           render Badge.new(:gray) { "Email" }
+        else
+          render Badge.new(:gray) { "Passkey" }
         end
       end
 

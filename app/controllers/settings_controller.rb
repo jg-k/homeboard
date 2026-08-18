@@ -3,6 +3,7 @@ class SettingsController < ApplicationController
 
   def index
     @grading_systems = GradingSystem.for_user(current_user).order(:name)
+    @passkeys = current_user.passkeys.oldest_first
   end
 
   def toggle_allow_follows

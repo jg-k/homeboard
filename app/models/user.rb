@@ -1,19 +1,51 @@
 class User < ApplicationRecord
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
+  # No :validatable — it hard-requires an email, and passkey-only accounts
+  # never have one. Its validations are reproduced below, email-optional.
   devise :database_authenticatable, :registerable,
-         :recoverable, :rememberable, :validatable, :trackable,
+         :recoverable, :rememberable, :trackable,
          :omniauthable, omniauth_providers: [ :google_oauth2, :entra_id ]
 
   enum :role, { user: "user", admin: "admin" }, default: :user
 
+  DISPLAY_NAME_FORMAT = /\A[a-z0-9][a-z0-9_-]*\z/
+
+  before_validation :normalize_display_name
+
+  validates :display_name, presence: true, length: { in: 3..30 },
+    format: { with: DISPLAY_NAME_FORMAT, message: "can only contain lowercase letters, numbers, dashes and underscores" },
+    uniqueness: { case_sensitive: false }
+  validates :email, format: { with: Devise.email_regexp },
+    uniqueness: { case_sensitive: false }, allow_blank: true
+  validates :password, presence: true, confirmation: true,
+    length: { in: Devise.password_length }, if: :password_required?
+
+  # A handle nobody has taken yet, derived from whatever we know about the
+  # user. Used when a provider signs someone up and picks no name for them.
+  def self.available_display_name(candidate)
+    base = candidate.to_s.downcase.gsub(/[^a-z0-9_-]/, "-").sub(/\A[^a-z0-9]+/, "")
+    base = "climber" if base.length < 3
+    base = base[0, 30]
+
+    name = base
+    suffix = 1
+    while exists?(display_name: name)
+      suffix += 1
+      name = "#{base[0, 27]}#{suffix}"
+    end
+    name
+  end
+
   def self.from_omniauth(auth)
     where(provider: auth.provider, uid: auth.uid).first_or_create do |user|
       user.email = auth.info.email
+      user.display_name = available_display_name(auth.info.email.to_s.split("@").first)
       user.password = Devise.friendly_token[0, 20]
     end
   end
 
+  has_many :passkeys, dependent: :destroy
   has_many :user_boards, dependent: :destroy
   has_many :boards, through: :user_boards
   has_many :grading_systems, dependent: :destroy
@@ -41,6 +73,29 @@ class User < ApplicationRecord
     active_follows.find_by(followed: user)&.destroy
   end
 
+  # The WebAuthn user handle: a stable opaque id authenticators store next to
+  # each credential. Deliberately not the database id, which would otherwise be
+  # copied onto every device the user registers. Generated on first use so
+  # existing accounts need no backfill.
+  def webauthn_handle
+    update!(webauthn_id: WebAuthn.generate_user_id) if webauthn_id.blank?
+    webauthn_id
+  end
+
+  private
+
+  def normalize_display_name
+    self.display_name = display_name&.strip&.downcase
+  end
+
+  # Devise::Models::Validatable's rule: new records always set one, and an
+  # existing record only revalidates when a password is actually being changed.
+  def password_required?
+    !persisted? || !password.nil? || !password_confirmation.nil?
+  end
+
+  public
+
   def destroy
     sole_boards = boards.select { |b| b.users.count == 1 }
     super.tap do
@@ -60,7 +115,8 @@ end
 #  boardsesh_session_token   :string
 #  current_sign_in_at        :datetime
 #  current_sign_in_ip        :string
-#  email                     :string           default(""), not null
+#  display_name              :string           not null
+#  email                     :string
 #  encrypted_password        :string           default(""), not null
 #  last_sign_in_at           :datetime
 #  last_sign_in_ip           :string
@@ -79,13 +135,16 @@ end
 #  boardsesh_user_id         :string
 #  default_grading_system_id :integer
 #  ukc_user_id               :string
+#  webauthn_id               :string
 #
 # Indexes
 #
 #  index_users_on_default_grading_system_id  (default_grading_system_id)
+#  index_users_on_display_name               (display_name) UNIQUE
 #  index_users_on_email                      (email) UNIQUE
 #  index_users_on_provider_and_uid           (provider,uid) UNIQUE
 #  index_users_on_reset_password_token       (reset_password_token) UNIQUE
+#  index_users_on_webauthn_id                (webauthn_id) UNIQUE
 #
 # Foreign Keys
 #

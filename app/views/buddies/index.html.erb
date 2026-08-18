@@ -5,9 +5,9 @@
       <div class="card">
         <%= form_with url: buddies_path, method: :post, class: "follow-form" do |f| %>
           <div class="form-group">
-            <%= f.label :email, "Email address", class: "form-label" %>
-            <%= f.email_field :email, class: "form-input", placeholder: "climber@example.com", required: true %>
-            <p class="form-hint">Enter the email of a climber you want to follow. They must have enabled followers in their settings.</p>
+            <%= f.label :display_name, "Display name", class: "form-label" %>
+            <%= f.text_field :display_name, class: "form-input", placeholder: "climbername", required: true %>
+            <p class="form-hint">Enter the display name of a climber you want to follow. They must have enabled followers in their settings.</p>
           </div>
           <div class="form-actions">
             <%= f.submit "Follow", class: "btn btn-primary" %>
@@ -24,11 +24,11 @@
             <div class="card buddy-card">
               <div class="flex-between">
                 <div class="buddy-info">
-                  <span class="buddy-email"><%= user.email %></span>
+                  <span class="buddy-name"><%= user.display_name %></span>
                 </div>
                 <div class="buddy-actions">
                   <%= link_to "Activity", activity_buddy_path(user), class: "btn btn-sm btn-outline" %>
-                  <%= button_to "Unfollow", buddy_path(user), method: :delete, class: "btn-link-danger", data: { turbo_confirm: "Unfollow #{user.email}?" } %>
+                  <%= button_to "Unfollow", buddy_path(user), method: :delete, class: "btn-link-danger", data: { turbo_confirm: "Unfollow #{user.display_name}?" } %>
                 </div>
               </div>
             </div>
@@ -49,12 +49,12 @@
             <div class="card buddy-card">
               <div class="flex-between">
                 <div class="buddy-info">
-                  <span class="buddy-email"><%= user.email %></span>
+                  <span class="buddy-name"><%= user.display_name %></span>
                 </div>
                 <% if current_user.following?(user) %>
                   <%= link_to "Activity", activity_buddy_path(user), class: "btn btn-sm btn-outline" %>
                 <% elsif user.allow_follows %>
-                  <%= button_to "Follow Back", buddies_path(email: user.email), method: :post, class: "btn btn-sm btn-outline" %>
+                  <%= button_to "Follow Back", buddies_path(display_name: user.display_name), method: :post, class: "btn btn-sm btn-outline" %>
                 <% end %>
               </div>
             </div>

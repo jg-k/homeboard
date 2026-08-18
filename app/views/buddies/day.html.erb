@@ -1,6 +1,6 @@
-<%= render PageLayout.new(title: @date.strftime("%A, %B %d, %Y"), subtitle: @user.email) do %>
+<%= render PageLayout.new(title: @date.strftime("%A, %B %d, %Y"), subtitle: @user.display_name) do %>
   <div class="mb-6">
-    <%= link_to "&larr; Back to #{@user.email}'s Activity".html_safe, activity_buddy_path(@user) %>
+    <%= link_to "&larr; Back to #{@user.display_name}'s Activity".html_safe, activity_buddy_path(@user) %>
   </div>
 
   <% if @activity_logs.any? %>

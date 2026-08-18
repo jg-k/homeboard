@@ -5,10 +5,12 @@
 # below each fixture, per the syntax in the comments below
 #
 one:
+  display_name: userone
   email: user1@example.com
   encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
 
 two:
+  display_name: usertwo
   email: user2@example.com
   encrypted_password: <%= Devise::Encryptor.digest(User, 'password123') %>
 
@@ -23,7 +25,8 @@ two:
 #  boardsesh_session_token   :string
 #  current_sign_in_at        :datetime
 #  current_sign_in_ip        :string
-#  email                     :string           default(""), not null
+#  display_name              :string           not null
+#  email                     :string
 #  encrypted_password        :string           default(""), not null
 #  last_sign_in_at           :datetime
 #  last_sign_in_ip           :string
@@ -42,13 +45,16 @@ two:
 #  boardsesh_user_id         :string
 #  default_grading_system_id :integer
 #  ukc_user_id               :string
+#  webauthn_id               :string
 #
 # Indexes
 #
 #  index_users_on_default_grading_system_id  (default_grading_system_id)
+#  index_users_on_display_name               (display_name) UNIQUE
 #  index_users_on_email                      (email) UNIQUE
 #  index_users_on_provider_and_uid           (provider,uid) UNIQUE
 #  index_users_on_reset_password_token       (reset_password_token) UNIQUE
+#  index_users_on_webauthn_id                (webauthn_id) UNIQUE
 #
 # Foreign Keys
 #

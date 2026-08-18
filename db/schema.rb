@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_05_10_221557) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_18_133705) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -218,6 +218,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_10_221557) do
     t.index ["user_id"], name: "index_metrics_on_user_id"
   end
 
+  create_table "passkeys", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "external_id", null: false
+    t.datetime "last_used_at"
+    t.string "nickname", null: false
+    t.string "public_key", null: false
+    t.integer "sign_count", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.integer "user_id", null: false
+    t.index ["external_id"], name: "index_passkeys_on_external_id", unique: true
+    t.index ["user_id", "nickname"], name: "index_passkeys_on_user_id_and_nickname", unique: true
+    t.index ["user_id"], name: "index_passkeys_on_user_id"
+  end
+
   create_table "problems", force: :cascade do |t|
     t.bigint "board_layout_id", null: false
     t.boolean "circuit", default: false, null: false
@@ -282,7 +296,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_10_221557) do
     t.datetime "current_sign_in_at"
     t.string "current_sign_in_ip"
     t.integer "default_grading_system_id"
-    t.string "email", default: "", null: false
+    t.string "display_name", null: false
+    t.string "email"
     t.string "encrypted_password", default: "", null: false
     t.datetime "last_sign_in_at"
     t.string "last_sign_in_ip"
@@ -298,10 +313,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_10_221557) do
     t.datetime "ukc_synced_at"
     t.string "ukc_user_id"
     t.datetime "updated_at", null: false
+    t.string "webauthn_id"
     t.index ["default_grading_system_id"], name: "index_users_on_default_grading_system_id"
+    t.index ["display_name"], name: "index_users_on_display_name", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["provider", "uid"], name: "index_users_on_provider_and_uid", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
+    t.index ["webauthn_id"], name: "index_users_on_webauthn_id", unique: true
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
@@ -319,6 +337,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_05_10_221557) do
   add_foreign_key "holds", "problems"
   add_foreign_key "measurements", "metrics"
   add_foreign_key "metrics", "users"
+  add_foreign_key "passkeys", "users"
   add_foreign_key "problems", "board_layouts"
   add_foreign_key "problems", "users", column: "created_by_id"
   add_foreign_key "user_boards", "boards"

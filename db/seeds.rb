@@ -9,12 +9,14 @@ User.destroy_all
 # Create users
 puts "Creating users..."
 user1 = User.create!(
+  display_name: "bob",
   email: "bob@bob.com",
   password: "password",
   password_confirmation: "password"
 )
 
 user2 = User.create!(
+  display_name: "climber2",
   email: "climber2@example.com",
   password: "password",
   password_confirmation: "password"

@@ -1,9 +1,15 @@
 import { Controller } from "@hotwired/stimulus"
 
+// Turbo visits are fetches, not navigations, so the browser never checks for a
+// new service worker on its own. An installed PWA can stay open for days,
+// which is long enough to miss several deploys.
+const UPDATE_CHECK_INTERVAL = 15 * 60 * 1000
+
 // Mounted on <body>. On every Turbo visit (and online events) it:
-//   1. Refreshes every pinned board's offline cache by diffing the
+//   1. Asks the service worker to pick up any new deploy.
+//   2. Refreshes every pinned board's offline cache by diffing the
 //      current manifest against the stored snapshot.
-//   2. Replays any queued board-climb POSTs that were made offline.
+//   3. Replays any queued board-climb POSTs that were made offline.
 export default class extends Controller {
   connect() {
     this.boundRun = () => this.run()
@@ -19,8 +25,33 @@ export default class extends Controller {
 
   async run() {
     if (!navigator.onLine) return
+    await this.checkForNewBuild()
     await this.replayQueue()
     await this.refreshPinnedBoards()
+  }
+
+  // ---- deploy pickup ----
+
+  // Two nudges, because they cover different gaps. The update() call makes the
+  // browser re-fetch the service worker script so a new deploy gets installed
+  // at all; the SYNC message makes the *installed* worker retry a cache warm
+  // that failed earlier (it went offline halfway), which activate can't do
+  // twice. Both no-op when everything is already current.
+  async checkForNewBuild() {
+    if (!("serviceWorker" in navigator)) return
+
+    if (navigator.serviceWorker.controller) {
+      navigator.serviceWorker.controller.postMessage({ type: "SYNC" })
+    }
+
+    const now = Date.now()
+    if (this.lastUpdateCheck && now - this.lastUpdateCheck < UPDATE_CHECK_INTERVAL) return
+    this.lastUpdateCheck = now
+
+    try {
+      const registration = await navigator.serviceWorker.getRegistration()
+      if (registration) await registration.update()
+    } catch (_) { /* update checks are best-effort */ }
   }
 
   // ---- pinned-board refresh ----

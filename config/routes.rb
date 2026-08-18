@@ -26,6 +26,13 @@ Rails.application.routes.draw do
   get "settings/export_json", to: "settings#export_json", as: :export_json_settings
   get "settings/export_csv", to: "settings#export_csv", as: :export_csv_settings
 
+  # Passkeys. `new` returns the WebAuthn options as JSON for the browser
+  # ceremony; `create` receives the signed result back. Registering needs an
+  # existing session; signing in with one obviously does not.
+  resources :passkeys, only: [ :new, :create, :destroy ]
+  resource :passkey_session, only: [ :new, :create ]
+  resource :passkey_registration, only: [ :new, :create ]
+
   # Buddies (follows)
   resources :buddies, only: [ :index, :create, :destroy ] do
     member do
@@ -119,7 +126,10 @@ Rails.application.routes.draw do
 
   # Render dynamic PWA files from app/views/pwa/*
   get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  # The :js default resolves service-worker.js.erb — the template is ERB so it
+  # can embed the build stamp, and the path stays extensionless so existing
+  # registrations (and the caches they own) keep working.
+  get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker, defaults: { format: :js }
 
   # Defines the root path route ("/")
   # root "posts#index"

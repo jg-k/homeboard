@@ -26,6 +26,7 @@ gem "devise"
 gem "omniauth-google-oauth2"
 gem "omniauth-entra-id"
 gem "omniauth-rails_csrf_protection"
+gem "webauthn"
 
 # Soft delete
 gem "discard", "~> 1.2"

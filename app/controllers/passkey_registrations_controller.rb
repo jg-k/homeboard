@@ -46,11 +46,7 @@ class PasskeyRegistrationsController < ApplicationController
       webauthn_id: pending["webauthn_id"],
       password: Devise.friendly_token[0, 20]
     )
-    user.passkeys.build(
-      external_id: credential.id,
-      public_key: credential.public_key,
-      sign_count: credential.sign_count
-    )
+    user.passkeys.build(**Passkey.attributes_from(credential))
 
     return failed(user.errors.full_messages.to_sentence) unless user.save
 

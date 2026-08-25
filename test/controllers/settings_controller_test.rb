@@ -27,6 +27,40 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name='ukc_user_id'][value=?]", "12345"
   end
 
+  test "GET index warns when a passkey would die with its device" do
+    @user.passkeys.create!(external_id: SecureRandom.uuid, public_key: SecureRandom.uuid,
+      nickname: "Yubikey", backup_eligible: false, backed_up: false)
+    sign_in @user
+    get settings_url
+
+    assert_response :success
+    assert_match "This device only", response.body
+    assert_match(/None of your passkeys sync/, response.body)
+  end
+
+  test "GET index does not nag when every passkey is synced" do
+    @user.passkeys.create!(external_id: SecureRandom.uuid, public_key: SecureRandom.uuid,
+      nickname: "Dashlane", backup_eligible: true, backed_up: true)
+    sign_in @user
+    get settings_url
+
+    assert_response :success
+    assert_match "Synced", response.body
+    assert_no_match(/None of your passkeys sync/, response.body)
+  end
+
+  test "GET index does not nag when a synced passkey covers a device-bound one" do
+    @user.passkeys.create!(external_id: SecureRandom.uuid, public_key: SecureRandom.uuid,
+      nickname: "Yubikey", backup_eligible: false, backed_up: false)
+    @user.passkeys.create!(external_id: SecureRandom.uuid, public_key: SecureRandom.uuid,
+      nickname: "iCloud", backup_eligible: true, backed_up: true)
+    sign_in @user
+    get settings_url
+
+    assert_response :success
+    assert_no_match(/None of your passkeys sync/, response.body)
+  end
+
   test "GET index lists passkeys and offers to add one" do
     @user.passkeys.create!(external_id: SecureRandom.uuid, public_key: SecureRandom.uuid, nickname: "Pixel")
     sign_in @user

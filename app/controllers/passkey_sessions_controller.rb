@@ -34,7 +34,7 @@ class PasskeySessionsController < ApplicationController
     handle = credential.user_handle
     return failed("That passkey could not be verified.") if handle.present? && handle != passkey.user.webauthn_id
 
-    passkey.used!(credential.sign_count)
+    passkey.used!(credential)
     sign_in_with(passkey.user)
   rescue JSON::ParserError, WebAuthn::Error => e
     Rails.logger.warn("Passkey sign-in failed: #{e.class}: #{e.message}")

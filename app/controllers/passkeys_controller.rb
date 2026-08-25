@@ -32,9 +32,7 @@ class PasskeysController < ApplicationController
     credential.verify(challenge, user_verification: true)
 
     passkey = current_user.passkeys.build(
-      external_id: credential.id,
-      public_key: credential.public_key,
-      sign_count: credential.sign_count,
+      **Passkey.attributes_from(credential),
       nickname: params[:nickname].presence
     )
 

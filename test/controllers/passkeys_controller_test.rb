@@ -48,6 +48,30 @@ class PasskeysControllerTest < ActionDispatch::IntegrationTest
     assert passkey.public_key.present?
   end
 
+  test "POST create records a synced credential as synced" do
+    sign_in @user
+    challenge = fetch_challenge
+    credential = @client.create(challenge: challenge, user_verified: true,
+      backup_eligibility: true, backup_state: true)
+
+    post passkeys_url, params: { credential: credential.to_json }
+
+    assert_equal :synced, @user.passkeys.last.storage
+  end
+
+  test "POST create records a device-bound credential as device bound" do
+    sign_in @user
+    challenge = fetch_challenge
+    credential = @client.create(challenge: challenge, user_verified: true,
+      backup_eligibility: false, backup_state: false)
+
+    post passkeys_url, params: { credential: credential.to_json }
+
+    passkey = @user.passkeys.last
+    assert_equal :device_bound, passkey.storage
+    assert passkey.device_bound?
+  end
+
   test "POST create names the passkey when no nickname is given" do
     sign_in @user
     challenge = fetch_challenge

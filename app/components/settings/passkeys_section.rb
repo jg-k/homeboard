@@ -18,6 +18,7 @@ class Settings::PasskeysSection < ApplicationComponent
         span(class: "font-medium flex items-center gap-2") do
           icon(:key, size: :sm)
           plain passkey.nickname
+          storage_badge(passkey)
         end
         p(class: "text-sm text-muted") { "Added #{smart_date(passkey.created_at)}" }
         p(class: "text-sm text-muted") do
@@ -30,6 +31,16 @@ class Settings::PasskeysSection < ApplicationComponent
           data: { turbo_confirm: "Remove #{passkey.nickname}? You won't be able to sign in with this device." },
           class: "btn btn-danger btn-sm"
       end
+    end
+  end
+
+  # What the authenticator told us about how portable this credential is. It
+  # decides whether losing one device loses the account.
+  def storage_badge(passkey)
+    case passkey.storage
+    when :synced then render(Badge.new(:green)) { "Synced" }
+    when :syncable then render(Badge.new(:gray)) { "Syncable" }
+    when :device_bound then render(Badge.new(:yellow)) { "This device only" }
     end
   end
 
@@ -61,11 +72,16 @@ class Settings::PasskeysSection < ApplicationComponent
     end
   end
 
+  # Stay quiet only on proof that the account survives losing a device, which
+  # means at least one credential that syncs. Anything else -- device-bound, or
+  # an authenticator that told us nothing -- gets the nag.
   def description
-    if @passkeys.any?
-      "Register a second device so losing one doesn't lock you out."
-    else
+    if @passkeys.empty?
       "Sign in with your fingerprint, face, or device PIN instead of a provider."
+    elsif @passkeys.none?(&:synced?)
+      "None of your passkeys sync between devices. Add another so losing one doesn't lock you out."
+    else
+      "Add another if you use a device or password manager that isn't covered yet."
     end
   end
 end

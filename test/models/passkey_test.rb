@@ -2,15 +2,17 @@
 #
 # Table name: passkeys
 #
-#  id           :integer          not null, primary key
-#  last_used_at :datetime
-#  nickname     :string           not null
-#  public_key   :string           not null
-#  sign_count   :integer          default(0), not null
-#  created_at   :datetime         not null
-#  updated_at   :datetime         not null
-#  external_id  :string           not null
-#  user_id      :integer          not null
+#  id              :integer          not null, primary key
+#  backed_up       :boolean
+#  backup_eligible :boolean
+#  last_used_at    :datetime
+#  nickname        :string           not null
+#  public_key      :string           not null
+#  sign_count      :integer          default(0), not null
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  external_id     :string           not null
+#  user_id         :integer          not null
 #
 # Indexes
 #
@@ -67,10 +69,39 @@ class PasskeyTest < ActiveSupport::TestCase
     passkey = build.tap(&:save!)
 
     freeze_time do
-      passkey.used!(42)
+      passkey.used!(credential(sign_count: 42))
       assert_equal 42, passkey.sign_count
       assert_equal Time.current, passkey.last_used_at
     end
+  end
+
+  test "refreshes backup state on use, since a credential can start syncing later" do
+    passkey = build(backup_eligible: true, backed_up: false).tap(&:save!)
+
+    passkey.used!(credential(backed_up: true))
+
+    assert passkey.backed_up?
+    assert_equal :synced, passkey.storage
+  end
+
+  test "reports how portable the credential is" do
+    assert_equal :synced, build(backup_eligible: true, backed_up: true).storage
+    assert_equal :syncable, build(backup_eligible: true, backed_up: false).storage
+    assert_equal :device_bound, build(backup_eligible: false, backed_up: false).storage
+    assert_equal :unknown, build(backup_eligible: nil, backed_up: nil).storage
+  end
+
+  test "only a synced credential counts as synced" do
+    assert build(backup_eligible: true, backed_up: true).synced?
+    assert_not build(backup_eligible: true, backed_up: false).synced?
+    assert_not build(backup_eligible: false, backed_up: false).synced?
+    assert_not build(backup_eligible: nil, backed_up: nil).synced?
+  end
+
+  test "only a device-bound credential counts as device bound" do
+    assert build(backup_eligible: false).device_bound?
+    assert_not build(backup_eligible: true).device_bound?
+    assert_not build(backup_eligible: nil).device_bound?
   end
 
   test "is removed with its user" do
@@ -88,5 +119,12 @@ class PasskeyTest < ActiveSupport::TestCase
 
   def attributes
     { external_id: SecureRandom.uuid, public_key: SecureRandom.uuid }
+  end
+
+  # Stands in for a verified WebAuthn credential.
+  def credential(sign_count: 0, backed_up: false)
+    Struct.new(:sign_count, :backed_up).new(sign_count, backed_up).tap do |double|
+      double.define_singleton_method(:backed_up?) { backed_up }
+    end
   end
 end

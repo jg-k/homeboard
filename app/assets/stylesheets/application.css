@@ -503,11 +503,6 @@ main {
   }
 }
 
-.btn-sm {
-  padding: var(--space-1) var(--space-3);
-  font-size: var(--text-sm);
-}
-
 /* ===== Cards ===== */
 .card {
   background: var(--bg-card);
@@ -530,6 +525,7 @@ main {
 
 .card-active {
   border: 2px solid var(--color-primary);
+  background: var(--bg-card);
   box-shadow: var(--glow-primary);
 }
 
@@ -893,6 +889,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .mt-8 { margin-top: var(--space-8); }
 .mt-12 { margin-top: var(--space-12); }
 
+.mb-1 { margin-bottom: var(--space-1); }
 .mb-2 { margin-bottom: var(--space-2); }
 .mb-3 { margin-bottom: var(--space-3); }
 .mb-4 { margin-bottom: var(--space-4); }
@@ -900,6 +897,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .mb-8 { margin-bottom: var(--space-8); }
 
 .ml-2 { margin-left: var(--space-2); }
+.ml-auto { margin-left: auto; }
+.justify-end { justify-content: flex-end; }
 
 .py-8 { padding-top: var(--space-8); padding-bottom: var(--space-8); }
 .py-12 { padding-top: var(--space-12); padding-bottom: var(--space-12); }
@@ -1354,9 +1353,95 @@ a.activity-card-link:hover {
   margin-top: var(--space-2);
 }
 
-.card-active {
-  border: 2px solid var(--color-primary);
-  background: var(--bg-card);
+/* Board name as a card heading: reads as text, behaves as a link. */
+.link-plain {
+  color: inherit;
+  text-decoration: none;
+}
+
+.link-plain:hover {
+  color: var(--color-primary);
+}
+
+/* Layout summary on the boards index. */
+.layout-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  list-style: none;
+  padding: 0;
+  margin: 0 0 var(--space-4);
+}
+
+.layout-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+}
+
+/* Offline toggle sitting inline with a board card's other actions. */
+.offline-control {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Scannable problem list on the board page. Rows are full-width targets so a
+   thumb can hit them without aiming at the text. */
+.problem-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  border-top: 1px solid var(--color-gray-300);
+}
+
+.problem-link-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 44px;
+  padding: var(--space-2) var(--space-1);
+  border-bottom: 1px solid var(--color-gray-300);
+  color: inherit;
+  text-decoration: none;
+}
+
+a.problem-link-row:hover {
+  color: var(--color-primary);
+  background: var(--color-gray-100);
+}
+
+/* Forms that only matter once you go looking for them. */
+.disclosure > .disclosure-summary {
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--color-gray-700);
+  padding: var(--space-2) 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+}
+
+.disclosure > .disclosure-summary:hover {
+  color: var(--color-primary);
+}
+
+.disclosure-body {
+  padding-top: var(--space-3);
+}
+
+/* Irreversible actions, kept away from anything you tap to navigate. */
+.danger-zone {
+  margin-top: var(--space-12);
+  padding: var(--space-4);
+  border: 1px solid var(--color-danger);
+  border-radius: var(--radius-lg);
 }
 
 .layout-image {
@@ -2081,6 +2166,15 @@ form:has(> .btn-icon-danger) {
 .btn-icon:hover {
   background: var(--color-gray-100);
   color: var(--color-gray-700);
+}
+
+/* Fingers need more room than cursors do. */
+@media (hover: none) {
+  .btn-icon,
+  button.btn-icon {
+    width: 44px;
+    height: 44px;
+  }
 }
 
 

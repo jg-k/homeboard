@@ -4,7 +4,6 @@
 #
 #  id           :integer          not null, primary key
 #  active       :boolean          default(FALSE), not null
-#  archived_at  :datetime
 #  discarded_at :datetime
 #  name         :string
 #  created_at   :datetime         not null

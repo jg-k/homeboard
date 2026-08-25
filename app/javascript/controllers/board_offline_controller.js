@@ -169,9 +169,9 @@ export default class extends Controller {
   render() {
     if (!this.hasButtonTarget) return
     const pinned = this.isPinned()
+    // Stays outline in both states: caching is a side errand on this page, not
+    // the thing you came here to do. The label carries the state.
     this.buttonTarget.textContent = pinned ? "Remove offline copy" : "Make available offline"
-    this.buttonTarget.classList.toggle("btn-primary", !pinned)
-    this.buttonTarget.classList.toggle("btn-outline", pinned)
     if (!this.hasStatusTarget) return
     if (pinned) this.statusTarget.textContent = "Available offline."
     else this.statusTarget.textContent = ""

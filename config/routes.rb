@@ -100,9 +100,8 @@ Rails.application.routes.draw do
       get :export
       get :offline_manifest
     end
-    resources :board_layouts, only: [ :create, :update ] do
+    resources :board_layouts, only: [ :create, :update, :destroy ] do
       member do
-        patch :soft_delete
         patch :archive
         get :image
       end

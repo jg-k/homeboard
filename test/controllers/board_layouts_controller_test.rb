@@ -34,10 +34,40 @@ class BoardLayoutsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to board_path(@board)
   end
 
-  test "should soft delete board layout" do
-    patch soft_delete_board_board_layout_url(@board, @board_layout)
+  # Archive is the soft option: the rows survive, flagged away.
+  test "archive discards the layout and its problems" do
+    patch archive_board_board_layout_url(@board, @board_layout)
+
     assert_redirected_to board_path(@board)
     assert @board_layout.reload.discarded?
+    assert problems(:one).reload.discarded?
+    assert problems(:two).reload.discarded?
+  end
+
+  test "archive keeps the rows so nothing is actually lost" do
+    assert_no_difference [ "BoardLayout.count", "Problem.count" ] do
+      patch archive_board_board_layout_url(@board, @board_layout)
+    end
+  end
+
+  # Delete means gone, and it takes the problems with it.
+  test "delete destroys the layout and its problems" do
+    assert_difference "BoardLayout.count", -1 do
+      assert_difference "Problem.count", -2 do
+        delete board_board_layout_url(@board, @board_layout)
+      end
+    end
+
+    assert_redirected_to board_path(@board)
+    assert_not BoardLayout.exists?(@board_layout.id)
+  end
+
+  test "archiving the active layout hands active to another one" do
+    other = board_layouts(:two)
+
+    patch archive_board_board_layout_url(@board, @board_layout)
+
+    assert other.reload.active?
   end
 
   test "image action serves the layout image bytes" do

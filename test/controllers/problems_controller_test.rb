@@ -7,6 +7,55 @@ class ProblemsControllerTest < ActionDispatch::IntegrationTest
     @board = boards(:one)
   end
 
+  # Deleting a layout used to leave its problems in this list, orphaned under
+  # something you could no longer see.
+  test "index leaves out problems whose layout is gone" do
+    board_layouts(:one).discard
+
+    get board_problems_url(@board)
+
+    assert_response :success
+    assert_no_match(/Problem One/, response.body)
+  end
+
+  test "index narrows to one layout when given board_layout_id" do
+    other_layout = board_layouts(:two)
+    other_layout.problems.create!(name: "Only On Two", grade: "V2", start_holds: [ { x: 0.1, y: 0.1 } ])
+
+    get board_problems_url(@board, board_layout_id: other_layout.id)
+
+    assert_response :success
+    assert_match "Only On Two", response.body
+    assert_no_match(/Problem One/, response.body)
+  end
+
+  test "index keeps the layout filter alongside the other filter params" do
+    get board_problems_url(@board, board_layout_id: board_layouts(:one).id, sort: "grade")
+
+    assert_response :success
+    assert_equal board_layouts(:one).id.to_s, offline_filter_applied["board_layout_id"]
+  end
+
+  # A bookmarked link to a layout that has since been deleted should still let
+  # you start a problem, on whatever layout is active now.
+  test "new falls back to the active layout when the given one is gone" do
+    missing = board_layouts(:two)
+    missing.discard
+
+    get new_board_problem_url(@board, board_layout_id: missing.id)
+
+    assert_response :success
+  end
+
+  test "filter form keeps the layout narrowing it arrived with" do
+    layout = board_layouts(:one)
+
+    get filter_board_problems_url(@board, board_layout_id: layout.id)
+
+    assert_response :success
+    assert_select "input[type=hidden][name=board_layout_id][value=?]", layout.id.to_s
+  end
+
   test "index stamps the filter params the server actually applied" do
     get board_problems_url(@board, filter: "unsent", sort: "grade")
 

@@ -4,74 +4,73 @@
       <% @boards.each do |board| %>
         <div class="card">
           <div class="flex-between mb-2">
-            <h2 class="text-2xl font-semibold"><%= board.name %></h2>
+            <h2 class="text-2xl font-semibold">
+              <%= link_to board.name, board, class: "link-plain" %>
+            </h2>
             <div class="flex gap-2">
-              <%= link_to board, class: "btn-icon", title: "Show" do %>
-                <%= icon(:eye) %>
-              <% end %>
-              <%= link_to edit_board_path(board), class: "btn-icon", title: "Edit" do %>
+              <%= link_to edit_board_path(board), class: "btn-icon", title: "Edit board" do %>
                 <%= icon(:edit) %>
               <% end %>
               <%= link_to export_board_path(board, format: :pdf), class: "btn-icon", title: "Export PDF", data: { turbo: false } do %>
                 <%= icon(:download) %>
               <% end %>
-              <%= button_to board, method: :delete, data: { turbo_confirm: "Are you sure?" }, class: "btn-icon btn-icon-danger", title: "Delete" do %>
-                <%= icon(:trash) %>
-              <% end %>
             </div>
           </div>
-          <p class="text-muted mb-2"><%= board.description %></p>
+
+          <% if board.description.present? %>
+            <p class="text-muted mb-2"><%= board.description %></p>
+          <% end %>
           <% if board.grading_system %>
-            <p class="text-sm text-muted mb-4">Grading system: <%= board.grading_system.name %></p>
+            <p class="text-sm text-muted mb-3">Grading system: <%= board.grading_system.name %></p>
           <% end %>
 
-          <% board.board_layouts.kept.order(active: :desc, created_at: :desc).each do |layout| %>
-            <div class="layout-item">
-              <h3 class="text-xl font-medium mb-2">
-                Layout: <%= layout.name %>
-                <% if layout.active? %>
-                  <%= render Badge.new(:blue, class: "ml-2") { "Active" } %>
-                <% end %>
-              </h3>
-              <p class="text-muted text-sm mb-2">Created <%= layout.created_at.strftime("%b %d, %Y") %></p>
-
-              <p class="text-sm text-muted mb-2">Problems:</p>
-              <% if layout.problems.kept.any? %>
-                <ul class="list-bullet">
-                  <% layout.problems.kept.each do |problem| %>
-                    <li>
-                      <div class="flex-between">
-                        <span><%= problem.name %> - <%= problem.grade %></span>
-                        <%= link_to soft_delete_board_problem_path(board, problem),
-                              class: "btn-icon",
-                              title: "Delete",
-                              data: { turbo_method: :patch, turbo_confirm: "Delete this problem?" } do %>
-                          <%= icon(:trash) %>
-                        <% end %>
-                      </div>
-                    </li>
+          <% layouts = board.visible_layouts %>
+          <% if layouts.any? %>
+            <ul class="layout-chips">
+              <% layouts.each do |layout| %>
+                <li class="layout-chip">
+                  <%= layout.name %>
+                  <% if layout.active? %>
+                    <%= render Badge.new(:blue) { "Active" } %>
                   <% end %>
-                </ul>
-              <% else %>
-                <p class="text-muted italic">No problems in this layout</p>
+                </li>
               <% end %>
-            </div>
+            </ul>
+          <% else %>
+            <p class="text-muted italic mb-4">No layouts yet</p>
           <% end %>
 
+          <div class="flex gap-2 flex-wrap items-center">
+            <%= link_to "View #{pluralize(@problem_counts.fetch(board.id, 0), 'problem')}",
+                  board_problems_path(board), class: "btn btn-primary btn-sm" %>
+            <%= link_to "Manage layouts", board, class: "btn btn-outline btn-sm" %>
+            <%# Caching a board for offline use belongs where you pick a board,
+                not inside the one you already opened. %>
+            <span class="offline-control"
+                  data-controller="board-offline"
+                  data-board-offline-board-id-value="<%= board.id %>"
+                  data-board-offline-manifest-path-value="<%= offline_manifest_board_path(board, format: :json) %>">
+              <button type="button"
+                      data-board-offline-target="button"
+                      data-action="board-offline#toggle"
+                      class="btn btn-outline btn-sm">Make available offline</button>
+              <span class="text-xs text-muted" data-board-offline-target="status"></span>
+            </span>
+          </div>
         </div>
       <% end %>
+    </div>
+
+    <div class="mt-6">
+      <%= link_to "New board", new_board_path, class: "btn btn-primary" %>
     </div>
   <% else %>
     <div class="empty-state">
       <h3>No boards found</h3>
       <p>Create a board to start adding climbing problems.</p>
       <div class="empty-state-actions">
-        <%= link_to "New Board", new_board_path, class: "btn btn-primary" %>
+        <%= link_to "New board", new_board_path, class: "btn btn-primary" %>
       </div>
     </div>
   <% end %>
-
-  <div class="mt-6">
-    <%= link_to "New board", new_board_path, class: "btn btn-primary" %>
-  </div>
 <% end %>

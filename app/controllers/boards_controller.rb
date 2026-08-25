@@ -6,11 +6,18 @@ class BoardsController < ApplicationController
 
   # GET /boards or /boards.json
   def index
-    @boards = current_user.boards.kept.includes(board_layouts: :problems)
+    @boards = current_user.boards.kept.order(:name).includes(:grading_system, :board_layouts).to_a
+    @problem_counts = Problem.kept
+      .joins(:board_layout)
+      .where(board_layouts: { board_id: @boards.map(&:id), discarded_at: nil })
+      .group("board_layouts.board_id")
+      .count
   end
 
   # GET /boards/1 or /boards/1.json
   def show
+    @layouts = @board.visible_layouts
+    @problems_by_layout = @board.problems_by_layout
   end
 
   # GET /boards/new

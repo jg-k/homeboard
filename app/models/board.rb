@@ -14,6 +14,21 @@ class Board < ApplicationRecord
   def active_layout
     board_layouts.kept.find_by(active: true)
   end
+
+  # Layouts worth showing, in the order the board reads: the one you are
+  # climbing on first, then the rest by recency. Sorted in Ruby so a preloaded
+  # association is reused.
+  def visible_layouts
+    board_layouts.reject(&:discarded?).sort_by do |layout|
+      [ layout.active? ? 0 : 1, -layout.created_at.to_i ]
+    end
+  end
+
+  # Kept problems grouped by the layout they live on, in one query, named so
+  # you can scan for one. The board page lists these; counts fall out of it.
+  def problems_by_layout
+    problems.kept.order(:name).group_by(&:board_layout_id)
+  end
 end
 
 # == Schema Information

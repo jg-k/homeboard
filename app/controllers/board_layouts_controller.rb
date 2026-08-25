@@ -1,7 +1,7 @@
 class BoardLayoutsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_board
-  before_action :set_board_layout, only: [ :update, :soft_delete, :archive, :image ]
+  before_action :set_board_layout, only: [ :update, :archive, :destroy, :image ]
 
   def create
     @board_layout = @board.board_layouts.build(board_layout_params)
@@ -43,16 +43,17 @@ class BoardLayoutsController < ApplicationController
     end
   end
 
-  def soft_delete
-    @board_layout.discard
-    @board_layout.activate_next_if_needed!
-    redirect_to @board, notice: "Layout was successfully deleted."
+  # Archive is the reversible-in-principle option: the layout and its problems
+  # are only flagged away, not removed.
+  def archive
+    @board_layout.archive!
+    redirect_to @board, notice: "#{@board_layout.name} was archived."
   end
 
-  def archive
-    @board_layout.toggle_archive!
-    notice = @board_layout.archived? ? "Layout was archived." : "Layout was unarchived."
-    redirect_to @board, notice: notice
+  # Delete means gone: the layout, its problems, and its image.
+  def destroy
+    @board_layout.destroy!
+    redirect_to @board, notice: "#{@board_layout.name} was deleted."
   end
 
   # Stable URL for the layout image. Serves the processed variant bytes

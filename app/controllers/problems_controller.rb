@@ -66,11 +66,12 @@ class ProblemsController < ApplicationController
   end
 
   def new
-    if params[:board_layout_id]
-      @board_layout = @board.board_layouts.kept.find(params[:board_layout_id])
-    else
-      @board_layout = @board.active_layout
-    end
+    @board_layout =
+      if params[:board_layout_id]
+        @board.board_layouts.kept.find_by(id: params[:board_layout_id]) || @board.active_layout
+      else
+        @board.active_layout
+      end
     redirect_to board_problems_path(@board) and return unless @board_layout
 
     grading_system = @board.grading_system
@@ -162,14 +163,19 @@ class ProblemsController < ApplicationController
     @boards = current_user.boards.kept.order(:name)
     @current_board = @board
     @problems = filtered_and_sorted_problems
-    @all_problems_for_offline = @board.problems.kept.joins(:board_layout).merge(BoardLayout.not_archived)
+    @all_problems_for_offline = @board.problems.kept.joins(:board_layout).merge(BoardLayout.kept)
     @sent_problem_ids = BoardClimb.for_user(current_user).successful
       .where(problem_id: @all_problems_for_offline.select(:id)).pluck(:problem_id).to_set
     @grades_order = @board.grading_system&.grades || []
   end
 
   def filtered_and_sorted_problems
-    problems = @board.problems.kept.joins(:board_layout).merge(BoardLayout.not_archived).includes(:board_layout)
+    problems = @board.problems.kept.joins(:board_layout).merge(BoardLayout.kept).includes(:board_layout)
+
+    # Narrow to a single layout when arrived at from the board page.
+    if params[:board_layout_id].present?
+      problems = problems.where(board_layout_id: params[:board_layout_id])
+    end
 
     # Apply filter
     case params[:filter]
@@ -218,8 +224,8 @@ class ProblemsController < ApplicationController
   end
 
   def filter_params
-    params.slice(:sort, :filter, :min_grade, :max_grade)
-          .permit(:sort, :filter, :min_grade, :max_grade)
+    params.slice(:sort, :filter, :min_grade, :max_grade, :board_layout_id)
+          .permit(:sort, :filter, :min_grade, :max_grade, :board_layout_id)
           .to_h.compact_blank
   end
 

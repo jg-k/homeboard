@@ -27,22 +27,23 @@ class BoardLayout < ApplicationRecord
   before_update :deactivate_other_layouts, if: :will_save_change_to_active?
 
   scope :active, -> { where(active: true) }
-  scope :not_archived, -> { where(archived_at: nil) }
 
-  def archived?
-    archived_at.present?
-  end
-
-  def toggle_archive!
-    update!(archived_at: archived? ? nil : Time.current)
-    activate_next_if_needed!
+  # Putting a layout away takes its problems with it: a problem only means
+  # anything on the wall it was set on. Recoverable in the database, but there
+  # is no way back from the interface -- use delete when you mean forever.
+  def archive!
+    transaction do
+      problems.kept.find_each(&:discard)
+      discard!
+      activate_next_if_needed!
+    end
   end
 
   def activate_next_if_needed!
-    return unless active? && (archived? || discarded?)
+    return unless active? && discarded?
 
     update_column(:active, false)
-    next_layout = board.board_layouts.kept.not_archived.where.not(id: id).order(created_at: :desc).first
+    next_layout = board.board_layouts.kept.where.not(id: id).order(created_at: :desc).first
     next_layout&.update!(active: true)
   end
 
@@ -88,7 +89,6 @@ end
 #
 #  id           :integer          not null, primary key
 #  active       :boolean          default(FALSE), not null
-#  archived_at  :datetime
 #  discarded_at :datetime
 #  name         :string
 #  created_at   :datetime         not null

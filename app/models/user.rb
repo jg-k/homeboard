@@ -126,6 +126,7 @@ end
 #  reset_password_token      :string
 #  role                      :string           default("user"), not null
 #  sign_in_count             :integer          default(0), not null
+#  thecrag_session_cookie    :string
 #  thecrag_synced_at         :datetime
 #  thecrag_username          :string
 #  uid                       :string

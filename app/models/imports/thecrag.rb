@@ -1,6 +1,12 @@
 class Imports::Thecrag
   Result = Struct.new(:imported_count, :skipped_count, :errors, keyword_init: true)
 
+  # One admin lends their theCrag session to fetch every user's logbook, so the
+  # cookie lives on an admin row rather than on the climber being synced.
+  def self.session_cookie
+    User.admin.where.not(thecrag_session_cookie: [ nil, "" ]).pick(:thecrag_session_cookie)
+  end
+
   ASCENT_TYPE_MAP = {
     "Onsight" => "onsight",
     "Flash" => "flash",

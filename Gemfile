@@ -44,7 +44,6 @@ gem "chartkick"
 gem "prawn"
 
 # Headless browser for scraping (used by Imports::Thecrag::Scraper)
-gem "ferrum"
 
 # Error tracking
 gem "sentry-ruby"

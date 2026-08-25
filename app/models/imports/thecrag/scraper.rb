@@ -1,67 +1,87 @@
-require "ferrum"
 require "nokogiri"
 
+# Reads a climber's logbook off theCrag.
+#
+# theCrag stopped serving logbooks to anonymous visitors: without a session the
+# ascents page 302s to /home and there is nothing to parse. So every fetch
+# carries a session cookie lifted from a signed-in browser, and a bounce back to
+# /home means that cookie has expired.
 class Imports::Thecrag::Scraper
-  USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 " \
-               "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36".freeze
+  class SessionExpired < StandardError; end
 
-  STEALTH_JS = <<~JS.freeze
-    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-    Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
-    Object.defineProperty(navigator, 'plugins', {
-      get: () => [
-        { name: 'Chrome PDF Plugin' },
-        { name: 'Chrome PDF Viewer' },
-        { name: 'Native Client' }
-      ]
-    });
-    window.chrome = { runtime: {}, app: {}, csi: () => {}, loadTimes: () => {} };
-  JS
+  # theCrag lists ascents newest first, so one page -- the most recent hundred --
+  # is all a repeat sync needs. History comes from the CSV import instead:
+  # walking all fourteen pages of a long logbook is what earns a 429. Pass a
+  # bigger `pages:` only when you mean to.
+  DEFAULT_PAGES = 1
+  MAX_PAGES = 40
+
+  # Even two page loads back to back are worth spacing out; a sync is a
+  # background job and nobody is watching the clock.
+  PAGE_PAUSE = 1.5
 
   Row = Struct.new(:thecrag_ascent_id, :ascent_date, :route_name, :grade,
                    :ascent_type, :gear_style, :crag_name, :crag_path,
                    :country, :quality, :route_height, keyword_init: true)
 
-  def initialize(username, browser_path: ENV["CHROME_BIN"] || "/usr/bin/google-chrome")
+  def initialize(username, cookie:, pages: DEFAULT_PAGES, http: nil, pause: PAGE_PAUSE)
     @username = username
-    @browser_path = browser_path
+    @cookie = cookie
+    @pages = pages.clamp(1, MAX_PAGES)
+    @pause = pause
+    @http = http || Imports::Http.new(cookie: normalized_cookie(cookie))
   end
 
   def call
-    parse(fetch_html)
+    rows = []
+    page = 1
+
+    loop do
+      html = fetch(page)
+      page_rows = parse(html)
+      rows.concat(page_rows)
+
+      last = page == 1 ? last_page(html) : @last_page
+      @last_page = last
+      break if page_rows.empty? || page >= [ last, @pages ].min
+
+      page += 1
+      sleep @pause if @pause.to_f.positive?
+    end
+
+    rows
   end
 
   private
 
-  def fetch_html
-    browser = Ferrum::Browser.new(
-      headless: true,
-      browser_path: @browser_path,
-      timeout: 45,
-      process_timeout: 45,
-      window_size: [ 1366, 900 ],
-      browser_options: {
-        "no-sandbox" => nil,
-        "disable-dev-shm-usage" => nil,
-        "disable-blink-features" => "AutomationControlled",
-        "lang" => "en-US,en"
-      }
-    )
+  # Accepts either a bare session id or a full "name=value; ..." cookie header.
+  def normalized_cookie(cookie)
+    value = cookie.to_s.strip
+    value.include?("=") ? value : "ApacheSessionID=#{value}"
+  end
 
-    page = browser.create_page
-    page.headers.set("User-Agent" => USER_AGENT, "Accept-Language" => "en-US,en;q=0.9")
-    page.command("Page.addScriptToEvaluateOnNewDocument", source: STEALTH_JS)
-    page.command("Network.setUserAgentOverride", userAgent: USER_AGENT, acceptLanguage: "en-US,en", platform: "Linux x86_64")
-    page.go_to("https://www.thecrag.com/en/climber/#{@username}/ascents")
-    sleep 3
+  def fetch(page)
+    url = "https://www.thecrag.com/en/climber/#{@username}/ascents"
+    url += "?page=#{page}" if page > 1
 
-    if page.title.to_s.match?(/just a moment|attention required|sorry/i)
-      raise "thecrag blocked the request (CF challenge): #{page.title}"
+    response = @http.get(url)
+
+    if response.url.to_s.end_with?("/home") || response.url.to_s.include?("/processmap/login")
+      raise SessionExpired, "theCrag sent us to #{response.url} -- the session cookie is no longer valid."
     end
+    if response.status == 429
+      raise Imports::Http::RateLimited,
+            "theCrag is rate limiting us (HTTP 429). Wait a few minutes before syncing again."
+    end
+    raise Imports::Http::Error, "theCrag returned HTTP #{response.status}" unless response.ok?
 
-    page.body
-  ensure
-    browser&.quit
+    response.body
+  end
+
+  # The pager links to every page, so the highest one it mentions is the last.
+  def last_page(html)
+    pages = html.scan(%r{/ascents\?page=(\d+)}).flatten.map(&:to_i)
+    pages.max || 1
   end
 
   def parse(html)
@@ -73,17 +93,15 @@ class Imports::Thecrag::Scraper
     current_date = nil
     current_crag = nil
     current_path = nil
-    current_country = nil
 
     table.css("tr").each do |tr|
       if tr.css("td.group").any? && tr.css("td.subheader").empty?
-        date, crag, path, country = parse_group_row(tr)
-        current_date    = date if date
-        current_crag    = crag if crag
-        current_path    = path if path
-        current_country = country if country
+        date, crag, path = parse_group_row(tr)
+        current_date = date if date
+        current_crag = crag if crag
+        current_path = path if path
       elsif tr["class"] == "actionable"
-        row = parse_ascent_row(tr, current_date, current_crag, current_path, current_country)
+        row = parse_ascent_row(tr, current_date, current_crag, current_path)
         rows << row if row
       end
     end
@@ -98,23 +116,21 @@ class Imports::Thecrag::Scraper
       date = parse_date(m[1])
     end
     anchor = tr.css("a").first
-    crag = anchor&.text&.strip
-    path = anchor&.[]("href")
-    country = parse_country(anchor)
-    [ date, crag, path, country ]
+    [ date, anchor&.text&.strip, anchor&.[]("href") ]
   end
 
+  # The route link carries the full breadcrumb -- "World › Europe › United
+  # Kingdom › ..." -- and the country is the third step. The group row used to
+  # carry this too, but no longer has a title attribute at all.
   def parse_country(anchor)
-    return nil unless anchor
-
-    title = anchor["title"].to_s
+    title = anchor&.[]("title").to_s
     return nil if title.blank?
 
-    parts = title.split("›").map(&:strip)
-    parts[2] if parts.size > 2
+    parts = title.tr(" ", " ").split("›").map(&:strip)
+    parts[2].presence
   end
 
-  def parse_ascent_row(tr, date, crag, path, country)
+  def parse_ascent_row(tr, date, crag, path)
     ascent_id = tr["data-ascentid"].presence
     return nil unless ascent_id && date
 
@@ -124,23 +140,30 @@ class Imports::Thecrag::Scraper
 
     grade = tr.css("td span[class*=gb]").first&.text&.strip
     route_anchor = tr.css("span.route a").first
-    route_name = route_anchor&.text&.strip
-    quality = tr.text.scan("★").size
-    height = tr.text[/(\d+)\s*m\b/, 1]&.to_i
 
     Row.new(
       thecrag_ascent_id: ascent_id,
       ascent_date: date,
-      route_name: route_name,
+      route_name: route_name_from(route_anchor),
       grade: grade,
       ascent_type: ascent_label,
       gear_style: gear_label,
       crag_name: crag,
       crag_path: path,
-      country: country,
-      quality: (quality.positive? ? quality : nil),
-      route_height: height
+      country: parse_country(route_anchor),
+      quality: (tr.text.scan("★").size.positive? ? tr.text.scan("★").size : nil),
+      route_height: tr.text[/(\d+)\s*m\b/, 1]&.to_i
     )
+  end
+
+  # The quality stars live inside the route link, so the anchor's own text reads
+  # "★★ Magic Flute". Drop them -- they are already counted into quality.
+  def route_name_from(anchor)
+    return nil unless anchor
+
+    without_stars = anchor.dup
+    without_stars.css("span.star").remove
+    without_stars.text.strip.presence
   end
 
   def parse_date(string)

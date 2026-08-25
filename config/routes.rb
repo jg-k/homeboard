@@ -84,6 +84,9 @@ Rails.application.routes.draw do
   # Admin
   namespace :admin do
     resources :users, only: [ :index, :update, :destroy ]
+    resource :thecrag, only: [ :show, :update ], controller: "thecrag" do
+      post :sync
+    end
   end
 
   # Problems landing redirect

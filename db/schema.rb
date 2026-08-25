@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_25_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_25_140000) do
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
@@ -308,6 +308,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_25_120000) do
     t.string "reset_password_token"
     t.string "role", default: "user", null: false
     t.integer "sign_in_count", default: 0, null: false
+    t.string "thecrag_session_cookie"
     t.datetime "thecrag_synced_at"
     t.string "thecrag_username"
     t.string "uid"

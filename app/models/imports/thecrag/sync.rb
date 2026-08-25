@@ -1,16 +1,18 @@
 class Imports::Thecrag::Sync
   Result = Imports::Thecrag::Result
 
-  def initialize(user:, username: nil, scraper: nil)
+  def initialize(user:, username: nil, cookie: nil, scraper: nil)
     @user = user
     @username = username || user.thecrag_username
+    @cookie = cookie || Imports::Thecrag.session_cookie
     @scraper = scraper
   end
 
   def call
     raise ArgumentError, "thecrag username is required" if @username.blank?
+    raise ArgumentError, "a theCrag session cookie is required" if @scraper.nil? && @cookie.blank?
 
-    rows = (@scraper || Imports::Thecrag::Scraper.new(@username)).call
+    rows = (@scraper || Imports::Thecrag::Scraper.new(@username, cookie: @cookie)).call
 
     imported = 0
     skipped = 0

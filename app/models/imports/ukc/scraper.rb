@@ -1,26 +1,8 @@
-require "ferrum"
 require "nokogiri"
 
 class Imports::Ukc::Scraper
-  USER_AGENT = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 " \
-               "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36".freeze
-
-  STEALTH_JS = <<~JS.freeze
-    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-    Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
-    Object.defineProperty(navigator, 'plugins', {
-      get: () => [
-        { name: 'Chrome PDF Plugin' },
-        { name: 'Chrome PDF Viewer' },
-        { name: 'Native Client' }
-      ]
-    });
-    window.chrome = { runtime: {}, app: {}, csi: () => {}, loadTimes: () => {} };
-  JS
-
   DEFAULT_LIMIT = 50
   ALLOWED_NRESULTS = [ 25, 50, 75, 100 ].freeze
-  CF_TITLE = /just a moment|attention required|sorry/i
 
   GRADETYPE_TO_GEAR_STYLE = {
     1 => "sport",
@@ -32,10 +14,10 @@ class Imports::Ukc::Scraper
                    :ascent_type, :gear_style, :partners, :crag_name, :crag_path,
                    :route_path, keyword_init: true)
 
-  def initialize(user_id, limit: DEFAULT_LIMIT, browser_path: ENV["CHROME_BIN"] || "/usr/bin/google-chrome")
+  def initialize(user_id, limit: DEFAULT_LIMIT, http: nil)
     @user_id = user_id
     @limit = limit
-    @browser_path = browser_path
+    @http = http || Imports::Http.new
   end
 
   def call
@@ -86,29 +68,11 @@ class Imports::Ukc::Scraper
   end
 
   def fetch(gradetype: nil, year: nil, pg: 1, nresults: ALLOWED_NRESULTS.last)
-    browser = Ferrum::Browser.new(
-      headless: true,
-      browser_path: @browser_path,
-      timeout: 45,
-      process_timeout: 45,
-      window_size: [ 1366, 900 ],
-      browser_options: {
-        "no-sandbox" => nil,
-        "disable-dev-shm-usage" => nil,
-        "disable-blink-features" => "AutomationControlled",
-        "lang" => "en-US,en"
-      }
-    )
+    url = url_for(gradetype: gradetype, year: year, pg: pg, nresults: nresults)
+    response = @http.get(url)
+    raise Imports::Http::Error, "ukc returned HTTP #{response.status}" unless response.ok?
 
-    page = browser.create_page
-    page.headers.set("User-Agent" => USER_AGENT, "Accept-Language" => "en-US,en;q=0.9")
-    page.command("Page.addScriptToEvaluateOnNewDocument", source: STEALTH_JS)
-    page.command("Network.setUserAgentOverride", userAgent: USER_AGENT, acceptLanguage: "en-US,en", platform: "Linux x86_64")
-    page.go_to(url_for(gradetype: gradetype, year: year, pg: pg, nresults: nresults))
-    wait_for_logbook(page)
-    page.body
-  ensure
-    browser&.quit
+    response.body
   end
 
   def url_for(gradetype:, year:, pg:, nresults:)
@@ -116,14 +80,6 @@ class Imports::Ukc::Scraper
     params[:gradetype] = gradetype if gradetype
     params[:year] = year if year
     "https://www.ukclimbing.com/logbook/showlog.php?#{params.to_query}"
-  end
-
-  def wait_for_logbook(page, attempts: 8, interval: 2)
-    attempts.times do
-      sleep interval
-      return if page.body.to_s.include?("myLogbookTable")
-    end
-    raise "ukc blocked the request (CF challenge): #{page.title}" if page.title.to_s.match?(CF_TITLE)
   end
 
   def parse_rows(html, fixed_year: nil, gear_style: nil)

@@ -1,0 +1,82 @@
+<%= render PageLayout.new(title: "theCrag sync", subtitle: "Fetches every climber's logbook using your session") do %>
+  <div class="card mb-6">
+    <h2 class="text-xl font-semibold mb-2">Session cookie</h2>
+    <p class="text-sm text-muted mb-4">
+      theCrag no longer serves logbooks to signed-out visitors, and offers no API
+      for reading someone else's. So syncing borrows your browser session.
+      In theCrag, open DevTools &rarr; Application &rarr; Cookies &rarr;
+      <code>www.thecrag.com</code> and copy the <code>ApacheSessionID</code> value.
+      It expires periodically &mdash; when a sync reports the session is no longer
+      valid, paste a fresh one.
+    </p>
+
+    <p class="text-sm mb-4">
+      Status:
+      <% if @cookie_present %>
+        <%= render Badge.new(:green) { "Cookie saved" } %>
+      <% else %>
+        <%= render Badge.new(:yellow) { "No cookie yet" } %>
+      <% end %>
+    </p>
+
+    <%= form_with url: admin_thecrag_path, method: :patch do |form| %>
+      <div class="form-group">
+        <%= form.label :thecrag_session_cookie, "ApacheSessionID", class: "form-label" %>
+        <%= form.password_field :thecrag_session_cookie,
+              value: "",
+              autocomplete: "off",
+              placeholder: @cookie_present ? "A cookie is saved — paste a new one to replace it" : "Paste the cookie value",
+              class: "form-input" %>
+      </div>
+      <%= form.submit "Save cookie", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+
+  <div class="card">
+    <div class="flex justify-between items-center gap-4 mb-4">
+      <div>
+        <h2 class="text-xl font-semibold">Climbers</h2>
+        <p class="text-sm text-muted">
+          A sync reads the most recent page &mdash; about 100 ascents. For a full
+          history, have the climber upload their theCrag CSV export once.
+        </p>
+      </div>
+      <%= button_to "Sync everyone", sync_admin_thecrag_path,
+            class: "btn btn-primary btn-sm",
+            disabled: !@cookie_present %>
+    </div>
+
+    <% if @climbers.any? %>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Climber</th>
+              <th>theCrag username</th>
+              <th>Last synced</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @climbers.each do |climber| %>
+              <tr>
+                <td class="font-medium"><%= climber.display_name %></td>
+                <td class="text-sm"><%= climber.thecrag_username %></td>
+                <td class="text-sm text-muted">
+                  <%= climber.thecrag_synced_at ? smart_date(climber.thecrag_synced_at) : "Never" %>
+                </td>
+                <td>
+                  <%= button_to "Sync", sync_admin_thecrag_path(user_id: climber.id),
+                        class: "btn btn-outline btn-sm",
+                        disabled: !@cookie_present %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <p class="text-muted italic">No climber has a theCrag username set yet.</p>
+    <% end %>
+  </div>
+<% end %>

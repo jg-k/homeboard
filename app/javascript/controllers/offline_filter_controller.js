@@ -32,6 +32,8 @@ export default class extends Controller {
     const wanted = this.urlParams()
     if (this.serverAlreadyApplied(wanted)) return
 
+    this.refreshHeaderLinks(wanted)
+
     const items = Array.from(this.listTarget.querySelectorAll(".problem-link"))
     if (!items.length) return
 
@@ -48,11 +50,25 @@ export default class extends Controller {
   urlParams() {
     const p = new URLSearchParams(window.location.search)
     const out = {}
-    for (const key of ["filter", "sort", "min_grade", "max_grade"]) {
+    for (const key of ["filter", "sort", "min_grade", "max_grade", "board_layout_id"]) {
       const value = p.get(key)
       if (value) out[key] = value
     }
     return out
+  }
+
+  // A cached render's filter and new-problem links carry the params of the
+  // request that was cached, not the ones in the address bar — following
+  // them would silently drop the current filter.
+  refreshHeaderLinks(params) {
+    const query = new URLSearchParams(params)
+    for (const link of this.element.querySelectorAll("a[href*='/problems/filter'], a[href*='/problems/new']")) {
+      const url = new URL(link.getAttribute("href"), window.location.origin)
+      for (const [key, value] of query) {
+        if (!url.searchParams.has(key)) url.searchParams.set(key, value)
+      }
+      link.setAttribute("href", url.pathname + url.search)
+    }
   }
 
   serverAlreadyApplied(wanted) {
@@ -67,6 +83,8 @@ export default class extends Controller {
   // ----- filtering -----
 
   matches(item, params) {
+    if (params.board_layout_id && item.dataset.boardLayoutId !== params.board_layout_id) return false
+
     const sent = item.dataset.sent === "true"
     if (params.filter === "sent" && !sent) return false
     if (params.filter === "unsent" && sent) return false

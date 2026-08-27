@@ -72,11 +72,15 @@ class Settings::IntegrationsSection < ApplicationComponent
       div(class: "settings-value") do
         form_with url: sync_thecrag_crag_ascent_imports_path, method: :post, data: { turbo_frame: "_top" } do |f|
           div(class: "stack-sm") do
-            div(class: "flex gap-2 flex-wrap items-center") do
+            div do
+              f.label :thecrag_username, "Username", class: "form-label"
               f.text_field :thecrag_username, value: @current_user.thecrag_username, placeholder: "username", class: "form-input form-input-sm"
-              f.submit @current_user.thecrag_username.present? ? "Sync" : "Connect & sync", class: "btn btn-primary btn-sm"
             end
-            div(class: "flex gap-2 flex-wrap items-center") do
+            div do
+              div(class: "flex gap-2 items-center mb-1") do
+                f.label :thecrag_api_key, "API key", class: "form-label mb-0"
+                render Badge.new(:green) { "Saved" } if @current_user.thecrag_api_key.present?
+              end
               # A plain field, not a password one: "new-password" stops the site
               # password being autofilled but invites a manager to generate one
               # instead, and a generated password saved here reads as a valid key
@@ -87,23 +91,15 @@ class Settings::IntegrationsSection < ApplicationComponent
                 placeholder: api_key_placeholder,
                 data: { "1p-ignore": true, lpignore: true, "form-type": "other" },
                 class: "form-input form-input-sm"
-              render Badge.new(:green) { "API key saved" } if @current_user.thecrag_api_key.present?
-            end
-            if @current_user.thecrag_api_key.present?
-              label(class: "checkbox-group") do
-                check_box_tag :full_thecrag_resync, "1", false, class: "checkbox"
-                span(class: "checkbox-label") { "Read the whole logbook again instead of only what changed" }
-              end
-              label(class: "checkbox-group") do
-                check_box_tag :remove_thecrag_api_key, "1", false, class: "checkbox"
-                span(class: "checkbox-label") { "Remove the saved key" }
-              end
             end
             p(class: "text-xs text-muted") do
               plain "Only paying theCrag supporters can issue an API key. If you are one, "
               plain "find it on theCrag under Settings › API Keys. "
               plain "With a key we read your logbook through their API instead of you "
               plain "exporting and importing a CSV by hand."
+            end
+            div do
+              f.submit thecrag_connected? ? "Sync" : "Connect & sync", class: "btn btn-primary btn-sm"
             end
           end
         end
@@ -113,6 +109,10 @@ class Settings::IntegrationsSection < ApplicationComponent
 
   def api_key_placeholder
     @current_user.thecrag_api_key.present? ? "Paste a new key to replace the saved one" : "theCrag API key (optional)"
+  end
+
+  def thecrag_connected?
+    @current_user.thecrag_username.present? || @current_user.thecrag_api_key.present?
   end
 
   def ukc_row

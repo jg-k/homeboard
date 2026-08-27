@@ -101,6 +101,7 @@ class ProblemsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".problem-link" do |links|
       links.each do |link|
         assert link["data-problem-id"].present?
+        assert link["data-board-layout-id"].present?
         assert link["data-grade-index"].present?
         assert link["data-created-at"].present?
         assert_includes %w[true false], link["data-sent"]

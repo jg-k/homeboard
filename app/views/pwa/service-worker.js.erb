@@ -173,6 +173,25 @@ async function respondFromCache(event, request) {
   const pinCache = await caches.open(PIN_CACHE)
   const pinned = await pinCache.match(keyed)
 
+  // Pinned HTML is an offline fallback, not an online accelerator. Served
+  // cache-first it answers a filtered URL with the unfiltered page (the
+  // cache key strips the query), Turbo then adopts that stripped URL after
+  // form submissions, and every server-rendered value on the page (filter
+  // links, sent flags, counts) is as old as the last revalidation. Online,
+  // let the server answer; keep the cached copy fresh for when we lose it.
+  if (pinned && isHtml(pinned)) {
+    try {
+      const fresh = await fetch(request)
+      const url = new URL(request.url)
+      if (fresh.ok && !fresh.redirected && !url.search) {
+        event.waitUntil(pinCache.put(keyed, fresh.clone()).catch(() => { /* quota */ }))
+      }
+      return fresh
+    } catch (_) {
+      return pinned
+    }
+  }
+
   if (pinned) {
     event.waitUntil((async () => {
       try {

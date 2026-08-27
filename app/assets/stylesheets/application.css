@@ -886,6 +886,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 .mt-8 { margin-top: var(--space-8); }
 .mt-12 { margin-top: var(--space-12); }
 
+.mb-0 { margin-bottom: 0; }
 .mb-1 { margin-bottom: var(--space-1); }
 .mb-2 { margin-bottom: var(--space-2); }
 .mb-3 { margin-bottom: var(--space-3); }

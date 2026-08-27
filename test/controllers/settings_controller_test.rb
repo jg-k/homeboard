@@ -27,24 +27,23 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select "input[name='ukc_user_id'][value=?]", "12345"
   end
 
-  # The key field is a password input, so it can never be prefilled; the badge
-  # and the removal checkbox are the only signs that a key is saved at all.
-  test "GET index offers to remove a saved theCrag API key" do
+  # The key field is never prefilled, so the badge is the only sign that a key
+  # is saved at all.
+  test "GET index shows a badge when a theCrag API key is saved" do
     @user.update!(thecrag_username: "alice", thecrag_api_key: "secret-key")
     sign_in @user
     get settings_url
     assert_response :success
     assert_select "input[name='thecrag_api_key'][value=?]", ""
-    assert_select "input[name='remove_thecrag_api_key']"
-    assert_select "body", text: /API key saved/
+    assert_select ".badge", text: "Saved"
   end
 
-  test "GET index does not offer removal when no key is saved" do
+  test "GET index shows no badge when no key is saved" do
     @user.update!(thecrag_username: "alice", thecrag_api_key: nil)
     sign_in @user
     get settings_url
     assert_response :success
-    assert_select "input[name='remove_thecrag_api_key']", false
+    assert_select ".badge", text: "Saved", count: 0
   end
 
   test "GET index warns when a passkey would die with its device" do

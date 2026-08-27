@@ -160,4 +160,47 @@ class ProblemsControllerTest < ActionDispatch::IntegrationTest
       assert node, "expected to find #{selector}"
       node[attribute]
     end
+
+  # /problems used to land on whichever board sorted first by name, so a
+  # two-board user was bounced off the one they were climbing on.
+  test "landing returns to the board you were last on" do
+    other = Board.create!(name: "Zulu")
+    @user.boards << other
+
+    get board_problems_url(other)
+    get problems_landing_url
+
+    assert_redirected_to board_problems_path(other)
+  end
+
+  test "opening a problem counts as visiting its board" do
+    other = Board.create!(name: "Zulu")
+    @user.boards << other
+    layout = BoardLayout.create!(board: other, name: "Zulu Layout", use_sample_image: "1")
+    problem = layout.problems.create!(name: "On Zulu", grade: "V2", start_holds: [ { x: 0.1, y: 0.1 } ])
+
+    get board_problem_url(other, problem)
+    get problems_landing_url
+
+    assert_redirected_to board_problems_path(other)
+  end
+
+  test "landing falls back to a board with problems when nothing was visited" do
+    Board.create!(name: "Aardvark").tap { |b| @user.boards << b }
+
+    get problems_landing_url
+
+    assert_redirected_to board_problems_path(@board)
+  end
+
+  test "landing ignores a remembered board that has since been deleted" do
+    other = Board.create!(name: "Zulu")
+    @user.boards << other
+
+    get board_problems_url(other)
+    other.discard
+    get problems_landing_url
+
+    assert_redirected_to board_problems_path(@board)
+  end
 end

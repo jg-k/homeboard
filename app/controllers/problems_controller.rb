@@ -3,9 +3,11 @@ class ProblemsController < ApplicationController
   before_action :set_board, except: [ :landing ]
   before_action :set_problem, only: [ :show, :edit, :update, :soft_delete ]
   before_action :load_navigation_data, except: [ :landing, :create, :update, :soft_delete ]
+  before_action :remember_board, only: [ :index, :show ]
 
   def landing
-    board = current_user.boards.kept.joins(:problems).merge(Problem.kept).order(:name).first
+    board = current_user.boards.kept.find_by(id: session[:last_board_id])
+    board ||= current_user.boards.kept.joins(:problems).merge(Problem.kept).order(:name).first
     board ||= current_user.boards.kept.order(:name).first
     if board
       redirect_to board_problems_path(board)
@@ -157,6 +159,12 @@ class ProblemsController < ApplicationController
     @problem = @board.problems.kept.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     redirect_to board_problems_path(@board)
+  end
+
+  # So the bare /problems entry point -- both nav links and the signed-in root
+  # -- opens the board you were last on, instead of whichever sorts first.
+  def remember_board
+    session[:last_board_id] = @board.id
   end
 
   def load_navigation_data

@@ -4,6 +4,7 @@
   start_date = label_start_date.beginning_of_week(:sunday)
   show_legend = local_assigns.fetch(:show_legend, true)
   legend_filter = local_assigns.fetch(:legend_filter, false)
+  legend_filter_url = local_assigns.fetch(:legend_filter_url, ->(category) { activity_path(category: category) })
   active_category = local_assigns[:active_category]
 
   weeks = []
@@ -22,13 +23,13 @@
   <% if show_legend %>
     <div class="grid-legend">
       <% if legend_filter %>
-        <%= link_to "All", activity_path,
+        <%= link_to "All", legend_filter_url.call(nil),
                     class: "legend-item legend-filter#{' legend-filter-active' if active_category.nil?}" %>
       <% end %>
       <% ActivityCalendar::DayActivity::LEGEND_LABELS.each do |category, label| %>
         <% dot_class = "legend-dot grid-day-#{category.to_s.tr('_', '-')} intensity-5" %>
         <% if legend_filter %>
-          <%= link_to activity_path(category: category),
+          <%= link_to legend_filter_url.call(category),
                       class: "legend-item legend-filter#{' legend-filter-active' if active_category == category}" do %>
             <span class="<%= dot_class %>"></span>
             <span><%= label %></span>

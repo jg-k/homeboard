@@ -27,11 +27,13 @@ class ActivityController < ApplicationController
 
     earliest_year = earliest.year
     current_year = Date.current.year
+    @category = ActivityCalendar.category(params[:category])
 
     all_data = ActivityCalendar.new(
       current_user,
       start_date: Date.new(earliest_year, 1, 1),
-      end_date: Date.new(current_year, 12, 31)
+      end_date: Date.new(current_year, 12, 31),
+      category: @category
     ).summary_by_date
 
     @years = (earliest_year..current_year).to_a.reverse.map do |year|

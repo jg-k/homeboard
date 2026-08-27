@@ -72,6 +72,22 @@ class ActivityControllerTest < ActionDispatch::IntegrationTest
     assert_match "Ben Nevis", response.body
   end
 
+  test "the history legend filters its grids down to one category" do
+    get activity_history_url(category: "crag_ascent")
+
+    assert_response :success
+    assert_select "a.legend-filter-active[href=?]", activity_history_path(category: "crag_ascent")
+    assert_select "a[href=?]", activity_day_path(date: @ascent_day.iso8601)
+    assert_select "a[href=?]", activity_day_path(date: @hike_day.iso8601), count: 0
+  end
+
+  test "the history legend links back to all" do
+    get activity_history_url
+
+    assert_select "a.legend-filter-active[href=?]", activity_history_path, text: "All"
+    assert_select "a.legend-item[href=?]", activity_history_path(category: "hike")
+  end
+
   test "requires authentication" do
     sign_out @user
     get activity_url

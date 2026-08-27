@@ -10,6 +10,9 @@
                grid_start_date: year_data[:start_date],
                grid_end_date: year_data[:end_date],
                show_legend: index == 0,
+               legend_filter: true,
+               legend_filter_url: ->(category) { activity_history_path(category: category) },
+               active_category: @category,
                grid_link_data: { turbo_frame: "_top" } %>
   <% end %>
 <% end %>

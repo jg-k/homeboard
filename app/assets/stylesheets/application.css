@@ -363,11 +363,6 @@ body:has(.mobile-menu-checkbox:checked) .mobile-menu-panel {
   height: 24px;
 }
 
-/* Add padding to main content to account for bottom nav */
-main {
-  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
-}
-
 /* Hide hamburger on mobile when we have bottom nav */
 .nav-hamburger {
   display: none;
@@ -377,10 +372,6 @@ main {
 @media (min-width: 1024px) {
   .bottom-nav {
     display: none;
-  }
-
-  main {
-    padding-bottom: 0;
   }
 
   .nav-hamburger {
@@ -954,14 +945,20 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   .grid-legend {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--space-2) var(--space-4);
-    margin-bottom: var(--space-3);
+    gap: 2px var(--space-2);
+    margin-bottom: var(--space-2);
+
+    @media (min-width: 1024px) {
+      gap: var(--space-2) var(--space-4);
+      margin-bottom: var(--space-3);
+    }
   }
 
   .legend-item {
     display: flex;
     align-items: center;
     gap: var(--space-1);
+    white-space: nowrap;
     font-size: var(--text-xs);
     color: var(--color-gray-600);
   }
@@ -974,7 +971,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   }
 
   a.legend-item {
-    min-height: 44px;
+    min-height: 32px;
     padding: 0 var(--space-2);
     border: 1px solid transparent;
     border-radius: var(--radius-md);
@@ -2360,6 +2357,12 @@ form:has(> .btn-icon-danger) {
 /* ===== Main content ===== */
 main {
   padding: var(--space-6);
+  /* Clear the fixed bottom nav so the last card is fully scrollable */
+  padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+
+  @media (min-width: 1024px) {
+    padding-bottom: var(--space-6);
+  }
 }
 
 /* ===== Home Page Hero ===== */

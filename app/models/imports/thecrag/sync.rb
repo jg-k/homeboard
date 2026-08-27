@@ -26,14 +26,18 @@ class Imports::Thecrag::Sync
       rows.each do |row|
         if (existing = CragAscent.find_by(thecrag_ascent_id: row.thecrag_ascent_id))
           skipped += 1
-          read_epochs << row.epoch
-          backfill_route(existing, row)
+          if refresh(existing, row)
+            read_epochs << row.epoch
+          else
+            errors << "Ascent #{row.thecrag_ascent_id}: #{existing.errors.full_messages.join(', ')}"
+          end
           next
         end
 
         ascent = CragAscent.new(
           thecrag_ascent_id: row.thecrag_ascent_id,
           thecrag_route_id: row.thecrag_route_id,
+          thecrag_epoch: row.epoch,
           ascent_date: row.ascent_date,
           route_name: row.route_name,
           grade: row.grade,
@@ -84,9 +88,30 @@ class Imports::Thecrag::Sync
     end
   end
 
+  # theCrag owns the climb, but not the note: a comment written here would
+  # otherwise be overwritten by the one it was imported from.
+  REFRESHABLE = %i[ascent_date route_name grade ascent_type gear_style crag_name
+                   crag_path country quality route_height thecrag_route_id].freeze
+
+  # An ascent edited on theCrag comes back with a higher epoch than the one we
+  # stored, which is the only way to tell an edit from a row we have already
+  # seen. The scraper sends no epoch, so it never overwrites the fuller record
+  # the API left behind.
+  def refresh(ascent, row)
+    backfill_route(ascent, row)
+    return true if row.epoch.blank?
+    return true if ascent.thecrag_epoch && row.epoch <= ascent.thecrag_epoch
+
+    attributes = REFRESHABLE.index_with { |name| row.public_send(name) }.compact
+    return false unless ascent.update(attributes.merge(thecrag_epoch: row.epoch))
+
+    ascent.activity_log&.update!(performed_at: row.ascent_date)
+    true
+  end
+
   # Ascents imported before we knew to store the route id are still the only
-  # record of those climbs, so a later sync fills the gap in rather than passing
-  # over them as duplicates and leaving them uncountable.
+  # record of those climbs, so a sync fills the gap in rather than passing over
+  # them and leaving them uncountable -- epoch or no epoch.
   def backfill_route(ascent, row)
     return if row.thecrag_route_id.blank? || ascent.thecrag_route_id.present?
 

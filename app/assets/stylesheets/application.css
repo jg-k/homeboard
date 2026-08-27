@@ -970,6 +970,31 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
     width: 12px;
     height: 12px;
     border-radius: var(--radius-sm);
+    flex-shrink: 0;
+  }
+
+  a.legend-item {
+    min-height: 44px;
+    padding: 0 var(--space-2);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    color: var(--color-gray-600);
+    text-decoration: none;
+
+    @media (min-width: 1024px) {
+      min-height: 0;
+      padding: var(--space-1) var(--space-2);
+    }
+  }
+
+  a.legend-item:hover {
+    border-color: var(--color-gray-400);
+    color: var(--color-gray-900);
+  }
+
+  a.legend-filter-active {
+    border-color: var(--color-primary);
+    color: var(--color-primary);
   }
 
   .grid-container {
@@ -1057,10 +1082,10 @@ a.activity-card-link:hover {
 }
 
 .card.activity-card {
-  padding: var(--space-3);
+  padding: var(--space-2) var(--space-3);
 
   @media (min-width: 1024px) {
-    padding: var(--space-6);
+    padding: var(--space-4) var(--space-6);
   }
 
   .activity-header {

@@ -2,12 +2,10 @@ class ActivityController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @activity_data = ActivityCalendar.new(current_user).summary_by_date
+    @category = ActivityCalendar.category(params[:category])
+    @activity_data = ActivityCalendar.new(current_user, category: @category).summary_by_date
 
-    @pagy, @activity_logs = pagy(
-      current_user.activity_logs.includes(:comments, loggable: []).chronological,
-      limit: 30
-    )
+    @pagy, @activity_logs = pagy(filtered_logs, limit: 30)
 
     @activity_logs_by_date = @activity_logs.group_by { |log| log.performed_at.to_date }
     assign_loggable_associations(@activity_logs)
@@ -45,6 +43,13 @@ class ActivityController < ApplicationController
   end
 
   private
+
+  def filtered_logs
+    logs = current_user.activity_logs.includes(:comments, loggable: []).chronological
+    return logs unless @category
+
+    logs.where(loggable_type: ActivityCalendar::LOGGABLE_TYPES.fetch(@category))
+  end
 
   def assign_loggable_associations(activity_logs)
     @loggables_by_log_id = ActivityLog::Loggables.preload(activity_logs)

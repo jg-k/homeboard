@@ -77,13 +77,15 @@ class Settings::IntegrationsSection < ApplicationComponent
               f.submit @current_user.thecrag_username.present? ? "Sync" : "Connect & sync", class: "btn btn-primary btn-sm"
             end
             div(class: "flex gap-2 flex-wrap items-center") do
-              # "new-password" rather than "off": browsers ignore "off" on a
-              # password input and would happily autofill the site password of
-              # whoever is signed in into theCrag's key field.
-              f.password_field :thecrag_api_key,
+              # A plain field, not a password one: "new-password" stops the site
+              # password being autofilled but invites a manager to generate one
+              # instead, and a generated password saved here reads as a valid key
+              # until theCrag rejects it. Nothing is prefilled, so nothing leaks.
+              f.text_field :thecrag_api_key,
                 value: "",
-                autocomplete: "new-password",
+                autocomplete: "off",
                 placeholder: api_key_placeholder,
+                data: { "1p-ignore": true, lpignore: true, "form-type": "other" },
                 class: "form-input form-input-sm"
               render Badge.new(:green) { "API key saved" } if @current_user.thecrag_api_key.present?
             end

@@ -6,7 +6,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
     <% end %>
   </div>
-  <%= render "activity/activity_grid", activity_data: @activity_data %>
+  <%= render "activity/activity_grid",
+             activity_data: @activity_data,
+             legend_filter: true,
+             active_category: @category %>
   <%= turbo_frame_tag "activity_day_detail" do %>
     <div class="text-right mb-6">
       <%= link_to "View previous years &rarr;".html_safe, activity_history_path, class: "text-sm text-muted", data: { turbo_frame: "_top" } %>
@@ -30,13 +33,20 @@
       <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
     <% else %>
       <div class="empty-state">
-        <h3>No activity yet</h3>
-        <p>Start logging your board climbs and exercises to see them here!</p>
-        <div class="empty-state-actions">
-          <%= link_to "Go to Board Problems", problems_landing_path, class: "btn btn-primary", data: { turbo_frame: "_top" } %>
-          <span class="text-muted">or</span>
-          <%= link_to "Go to Exercises", exercise_types_path, class: "btn btn-primary", data: { turbo_frame: "_top" } %>
-        </div>
+        <% if @category %>
+          <h3>No <%= ActivityCalendar::DayActivity::LEGEND_LABELS[@category].downcase %> activity yet</h3>
+          <div class="empty-state-actions">
+            <%= link_to "Show all activity", activity_path, class: "btn btn-primary", data: { turbo_frame: "_top" } %>
+          </div>
+        <% else %>
+          <h3>No activity yet</h3>
+          <p>Start logging your board climbs and exercises to see them here!</p>
+          <div class="empty-state-actions">
+            <%= link_to "Go to Board Problems", problems_landing_path, class: "btn btn-primary", data: { turbo_frame: "_top" } %>
+            <span class="text-muted">or</span>
+            <%= link_to "Go to Exercises", exercise_types_path, class: "btn btn-primary", data: { turbo_frame: "_top" } %>
+          </div>
+        <% end %>
       </div>
     <% end %>
   <% end %>

@@ -153,6 +153,54 @@ class Imports::Thecrag::SyncTest < ActiveSupport::TestCase
     assert_equal "15920929", CragAscent.find_by(thecrag_ascent_id: "9001").thecrag_route_id
   end
 
+  test "an ascent edited on theCrag is brought up to date" do
+    sync([ row(grade: "7a", epoch: 100) ])
+
+    result = sync([ row(grade: "7b", route_name: "Magic Flute Direct", epoch: 300) ])
+
+    ascent = CragAscent.find_by(thecrag_ascent_id: "9001")
+    assert_equal 1, result.skipped_count
+    assert_equal "7b", ascent.grade
+    assert_equal "Magic Flute Direct", ascent.route_name
+    assert_equal 300, ascent.thecrag_epoch
+  end
+
+  test "a note written here survives the ascent being edited on theCrag" do
+    sync([ row(comment: "Fought for it.", epoch: 100) ])
+
+    sync([ row(comment: "Rewritten on theCrag.", epoch: 300) ])
+
+    assert_equal "Fought for it.", CragAscent.find_by(thecrag_ascent_id: "9001").comment
+  end
+
+  test "an ascent we have already seen at this epoch is left alone" do
+    sync([ row(grade: "7a", epoch: 300) ])
+
+    sync([ row(grade: "7b", epoch: 300) ])
+
+    assert_equal "7a", CragAscent.find_by(thecrag_ascent_id: "9001").grade
+  end
+
+  # The graph reads performed_at, so a date corrected on theCrag has to move the
+  # square as well as the record.
+  test "a corrected date moves the activity log with it" do
+    sync([ row(epoch: 100) ])
+    corrected = Time.zone.parse("2026-06-09")
+
+    sync([ row(ascent_date: corrected, epoch: 300) ])
+
+    assert_equal corrected, CragAscent.find_by(thecrag_ascent_id: "9001").activity_log.performed_at
+  end
+
+  # Scraper rows carry no epoch and fewer fields than the API sends.
+  test "a scraped row never overwrites what the API stored" do
+    sync([ row(grade: "7a", epoch: 300) ])
+
+    sync([ row(grade: nil, route_name: "Magic Flute", epoch: nil) ])
+
+    assert_equal "7a", CragAscent.find_by(thecrag_ascent_id: "9001").grade
+  end
+
   test "records where the ascent came from" do
     @user.update!(thecrag_api_key: "secret-key")
     sync([ row ])

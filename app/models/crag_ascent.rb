@@ -44,6 +44,7 @@ end
 #  route_height      :integer
 #  route_name        :string           not null
 #  source            :string
+#  thecrag_epoch     :integer
 #  created_at        :datetime         not null
 #  updated_at        :datetime         not null
 #  thecrag_ascent_id :string

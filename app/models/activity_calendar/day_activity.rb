@@ -22,8 +22,11 @@ class ActivityCalendar
       [ 1, 1 ]
     ].freeze
 
-    # Display priority for tie-break and tooltip ordering.
-    CATEGORIES = %i[crag_ascent gym_session board_climb exercise hike].freeze
+    # Display priority. The strongest thing you did names the day's colour, so a
+    # board session with conditioning on top still reads as a board day however
+    # many exercises were logged. Conditioning is last: it accompanies a day
+    # rather than being one.
+    CATEGORIES = %i[crag_ascent gym_session board_climb hike exercise].freeze
 
     CATEGORY_LABELS = {
       board_climb: "board climb",
@@ -31,6 +34,15 @@ class ActivityCalendar
       crag_ascent: "outdoor ascent",
       exercise: "exercise",
       hike: "hike"
+    }.freeze
+
+    # Legend order, and the wording the grid uses rather than the tooltip's.
+    LEGEND_LABELS = {
+      board_climb: "Board",
+      exercise: "Conditioning",
+      gym_session: "Indoor",
+      crag_ascent: "Outdoor",
+      hike: "Hike"
     }.freeze
 
     attr_reader :counts, :points_by_category
@@ -54,10 +66,7 @@ class ActivityCalendar
     end
 
     def dominant_category
-      return nil unless any?
-      max = @points_by_category.values.max
-      tied = @points_by_category.select { |_, pts| pts == max }.keys
-      tied.min_by { |c| CATEGORIES.index(c) || CATEGORIES.size }
+      CATEGORIES.find { |category| @counts[category].positive? }
     end
 
     def intensity

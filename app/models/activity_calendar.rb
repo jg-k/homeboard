@@ -1,8 +1,32 @@
 class ActivityCalendar
-  def initialize(user, weeks: 52, start_date: nil, end_date: nil)
+  ACCUMULATORS = {
+    board_climb: :accumulate_board_climbs,
+    exercise: :accumulate_exercises,
+    gym_session: :accumulate_gym_sessions,
+    crag_ascent: :accumulate_crag_ascents,
+    hike: :accumulate_hikes
+  }.freeze
+
+  LOGGABLE_TYPES = {
+    board_climb: %w[BoardClimb SystemBoardClimb],
+    exercise: %w[Exercise],
+    gym_session: %w[GymSession],
+    crag_ascent: %w[CragAscent],
+    hike: %w[Hike]
+  }.freeze
+
+  # Nil for anything that is not a category, so a hand-edited query param falls
+  # back to showing everything rather than an empty calendar.
+  def self.category(value)
+    key = value.presence&.to_sym
+    key if ACCUMULATORS.key?(key)
+  end
+
+  def initialize(user, weeks: 52, start_date: nil, end_date: nil, category: nil)
     @user = user
     @start_date = start_date || weeks.weeks.ago.to_date
     @end_date = end_date || Date.current
+    @category = self.class.category(category)
   end
 
   def summary_by_date
@@ -13,19 +37,22 @@ class ActivityCalendar
 
   def compute_summary
     result = Hash.new { |h, k| h[k] = DayActivity.new }
-    accumulate_board_climbs(result)
-    accumulate_crag_ascents(result)
-    accumulate_gym_sessions(result)
-    accumulate_exercises(result)
-    accumulate_hikes(result)
+    accumulators.each { |accumulator| send(accumulator, result) }
     result.default_proc = nil
     result
   end
 
+  # Filtering by leaving the other categories uncounted means a day only shows
+  # up if it has this one, and its colour and intensity come from it alone.
+  def accumulators
+    @category ? [ ACCUMULATORS.fetch(@category) ] : ACCUMULATORS.values
+  end
+
   def cache_key
     [
-      "activity_calendar/v1",
+      "activity_calendar/v2",
       @user.id,
+      @category,
       @start_date.to_s,
       @end_date.to_s,
       @user.activity_logs.cache_key_with_version

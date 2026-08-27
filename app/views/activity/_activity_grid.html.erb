@@ -3,6 +3,8 @@
   label_start_date = local_assigns.fetch(:grid_start_date, (end_date - 52.weeks))
   start_date = label_start_date.beginning_of_week(:sunday)
   show_legend = local_assigns.fetch(:show_legend, true)
+  legend_filter = local_assigns.fetch(:legend_filter, false)
+  active_category = local_assigns[:active_category]
 
   weeks = []
   current_date = start_date
@@ -19,26 +21,25 @@
 <div class="card activity-grid mb-6">
   <% if show_legend %>
     <div class="grid-legend">
-      <div class="legend-item">
-        <span class="legend-dot grid-day-board-climb intensity-5"></span>
-        <span>Board</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot grid-day-exercise intensity-5"></span>
-        <span>Conditioning</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot grid-day-gym-session intensity-5"></span>
-        <span>Indoor</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot grid-day-crag-ascent intensity-5"></span>
-        <span>Outdoor</span>
-      </div>
-      <div class="legend-item">
-        <span class="legend-dot grid-day-hike intensity-5"></span>
-        <span>Hike</span>
-      </div>
+      <% if legend_filter %>
+        <%= link_to "All", activity_path,
+                    class: "legend-item legend-filter#{' legend-filter-active' if active_category.nil?}" %>
+      <% end %>
+      <% ActivityCalendar::DayActivity::LEGEND_LABELS.each do |category, label| %>
+        <% dot_class = "legend-dot grid-day-#{category.to_s.tr('_', '-')} intensity-5" %>
+        <% if legend_filter %>
+          <%= link_to activity_path(category: category),
+                      class: "legend-item legend-filter#{' legend-filter-active' if active_category == category}" do %>
+            <span class="<%= dot_class %>"></span>
+            <span><%= label %></span>
+          <% end %>
+        <% else %>
+          <div class="legend-item">
+            <span class="<%= dot_class %>"></span>
+            <span><%= label %></span>
+          </div>
+        <% end %>
+      <% end %>
     </div>
   <% end %>
 

@@ -9,6 +9,12 @@ class User < ApplicationRecord
 
   enum :role, { user: "user", admin: "admin" }, default: :user
 
+  # A long-lived credential the climber hands us for their own theCrag logbook,
+  # so it does not belong in the clear in a backup or a database dump. The
+  # session cookie next to it stays plaintext: it predates this and there are
+  # rows already holding one.
+  encrypts :thecrag_api_key
+
   DISPLAY_NAME_FORMAT = /\A[a-z0-9][a-z0-9_-]*\z/
 
   before_validation :normalize_display_name
@@ -126,7 +132,10 @@ end
 #  reset_password_token      :string
 #  role                      :string           default("user"), not null
 #  sign_in_count             :integer          default(0), not null
+#  thecrag_api_key           :string
 #  thecrag_session_cookie    :string
+#  thecrag_since_epoch       :integer
+#  thecrag_sync_error        :string
 #  thecrag_synced_at         :datetime
 #  thecrag_username          :string
 #  uid                       :string

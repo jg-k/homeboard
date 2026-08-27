@@ -65,16 +65,51 @@ class Settings::IntegrationsSection < ApplicationComponent
         if @current_user.thecrag_synced_at
           p(class: "text-sm text-muted") { "Last synced: #{helpers.time_ago_in_words(@current_user.thecrag_synced_at)} ago" }
         end
+        if @current_user.thecrag_sync_error.present?
+          p(class: "text-sm text-danger") { "Syncing stopped: #{@current_user.thecrag_sync_error}" }
+        end
       end
       div(class: "settings-value") do
         form_with url: sync_thecrag_crag_ascent_imports_path, method: :post, data: { turbo_frame: "_top" } do |f|
-          div(class: "flex gap-2 flex-wrap items-center") do
-            f.text_field :thecrag_username, value: @current_user.thecrag_username, placeholder: "username", class: "form-input form-input-sm", required: true
-            f.submit @current_user.thecrag_username.present? ? "Sync" : "Connect & sync", class: "btn btn-primary btn-sm"
+          div(class: "stack-sm") do
+            div(class: "flex gap-2 flex-wrap items-center") do
+              f.text_field :thecrag_username, value: @current_user.thecrag_username, placeholder: "username", class: "form-input form-input-sm"
+              f.submit @current_user.thecrag_username.present? ? "Sync" : "Connect & sync", class: "btn btn-primary btn-sm"
+            end
+            div(class: "flex gap-2 flex-wrap items-center") do
+              # "new-password" rather than "off": browsers ignore "off" on a
+              # password input and would happily autofill the site password of
+              # whoever is signed in into theCrag's key field.
+              f.password_field :thecrag_api_key,
+                value: "",
+                autocomplete: "new-password",
+                placeholder: api_key_placeholder,
+                class: "form-input form-input-sm"
+              render Badge.new(:green) { "API key saved" } if @current_user.thecrag_api_key.present?
+            end
+            if @current_user.thecrag_api_key.present?
+              label(class: "checkbox-group") do
+                check_box_tag :full_thecrag_resync, "1", false, class: "checkbox"
+                span(class: "checkbox-label") { "Read the whole logbook again instead of only what changed" }
+              end
+              label(class: "checkbox-group") do
+                check_box_tag :remove_thecrag_api_key, "1", false, class: "checkbox"
+                span(class: "checkbox-label") { "Remove the saved key and go back to scraping" }
+              end
+            end
+            p(class: "text-xs text-muted") do
+              plain "Supporters can issue a personal API key under Settings › API Keys on theCrag. "
+              plain "With a key we read your logbook through their API instead of scraping it, "
+              plain "and each sync only asks for what changed since the last one."
+            end
           end
         end
       end
     end
+  end
+
+  def api_key_placeholder
+    @current_user.thecrag_api_key.present? ? "Paste a new key to replace the saved one" : "theCrag API key (optional)"
   end
 
   def ukc_row

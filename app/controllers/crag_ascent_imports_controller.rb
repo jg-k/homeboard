@@ -46,13 +46,17 @@ class CragAscentImportsController < ApplicationController
 
   def sync_thecrag
     username = params[:thecrag_username].to_s.strip
-    if username.blank?
-      redirect_to settings_path, alert: "Please enter your theCrag username."
+    if username.blank? && !keeping_a_key?
+      redirect_to settings_path, alert: "Please enter your theCrag username, or paste an API key."
       return
     end
 
-    current_user.update(thecrag_username: username)
-    ThecragSyncJob.perform_later(current_user.id, username)
+    unless current_user.update(thecrag_attributes(username))
+      redirect_to settings_path, alert: current_user.errors.full_messages.to_sentence
+      return
+    end
+
+    ThecragSyncJob.perform_later(current_user.id, username.presence)
     redirect_to settings_path,
                 notice: "Syncing your latest ascents from theCrag — refresh in a moment."
   end
@@ -71,6 +75,37 @@ class CragAscentImportsController < ApplicationController
   end
 
   private
+
+  # The key field submits blank on every sync -- a password input cannot be
+  # prefilled -- so blank means "leave the saved key alone". Clearing it is its
+  # own checkbox, because there is no other way to tell the two apart.
+  def thecrag_attributes(username)
+    attributes = {}
+    attributes[:thecrag_username] = username if username.present?
+    key = params[:thecrag_api_key].to_s.strip
+
+    if params[:remove_thecrag_api_key] == "1"
+      attributes[:thecrag_api_key] = nil
+      attributes[:thecrag_since_epoch] = nil
+    elsif key.present?
+      # A different key may point at a different logbook, so the incremental
+      # watermark from the old one cannot be trusted.
+      attributes[:thecrag_api_key] = key
+      attributes[:thecrag_since_epoch] = nil if key != current_user.thecrag_api_key
+    end
+
+    # Forgetting the watermark is what a full re-sync is.
+    attributes[:thecrag_since_epoch] = nil if params[:full_thecrag_resync] == "1"
+
+    attributes
+  end
+
+  # A saved key identifies the climber by itself; only the scraper needs a name.
+  def keeping_a_key?
+    return false if params[:remove_thecrag_api_key] == "1"
+
+    params[:thecrag_api_key].to_s.strip.present? || current_user.thecrag_api_key.present?
+  end
 
   def extract_ukc_user_id(input)
     raw = input.to_s.strip

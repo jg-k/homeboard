@@ -20,9 +20,9 @@ class Imports::Thecrag::Scraper
   # background job and nobody is watching the clock.
   PAGE_PAUSE = 1.5
 
-  Row = Struct.new(:thecrag_ascent_id, :ascent_date, :route_name, :grade,
-                   :ascent_type, :gear_style, :crag_name, :crag_path,
-                   :country, :quality, :route_height, keyword_init: true)
+  # Rows come out already mapped onto CragAscent's own vocabulary, the same way
+  # the API reader's do, so Sync never has to ask which reader it is holding.
+  Row = Imports::Thecrag::Row
 
   def initialize(username, cookie:, pages: DEFAULT_PAGES, http: nil, pause: PAGE_PAUSE)
     @username = username
@@ -146,8 +146,8 @@ class Imports::Thecrag::Scraper
       ascent_date: date,
       route_name: route_name_from(route_anchor),
       grade: grade,
-      ascent_type: ascent_label,
-      gear_style: gear_label,
+      ascent_type: Imports::Thecrag::ASCENT_TYPE_MAP[ascent_label],
+      gear_style: Imports::Thecrag::GEAR_STYLE_MAP[gear_label],
       crag_name: crag,
       crag_path: path,
       country: parse_country(route_anchor),

@@ -819,6 +819,12 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   gap: var(--space-4);
 }
 
+.stack-sm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
 .stack-md {
   display: flex;
   flex-direction: column;

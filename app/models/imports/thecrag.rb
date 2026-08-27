@@ -26,6 +26,40 @@ class Imports::Thecrag
     "Boulder" => "boulder"
   }.freeze
 
+  # The API reports ticks as machine labels rather than the prose the ascents
+  # page prints, and it knows more of them than we store. Anything we have no
+  # column for -- top ropes, retreats -- lands as the closest thing we do.
+  TICK_LABEL_MAP = {
+    "onsight" => "onsight",
+    "flash" => "flash",
+    "redpoint" => "redpoint",
+    "pinkpoint" => "pink_point",
+    "send" => "send",
+    "secondgo" => "send",
+    "groundup" => "send",
+    "clean" => "clean",
+    "allfreewithrest" => "clean",
+    "tick" => "tick",
+    "ticked" => "tick",
+    "repeat" => "tick",
+    "toprope" => "tick",
+    "topropeonsight" => "tick",
+    "topropeflash" => "tick",
+    "hangdog" => "hang_dog",
+    "dogged" => "hang_dog",
+    "attempt" => "attempt",
+    "working" => "attempt",
+    "retreat" => "attempt"
+  }.freeze
+
+  # What both readers hand to Imports::Thecrag::Sync. The scraper fills in what
+  # the ascents page shows; the API fills in everything, `epoch` included --
+  # that timestamp is what makes the next sync incremental.
+  Row = Struct.new(:thecrag_ascent_id, :ascent_date, :route_name, :grade,
+                   :ascent_type, :gear_style, :crag_name, :crag_path,
+                   :country, :quality, :route_height, :comment, :epoch,
+                   keyword_init: true)
+
   def initialize(user:, csv_content:)
     @user = user
     @csv_content = csv_content

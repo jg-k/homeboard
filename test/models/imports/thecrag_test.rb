@@ -188,6 +188,7 @@ class Imports::ThecragTest < ActiveSupport::TestCase
     assert_equal 12, ascent.route_height
     assert_equal "Lowland Outcrops", ascent.crag_name
     assert_equal "United Kingdom", ascent.country
+    assert_equal "15920929", ascent.thecrag_route_id
     assert_nil ascent.quality  # single star in "Route Stars" column, not "Quality"
 
     # Check a trad route

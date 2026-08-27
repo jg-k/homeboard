@@ -85,13 +85,16 @@ class Imports::Thecrag::SyncTest < ActiveSupport::TestCase
     assert_equal 100, @user.reload.thecrag_since_epoch
   end
 
-  test "a read that stopped at the page cap leaves the watermark alone" do
+  # theCrag returns the oldest ascents first, so a read cut short by the page cap
+  # resumes from its own high-water mark. Holding the watermark back would leave
+  # a long logbook re-reading the same first pages for ever.
+  test "a read that stopped at the page cap still records where it got to" do
     @user.update!(thecrag_api_key: "secret-key", thecrag_since_epoch: 50)
 
     Imports::Thecrag::Sync.new(user: @user, reader: TruncatedReader.new([ row(epoch: 300) ])).call
 
-    assert_equal 50, @user.reload.thecrag_since_epoch
-    assert_match(/too large/, @user.thecrag_sync_error)
+    assert_equal 300, @user.reload.thecrag_since_epoch
+    assert_match(/Only part/, @user.thecrag_sync_error)
   end
 
   test "a sync that worked clears the last failure" do
@@ -131,6 +134,23 @@ class Imports::Thecrag::SyncTest < ActiveSupport::TestCase
     reader = Imports::Thecrag::Sync.new(user: @user, cookie: "abc123").send(:build_reader)
 
     assert_instance_of Imports::Thecrag::Scraper, reader
+  end
+
+  test "stores the route the ascent was on" do
+    sync([ row(thecrag_route_id: "15920929") ])
+
+    assert_equal "15920929", CragAscent.find_by(thecrag_ascent_id: "9001").thecrag_route_id
+  end
+
+  # Those ascents are the only record of the climbs, so a later sync fills the
+  # gap in rather than passing over them as duplicates for ever.
+  test "fills the route id into an ascent imported before we stored one" do
+    sync([ row(thecrag_route_id: nil) ])
+
+    result = sync([ row(thecrag_route_id: "15920929") ])
+
+    assert_equal 1, result.skipped_count
+    assert_equal "15920929", CragAscent.find_by(thecrag_ascent_id: "9001").thecrag_route_id
   end
 
   test "records where the ascent came from" do

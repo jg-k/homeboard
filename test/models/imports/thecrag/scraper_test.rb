@@ -34,6 +34,14 @@ class Imports::Thecrag::ScraperTest < ActiveSupport::TestCase
     assert rows.all? { |r| r.crag_name.present? }
   end
 
+  # Counting goes on a route means grouping ascents by it, and the route link is
+  # the only place the page names it.
+  test "reads the route id out of the route link" do
+    rows = scraper(FakeHttp.new([ FIXTURE ])).call
+
+    assert_equal "8043159375", rows.first.thecrag_route_id
+  end
+
   # The quality stars sit inside the route link, so the anchor's own text reads
   # "★ The Killing Fields".
   test "keeps the stars out of the route name" do

@@ -143,6 +143,7 @@ class Imports::Thecrag::Scraper
 
     Row.new(
       thecrag_ascent_id: ascent_id,
+      thecrag_route_id: route_id_from(route_anchor),
       ascent_date: date,
       route_name: route_name_from(route_anchor),
       grade: grade,
@@ -154,6 +155,11 @@ class Imports::Thecrag::Scraper
       quality: (tr.text.scan("★").size.positive? ? tr.text.scan("★").size : nil),
       route_height: tr.text[/(\d+)\s*m\b/, 1]&.to_i
     )
+  end
+
+  # Route links carry the node id last: /en/climbing/.../route/8043159375
+  def route_id_from(anchor)
+    anchor&.[]("href").to_s[%r{/route/(\d+)}, 1]
   end
 
   # The quality stars live inside the route link, so the anchor's own text reads

@@ -128,6 +128,7 @@ class Imports::Thecrag::Api
 
     Row.new(
       thecrag_ascent_id: id.to_s,
+      thecrag_route_id: route["id"].presence&.to_s,
       ascent_date: date,
       route_name: route["name"].presence,
       grade: route["grade"].presence,
@@ -163,15 +164,35 @@ class Imports::Thecrag::Api
     ancestors[key].is_a?(Hash) ? ancestors[key] : {}
   end
 
-  # Height arrives either as a bare number of metres or as a value/unit pair,
-  # and American crags report feet.
+  # Height arrives as a bare number of metres, a value/unit pair, or a list --
+  # one entry per pitch on a multi-pitch route, which totals to the climb. Any
+  # other shape is not a height: losing the column beats losing the ascent.
   def height_in_metres(height)
-    value, unit = height.is_a?(Hash) ? [ height["value"], height["unit"] ] : [ height, "m" ]
-    metres = value.to_f
-    return nil unless metres.positive?
+    metres = metres_in(height)
+    metres&.positive? ? metres.round : nil
+  end
 
+  def metres_in(height)
+    case height
+    when Numeric then height.to_f
+    when String then height.to_f
+    when Hash then converted(height["value"], height["unit"])
+    when Array then pitch_total(height)
+    end
+  end
+
+  # A pair reads as one height, anything longer as a pitch-by-pitch breakdown.
+  def pitch_total(height)
+    return converted(height.first, height.second) if height.size == 2 && height.second.is_a?(String)
+
+    total = height.filter_map { |pitch| metres_in(pitch) }.sum
+    total.positive? ? total : nil
+  end
+
+  def converted(value, unit)
+    metres = value.to_f
     metres *= 0.3048 if unit.to_s.downcase.start_with?("f")
-    metres.round
+    metres
   end
 
   def parse_date(string)

@@ -78,6 +78,7 @@ class Imports::Thecrag::ApiTest < ActiveSupport::TestCase
     assert_equal 25, row.route_height
     assert_equal "Fought for it.", row.comment
     assert_equal 1_771_193_431, row.epoch
+    assert_equal "1234", row.thecrag_route_id
     assert_equal Time.zone.parse("2026-06-01"), row.ascent_date
   end
 
@@ -204,6 +205,33 @@ class Imports::Thecrag::ApiTest < ActiveSupport::TestCase
     rows = api(FakeHttp.new([ payload([ ascent("date" => nil, "logDate" => nil) ]) ])).call
 
     assert_empty rows
+  end
+
+  # The shape theCrag actually sends, and the one that used to take the whole
+  # import down with it: a pair, with the number arriving as a string.
+  test "reads a height sent as a value and unit pair" do
+    rows = api(FakeHttp.new([
+      payload([ ascent.deep_merge("route" => { "height" => [ "514", "m" ] }) ])
+    ])).call
+
+    assert_equal 514, rows.first.route_height
+  end
+
+  test "totals a height broken down by pitch" do
+    rows = api(FakeHttp.new([
+      payload([ ascent.deep_merge("route" => { "height" => [ { "value" => 20, "unit" => "m" }, { "value" => 25, "unit" => "m" } ] }) ])
+    ])).call
+
+    assert_equal 45, rows.first.route_height
+  end
+
+  # One route with a field we have never seen must not cost us the other 468.
+  test "a height in no shape we know leaves the column empty" do
+    unknown = ascent["route"].merge("height" => { "metres" => 20 })
+    rows = api(FakeHttp.new([ payload([ ascent.merge("route" => unknown) ]) ])).call
+
+    assert_equal 1, rows.size
+    assert_nil rows.first.route_height
   end
 
   test "converts a height reported in feet" do

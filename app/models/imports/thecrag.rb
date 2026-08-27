@@ -55,8 +55,8 @@ class Imports::Thecrag
   # What both readers hand to Imports::Thecrag::Sync. The scraper fills in what
   # the ascents page shows; the API fills in everything, `epoch` included --
   # that timestamp is what makes the next sync incremental.
-  Row = Struct.new(:thecrag_ascent_id, :ascent_date, :route_name, :grade,
-                   :ascent_type, :gear_style, :crag_name, :crag_path,
+  Row = Struct.new(:thecrag_ascent_id, :thecrag_route_id, :ascent_date, :route_name,
+                   :grade, :ascent_type, :gear_style, :crag_name, :crag_path,
                    :country, :quality, :route_height, :comment, :epoch,
                    keyword_init: true)
 
@@ -102,6 +102,7 @@ class Imports::Thecrag
           quality: parse_quality(row["Quality"]),
           ascent_date: ascent_date,
           thecrag_ascent_id: ascent_id,
+          thecrag_route_id: row["Route ID"].presence,
           source: "thecrag"
         )
 

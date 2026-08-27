@@ -24,14 +24,16 @@ class Imports::Thecrag::Sync
 
     ActiveRecord::Base.transaction do
       rows.each do |row|
-        if CragAscent.exists?(thecrag_ascent_id: row.thecrag_ascent_id)
+        if (existing = CragAscent.find_by(thecrag_ascent_id: row.thecrag_ascent_id))
           skipped += 1
           read_epochs << row.epoch
+          backfill_route(existing, row)
           next
         end
 
         ascent = CragAscent.new(
           thecrag_ascent_id: row.thecrag_ascent_id,
+          thecrag_route_id: row.thecrag_route_id,
           ascent_date: row.ascent_date,
           route_name: row.route_name,
           grade: row.grade,
@@ -82,6 +84,15 @@ class Imports::Thecrag::Sync
     end
   end
 
+  # Ascents imported before we knew to store the route id are still the only
+  # record of those climbs, so a later sync fills the gap in rather than passing
+  # over them as duplicates and leaving them uncountable.
+  def backfill_route(ascent, row)
+    return if row.thecrag_route_id.blank? || ascent.thecrag_route_id.present?
+
+    ascent.update_column(:thecrag_route_id, row.thecrag_route_id)
+  end
+
   # Looked up late: only the scraper needs it, and finding it costs a query.
   def cookie
     @cookie ||= Imports::Thecrag.session_cookie
@@ -104,12 +115,12 @@ class Imports::Thecrag::Sync
     attributes = { thecrag_synced_at: Time.current, thecrag_sync_error: nil }
     attributes[:thecrag_username] = @username if @username.present?
 
-    # A read that stopped at the page cap got the newest ascents and none of the
-    # oldest, so its highest epoch would hide everything it missed.
+    # theCrag hands back the oldest ascents first, so a read that stopped at the
+    # page cap stopped partway up the logbook rather than short of the bottom of
+    # it: the highest epoch reached is exactly where the next sync resumes.
     if truncated
-      attributes[:thecrag_sync_error] = "Your logbook is too large to read in one sync, " \
-                                        "so only the most recent ascents were imported."
-      return attributes
+      attributes[:thecrag_sync_error] = "Only part of your logbook was read this time. " \
+                                        "Sync again to carry on from where it stopped."
     end
 
     high_water = epochs.compact.max

@@ -51,6 +51,73 @@ class User < ApplicationRecord
     end
   end
 
+  OAUTH_PROVIDER_NAMES = { "google_oauth2" => "Google", "entra_id" => "Microsoft" }.freeze
+
+  def oauth_provider_name
+    OAUTH_PROVIDER_NAMES.fetch(provider, provider&.titleize)
+  end
+
+  # Attach an OAuth identity to this account, so a climber who signed up with
+  # a passkey can also sign in with Google or Microsoft. One identity per
+  # account: the provider/uid pair lives on the user row itself. If the
+  # identity already spawned its own account -- someone hit "Sign in with
+  # Google" before learning about this button -- that duplicate is folded in
+  # rather than refused: the callback just proved both are the same person.
+  def link_omniauth(auth)
+    if provider.present?
+      return true if provider == auth.provider && uid == auth.uid
+
+      errors.add(:base, "This account is already linked to #{oauth_provider_name}.")
+      return false
+    end
+
+    transaction do
+      if (duplicate = User.find_by(provider: auth.provider, uid: auth.uid))
+        absorb(duplicate)
+      end
+
+      self.provider = auth.provider
+      self.uid = auth.uid
+      # A passkey-only account has no email; the provider just vouched for one.
+      oauth_email = auth.info.email.to_s.downcase
+      if email.blank? && oauth_email.present? && !User.where("LOWER(email) = ?", oauth_email).exists?
+        self.email = oauth_email
+      end
+      save!
+    end
+    true
+  rescue ActiveRecord::RecordInvalid
+    false
+  end
+
+  # Fold another account into this one: everything it owns moves across and
+  # the duplicate row dies. Only called once the OAuth callback has proved the
+  # same person is behind both.
+  def absorb(other)
+    raise ArgumentError, "an account cannot absorb itself" if other == self
+
+    transaction do
+      move_renaming(other.grading_systems, :name)
+      move_renaming(other.exercise_types, :name)
+      move_renaming(other.metrics, :name)
+      move_renaming(other.passkeys, :nickname)
+
+      # A board or follow held by both sides would collide outright, so the
+      # duplicate's copy dies with it.
+      other.user_boards.where(board_id: user_boards.select(:board_id)).destroy_all
+      other.active_follows.where(followed_id: [ id ] + following.ids).destroy_all
+      other.passive_follows.where(follower_id: [ id ] + followers.ids).destroy_all
+
+      other.user_boards.update_all(user_id: id)
+      other.activity_logs.update_all(user_id: id)
+      other.created_problems.update_all(created_by_id: id)
+      other.active_follows.update_all(follower_id: id)
+      other.passive_follows.update_all(followed_id: id)
+
+      other.reload.destroy!
+    end
+  end
+
   has_many :passkeys, dependent: :destroy
   has_many :user_boards, dependent: :destroy
   has_many :boards, through: :user_boards
@@ -89,6 +156,20 @@ class User < ApplicationRecord
   end
 
   private
+
+  # Same-named records on both sides would trip a per-user unique index, so
+  # the copy coming across yields the name instead.
+  def move_renaming(records, attribute)
+    records.to_a.each do |record|
+      name = record[attribute]
+      suffix = 1
+      while records.klass.exists?(user_id: id, attribute => name)
+        suffix += 1
+        name = "#{record[attribute]} (#{suffix})"
+      end
+      record.update_columns(user_id: id, attribute => name)
+    end
+  end
 
   def normalize_display_name
     self.display_name = display_name&.strip&.downcase

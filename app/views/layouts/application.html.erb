@@ -73,10 +73,12 @@
                   <%= icon(:tag, css_class: "menu-icon") %>
                   Exercises & Metrics
                 <% end %>
-                <%= link_to buddies_path do %>
-                  <%= icon(:users, css_class: "menu-icon") %>
-                  Buddies
-                <% end %>
+                <%# Buddies is hidden from the menu for now; the page itself
+                    still works at /buddies. %>
+                <%# link_to buddies_path do %>
+                <%#   icon(:users, css_class: "menu-icon") %>
+                <%#   Buddies %>
+                <%# end %>
                 <%= link_to settings_path do %>
                   <%= icon(:gear, css_class: "menu-icon") %>
                   Settings

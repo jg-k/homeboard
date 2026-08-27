@@ -38,6 +38,23 @@ class SettingsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".badge", text: "Saved"
   end
 
+  test "GET index offers OAuth connect buttons only while no identity is linked" do
+    sign_in @user
+    get settings_url
+    assert_response :success
+    assert_select "form[action=?]", user_google_oauth2_omniauth_authorize_path
+    assert_select "form[action=?]", user_entra_id_omniauth_authorize_path
+  end
+
+  test "GET index hides OAuth connect buttons once an identity is linked" do
+    @user.update!(provider: "google_oauth2", uid: "oauth-1")
+    sign_in @user
+    get settings_url
+    assert_response :success
+    assert_select "form[action=?]", user_google_oauth2_omniauth_authorize_path, count: 0
+    assert_select "form[action=?]", user_entra_id_omniauth_authorize_path, count: 0
+  end
+
   test "GET index shows no badge when no key is saved" do
     @user.update!(thecrag_username: "alice", thecrag_api_key: nil)
     sign_in @user

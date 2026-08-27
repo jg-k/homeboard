@@ -17,6 +17,19 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
 
   def handle_oauth(kind)
     auth = request.env["omniauth.auth"]
+
+    # Someone already signed in is not logging in again -- they are linking
+    # this identity to the account they are in (e.g. a passkey-only account
+    # adding Google as another way in).
+    if user_signed_in?
+      if current_user.link_omniauth(auth)
+        redirect_to settings_path, notice: "#{kind} connected. You can now sign in with it."
+      else
+        redirect_to settings_path, alert: current_user.errors.full_messages.to_sentence
+      end
+      return
+    end
+
     @user = User.from_omniauth(auth)
 
     if @user.persisted?

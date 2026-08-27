@@ -11,11 +11,22 @@ class Settings::AccountSection < ApplicationComponent
 
       render SettingsRow.new(title: "Sign-in method") do
         if current_user.provider.present?
-          render Badge.new(:gray) { current_user.provider.titleize.gsub("Oauth2", "OAuth") }
+          render Badge.new(:gray) { current_user.oauth_provider_name }
         elsif current_user.email.present?
           render Badge.new(:gray) { "Email" }
         else
           render Badge.new(:gray) { "Passkey" }
+        end
+      end
+
+      if current_user.provider.blank?
+        render SettingsRow.new(title: "Connect a sign-in", description: "Add Google or Microsoft as another way to sign in") do
+          div(class: "flex gap-2 flex-wrap") do
+            button_to "Connect Google", user_google_oauth2_omniauth_authorize_path,
+              method: :post, data: { turbo: false }, class: "btn btn-outline btn-sm"
+            button_to "Connect Microsoft", user_entra_id_omniauth_authorize_path,
+              method: :post, data: { turbo: false }, class: "btn btn-outline btn-sm"
+          end
         end
       end
 

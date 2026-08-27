@@ -111,7 +111,73 @@ class UserTest < ActiveSupport::TestCase
     assert_equal "newperson", user.display_name
   end
 
+  test "link_omniauth attaches an identity and backfills a missing email" do
+    user = build(email: nil, display_name: "passkeyer")
+    user.save!
+
+    assert user.link_omniauth(google_auth)
+    user.reload
+    assert_equal "google_oauth2", user.provider
+    assert_equal "12345", user.uid
+    assert_equal "newperson@example.com", user.email
+  end
+
+  test "link_omniauth keeps an email the account already has" do
+    user = users(:one)
+
+    assert user.link_omniauth(google_auth)
+    assert_equal "user1@example.com", user.reload.email
+  end
+
+  test "link_omniauth is idempotent for the identity already linked" do
+    user = users(:one)
+    user.update!(provider: "google_oauth2", uid: "12345")
+
+    assert user.link_omniauth(google_auth)
+  end
+
+  test "link_omniauth refuses a second identity" do
+    user = users(:one)
+    user.update!(provider: "entra_id", uid: "azure-1")
+
+    assert_not user.link_omniauth(google_auth)
+    assert_match(/already linked to Microsoft/, user.errors.full_messages.to_sentence)
+  end
+
+  test "link_omniauth absorbs the duplicate account the identity created" do
+    duplicate = User.from_omniauth(google_auth)
+    duplicate.grading_systems.create!(name: "Font", grades: [ "6a", "6b" ], system_type: "custom")
+    user = users(:one)
+
+    assert_difference "User.count", -1 do
+      assert user.link_omniauth(google_auth)
+    end
+    assert_equal "12345", user.reload.uid
+    assert user.grading_systems.exists?(name: "Font")
+    assert_not User.exists?(duplicate.id)
+  end
+
+  test "absorb renames records that would collide on a per-user unique index" do
+    duplicate = User.from_omniauth(google_auth)
+    duplicate.grading_systems.create!(name: "Font", grades: [ "6a" ], system_type: "custom")
+    user = users(:one)
+    user.grading_systems.create!(name: "Font", grades: [ "7a" ], system_type: "custom")
+
+    user.absorb(duplicate)
+
+    assert user.grading_systems.exists?(name: "Font")
+    assert user.grading_systems.exists?(name: "Font (2)")
+  end
+
   private
+
+  def google_auth
+    OmniAuth::AuthHash.new(
+      provider: "google_oauth2",
+      uid: "12345",
+      info: { email: "newperson@example.com" }
+    )
+  end
 
   def build(**overrides)
     User.new({ display_name: "someone", email: "someone@example.com", password: "password123" }.merge(overrides))

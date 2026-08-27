@@ -94,13 +94,14 @@ class Settings::IntegrationsSection < ApplicationComponent
               end
               label(class: "checkbox-group") do
                 check_box_tag :remove_thecrag_api_key, "1", false, class: "checkbox"
-                span(class: "checkbox-label") { "Remove the saved key and go back to scraping" }
+                span(class: "checkbox-label") { "Remove the saved key" }
               end
             end
             p(class: "text-xs text-muted") do
-              plain "Supporters can issue a personal API key under Settings › API Keys on theCrag. "
-              plain "With a key we read your logbook through their API instead of scraping it, "
-              plain "and each sync only asks for what changed since the last one."
+              plain "Only paying theCrag supporters can issue an API key. If you are one, "
+              plain "find it on theCrag under Settings › API Keys. "
+              plain "With a key we read your logbook through their API instead of you "
+              plain "exporting and importing a CSV by hand."
             end
           end
         end

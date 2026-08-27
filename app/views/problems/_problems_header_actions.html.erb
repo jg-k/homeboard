@@ -1,4 +1,7 @@
-<div class="flex gap-2">
+<div class="flex gap-2 items-center">
+  <% if (grade_range = grade_range_label(params[:min_grade], params[:max_grade])) %>
+    <span class="text-sm text-muted"><%= grade_range %></span>
+  <% end %>
   <%= link_to filter_board_problems_path(@current_board, filter_params),
               class: "btn-icon",
               title: "Filter problems" do %>

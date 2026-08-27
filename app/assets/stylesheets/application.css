@@ -973,10 +973,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   a.legend-item {
     min-height: 32px;
     padding: 0 var(--space-2);
-    border: 1px solid transparent;
-    border-radius: var(--radius-md);
     color: var(--color-gray-600);
     text-decoration: none;
+    text-underline-offset: 4px;
 
     @media (min-width: 1024px) {
       min-height: 0;
@@ -985,12 +984,12 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
   }
 
   a.legend-item:hover {
-    border-color: var(--color-gray-400);
+    text-decoration: underline;
     color: var(--color-gray-900);
   }
 
   a.legend-filter-active {
-    border-color: var(--color-primary);
+    text-decoration: underline;
     color: var(--color-primary);
   }
 

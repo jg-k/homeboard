@@ -9,16 +9,7 @@
 
   <div class="card">
     <%= form_with model: @exercise do |f| %>
-      <% if @exercise.errors.any? %>
-        <div class="form-errors">
-          <h2><%= pluralize(@exercise.errors.count, "error") %> prohibited this activity from being saved:</h2>
-          <ul>
-            <% @exercise.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
+      <%= render FormErrors.new(@exercise, noun: "activity") %>
 
       <% if @return_to.present? %>
         <%= hidden_field_tag :return_to, @return_to %>

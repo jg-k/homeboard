@@ -9,16 +9,7 @@
 
   <div class="card">
     <%= form_with model: [@metric, @measurement] do |f| %>
-      <% if @measurement.errors.any? %>
-        <div class="form-errors">
-          <h2><%= pluralize(@measurement.errors.count, "error") %> prohibited this measurement from being saved:</h2>
-          <ul>
-            <% @measurement.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
+      <%= render FormErrors.new(@measurement) %>
 
       <div class="form-group">
         <%= f.label :value, class: "form-label" %>

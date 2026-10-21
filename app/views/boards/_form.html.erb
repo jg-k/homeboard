@@ -1,14 +1,5 @@
 <%= form_with(model: board) do |form| %>
-  <% if board.errors.any? %>
-    <div class="form-errors">
-      <h2><%= pluralize(board.errors.count, "error") %> prohibited this board from being saved:</h2>
-      <ul>
-        <% board.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render FormErrors.new(board) %>
 
   <div class="form-group">
     <%= form.label :name, class: "form-label" %>

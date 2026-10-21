@@ -11,7 +11,7 @@ class ExerciseTypesController < ApplicationController
   end
 
   def show
-    @chart_data = @exercise_type.chart_data_with_targets
+    @progress = Charts::Progress.new(@exercise_type, choice: Charts::Progress::Choice.from(params))
     @exercises = @exercise_type.exercises
                                .joins(:activity_log)
                                .includes(:activity_log)

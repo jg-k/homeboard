@@ -3,31 +3,11 @@
     <%= link_to "&larr; Back to Metrics".html_safe, metrics_path %>
   </div>
 
+  <%= progress_controls(@progress.choice) { |choice| metric_path(@metric, **choice) } %>
+
   <div class="card mb-6">
-    <% has_data = @chart_data.is_a?(Array) && @chart_data.first.is_a?(Hash) ? @chart_data.any? { |s| s[:data].any? } : @chart_data.any? %>
-    <% if has_data %>
-      <%= line_chart @chart_data,
-                     ytitle: @metric.unit,
-                     curve: false,
-                     colors: ["#14b8a6", "#f59e0b"],
-                     library: {
-                       spanGaps: true,
-                       datasets: [
-                         {},
-                         { borderDash: [5, 5] }
-                       ],
-                       scales: {
-                         x: {
-                           ticks: { color: "#9ca3af" },
-                           grid: { color: "rgba(156, 163, 175, 0.2)" }
-                         },
-                         y: {
-                           ticks: { color: "#9ca3af" },
-                           grid: { color: "rgba(156, 163, 175, 0.2)" },
-                           **Charts::YAxis.range(@chart_data)
-                         }
-                       }
-                     } %>
+    <% if @progress.any? %>
+      <%= progress_chart(@progress, unit: @metric.unit) %>
     <% else %>
       <p class="text-muted text-center py-8">No measurements yet. Log one below.</p>
     <% end %>

@@ -12,6 +12,8 @@ class StatsController < ApplicationController
       @categories = @exercise_types_by_category.keys
       @category = params[:category].presence || @categories.first
       @exercise_types = @exercise_types_by_category[@category] || []
+      @progress_choice = Charts::Progress::Choice.from(params)
+      @progress_by_type = @exercise_types.index_with { Charts::Progress.new(_1, choice: @progress_choice) }
     end
   end
 end

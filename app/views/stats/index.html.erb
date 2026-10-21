@@ -76,22 +76,14 @@
           <% end %>
         </div>
       <% else %>
-        <div class="empty-state">
-          <h3>No exercises in this category</h3>
-          <p>Create exercise types to start tracking stats.</p>
-          <div class="empty-state-actions">
-            <%= link_to "Create Exercise Type", new_exercise_type_path, class: "btn btn-primary" %>
-          </div>
-        </div>
+        <%= render EmptyState.new(title: "No exercises in this category", description: "Create exercise types to start tracking stats.") do %>
+          <%= link_to "Create Exercise Type", new_exercise_type_path, class: "btn btn-primary" %>
+        <% end %>
       <% end %>
     <% else %>
-      <div class="empty-state">
-        <h3>No exercise types defined</h3>
-        <p>Create exercise types to start tracking stats.</p>
-        <div class="empty-state-actions">
-          <%= link_to "Create Exercise Type", new_exercise_type_path, class: "btn btn-primary" %>
-        </div>
-      </div>
+      <%= render EmptyState.new(title: "No exercise types defined", description: "Create exercise types to start tracking stats.") do %>
+        <%= link_to "Create Exercise Type", new_exercise_type_path, class: "btn btn-primary" %>
+      <% end %>
     <% end %>
   <% end %>
 <% end %>

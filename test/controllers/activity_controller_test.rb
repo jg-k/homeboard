@@ -59,7 +59,8 @@ class ActivityControllerTest < ActionDispatch::IntegrationTest
     get activity_url(category: "gym_session")
 
     assert_response :success
-    assert_match "No indoor activity yet", response.body
+    assert_select ".empty-state h3", "No indoor activity yet"
+    assert_select ".empty-state .empty-state-actions a[href=?]", activity_path, text: "Show all activity"
   end
 
   # A hand-edited query param should not empty the page.

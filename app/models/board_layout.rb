@@ -47,10 +47,6 @@ class BoardLayout < ApplicationRecord
     next_layout&.update!(active: true)
   end
 
-  def self.active_for_board(board)
-    kept.where(board: board, active: true).first
-  end
-
   private
 
   def activate_and_deactivate_others

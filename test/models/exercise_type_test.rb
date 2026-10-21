@@ -25,16 +25,6 @@
 require "test_helper"
 
 class ExerciseTypeTest < ActiveSupport::TestCase
-  test "current_target returns the most recent target" do
-    exercise_type = exercise_types(:running)
-    assert_equal 45, exercise_type.current_target.value
-  end
-
-  test "current_target returns nil when no targets" do
-    exercise_type = exercise_types(:deadhang)
-    assert_nil exercise_type.current_target
-  end
-
   test "chart_data_with_targets returns plain array when no exercise data" do
     exercise_type = exercise_types(:running)
     data = exercise_type.chart_data_with_targets

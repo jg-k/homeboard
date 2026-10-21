@@ -50,10 +50,6 @@ class ExerciseType < ApplicationRecord
     end
   end
 
-  def current_target
-    targets.first # returns most recent due to default_scope
-  end
-
   def chart_data_with_targets
     exercise_data = chart_data
 

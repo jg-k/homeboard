@@ -32,4 +32,21 @@ class StatsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select ".period-picker-active", "3 months"
   end
+
+  test "the overview shows a grade pyramid per board with sends in the period" do
+    problem = board_layouts(:one).problems.create!(name: "Crimpy", grade: "V5", start_holds: [ { x: 0.1, y: 0.1 } ])
+    problem.board_climbs.create!(climb_type: "sent", climbed_at: 1.day.ago)
+           .create_activity_log!(user: users(:one), performed_at: 1.day.ago)
+
+    get stats_path
+
+    assert_select "h2", "Sends by grade"
+    assert_select ".grade-pyramid h3", boards(:one).name
+  end
+
+  test "with no sends in the period there is no pyramid card" do
+    get stats_path(period: "4w")
+
+    assert_select "h2", text: "Sends by grade", count: 0
+  end
 end

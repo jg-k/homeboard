@@ -65,6 +65,27 @@ module ChartsHelper
     }
   end
 
+  # Flashes in purple and sends in green, as on the activity cards.
+  PYRAMID_COLORS = { "Flash" => CHART_PALETTE[4], "Send" => CHART_PALETTE[3] }.freeze
+
+  # A Charts::Grades::Pyramid as horizontal stacked bars, one row per grade.
+  # The count runs along x, so its ticks are whole numbers; every grade gets
+  # its label.
+  def grade_pyramid_chart(pyramid)
+    options = modern_column_chart_options(stacked: true)
+    options[:scales] = {
+      x: options[:scales][:y].deep_merge(ticks: { precision: 0 }),
+      y: options[:scales][:x].deep_merge(ticks: { autoSkip: false })
+    }
+
+    bar_chart pyramid.series,
+              stacked: true,
+              height: "#{pyramid.rows * 28 + 48}px",
+              colors: pyramid.series.map { PYRAMID_COLORS.fetch(_1[:name]) },
+              dataset: modern_bar_dataset,
+              library: options
+  end
+
   def modern_bar_dataset
     {
       categoryPercentage: 0.65,

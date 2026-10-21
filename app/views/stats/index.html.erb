@@ -27,6 +27,19 @@
                        dataset: modern_bar_dataset,
                        library: modern_column_chart_options(stacked: true) %>
     </div>
+    <% if @grade_pyramids.any? %>
+      <div class="card mb-6">
+        <h2 class="text-xl font-semibold mb-4">Sends by grade</h2>
+        <div class="grade-pyramids">
+          <% @grade_pyramids.each do |pyramid| %>
+            <div class="grade-pyramid">
+              <h3 class="text-sm font-semibold text-muted mb-2"><%= pyramid.title %></h3>
+              <%= grade_pyramid_chart(pyramid) %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+    <% end %>
     <% if @exercise_chart_data.any? %>
       <div class="card">
         <h2 class="text-xl font-semibold mb-4">Conditioning training per <%= @period.bucket %></h2>

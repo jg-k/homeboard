@@ -10,8 +10,16 @@
         class: "text-sm text-muted" %>
   </div>
   <% if @tab == "overview" %>
+    <nav class="period-picker mb-4" aria-label="Look-back period">
+      <% Charts::Period.all.each do |period| %>
+        <%= link_to period.label, stats_path(tab: "overview", period: period),
+            class: "period-picker-option#{' period-picker-active' if period == @period}",
+            aria: { current: (period == @period) || nil },
+            data: { turbo_action: "replace" } %>
+      <% end %>
+    </nav>
     <div class="card mb-6">
-      <h2 class="text-xl font-semibold mb-4">Climbing attempts and sends per week</h2>
+      <h2 class="text-xl font-semibold mb-4">Climbing attempts and sends per <%= @period.bucket %></h2>
       <%= column_chart @climbing_chart_data,
                        stacked: true,
                        height: "240px",
@@ -21,7 +29,7 @@
     </div>
     <% if @exercise_chart_data.any? %>
       <div class="card">
-        <h2 class="text-xl font-semibold mb-4">Conditioning training per week</h2>
+        <h2 class="text-xl font-semibold mb-4">Conditioning training per <%= @period.bucket %></h2>
         <%= column_chart @exercise_chart_data,
                          stacked: true,
                          height: "240px",

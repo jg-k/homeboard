@@ -1,12 +1,4 @@
-<% content_for :title, "Edit Board Climb" %>
-
-<div class="page-sm">
-  <div class="mb-6">
-    <%= link_to "&larr; Back to Activity Log".html_safe, activity_path %>
-  </div>
-
-  <h1 class="page-title mb-6">Edit Board Climb</h1>
-
+<%= render PageLayout.new(title: "Edit Board Climb", size: :sm, back_to: activity_path, back_label: "Back to Activity Log") do %>
   <div class="card">
     <div class="mb-4">
       <span class="text-muted">Problem:</span>
@@ -68,4 +60,4 @@
       </div>
     <% end %>
   </div>
-</div>
+<% end %>

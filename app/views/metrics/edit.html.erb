@@ -1,13 +1,5 @@
-<% content_for :title, "Edit #{@metric.name}" %>
-
-<div class="page-sm">
-  <div class="mb-6">
-    <%= link_to "&larr; Back to Metrics".html_safe, metrics_path %>
-  </div>
-
-  <h1 class="page-title mb-6">Edit Metric</h1>
-
+<%= render PageLayout.new(title: "Edit #{@metric.name}", size: :sm, back_to: metrics_path, back_label: "Back to Metrics") do %>
   <div class="card">
     <%= render "form", metric: @metric %>
   </div>
-</div>
+<% end %>

@@ -1,13 +1,5 @@
-<% content_for :title, "New board" %>
-
-<div class="page-sm">
-  <div class="mb-6">
-    <%= link_to "&larr; Back to Boards".html_safe, boards_path %>
-  </div>
-
-  <h1 class="page-title mb-6">New Board</h1>
-
+<%= render PageLayout.new(title: "New Board", size: :sm, back_to: boards_path, back_label: "Back to Boards") do %>
   <div class="card">
     <%= render "form", board: @board %>
   </div>
-</div>
+<% end %>

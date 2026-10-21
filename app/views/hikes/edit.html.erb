@@ -1,12 +1,4 @@
-<% content_for :title, "Edit Hike" %>
-
-<div class="page-sm">
-  <div class="mb-6">
-    <%= link_to "&larr; Back to Activity Log".html_safe, activity_path %>
-  </div>
-
-  <h1 class="page-title mb-6">Edit Hike</h1>
-
+<%= render PageLayout.new(title: "Edit Hike", size: :sm, back_to: activity_path, back_label: "Back to Activity Log") do %>
   <div class="card">
     <%= form_with model: @hike do |f| %>
       <% if @hike.errors.any? %>
@@ -56,4 +48,4 @@
       </div>
     <% end %>
   </div>
-</div>
+<% end %>

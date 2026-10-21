@@ -65,6 +65,13 @@ module ChartsHelper
     }
   end
 
+  def modern_bar_dataset
+    {
+      categoryPercentage: 0.65,
+      barPercentage: 0.85
+    }
+  end
+
   # Flashes in purple and sends in green, as on the activity cards.
   PYRAMID_COLORS = { "Flash" => CHART_PALETTE[4], "Send" => CHART_PALETTE[3] }.freeze
 
@@ -84,12 +91,5 @@ module ChartsHelper
               colors: pyramid.series.map { PYRAMID_COLORS.fetch(_1[:name]) },
               dataset: modern_bar_dataset,
               library: options
-  end
-
-  def modern_bar_dataset
-    {
-      categoryPercentage: 0.65,
-      barPercentage: 0.85
-    }
   end
 end

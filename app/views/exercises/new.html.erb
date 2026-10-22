@@ -1,11 +1,8 @@
-<% content_for :title, "Log Exercise" %>
-
-<div class="page-sm">
-  <h1 class="page-title">Log Activity</h1>
+<%= render PageLayout.new(title: "Log Activity", size: :sm) do %>
 
   <%= render ActivityTypeTabs.new(active: :exercise) %>
 
   <div class="card">
     <%= render "form", exercise: @exercise, exercise_types: @exercise_types, category: @category %>
   </div>
-</div>
+<% end %>

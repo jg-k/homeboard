@@ -1,9 +1,6 @@
-<% content_for :title, "Edit Comment" %>
-
-<div class="page-sm">
-  <h1 class="page-title">Edit Comment</h1>
+<%= render PageLayout.new(title: "Edit Comment", size: :sm) do %>
 
   <div class="card">
     <%= render "form", comment: @comment, form_url: activity_log_comment_path(@activity_log, @comment) %>
   </div>
-</div>
+<% end %>

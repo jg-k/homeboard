@@ -1,10 +1,4 @@
-<% content_for :title, "Metrics" %>
-
-<div class="page">
-  <div class="page-header-flex">
-    <h1 class="page-title">Metrics</h1>
-    <%= link_to "New Metric", new_metric_path, class: "btn btn-primary" %>
-  </div>
+<%= render PageLayout.new(title: "Metrics", actions: link_to("New Metric", new_metric_path, class: "btn btn-primary")) do %>
 
   <% if @metrics.any? %>
     <div class="stack">
@@ -15,4 +9,4 @@
   <% else %>
     <p class="text-muted">No metrics defined yet. Create one to start tracking measurements like body weight or body measurements.</p>
   <% end %>
-</div>
+<% end %>

@@ -1,11 +1,4 @@
-<% content_for :title, @category ? "#{@category.titleize} Comments" : "Activity Comments" %>
-
-<div class="page">
-  <div class="page-header-flex">
-    <h1 class="page-title">
-      <%= @category ? "#{@category.titleize} Comments" : "Activity Comments" %>
-    </h1>
-  </div>
+<%= render PageLayout.new(title: @category ? "#{@category.titleize} Comments" : "Activity Comments") do %>
 
   <%= render TabBar.new(label: "Comment category", tabs: [
         TabBar::Tab.new(label: "All", url: activity_comments_path(type: @activity_type), active: @category.nil?),
@@ -52,4 +45,4 @@
       <%= link_to "Go to Activity Log", activity_path, class: "btn btn-primary" %>
     <% end %>
   <% end %>
-</div>
+<% end %>

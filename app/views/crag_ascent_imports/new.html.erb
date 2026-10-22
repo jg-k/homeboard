@@ -1,12 +1,4 @@
-<% content_for :title, "Import Climbing Log" %>
-
-<div class="page-sm">
-  <div class="mb-6">
-    <%= link_to "&larr; Back to Activity Log".html_safe, activity_path %>
-  </div>
-
-  <h1 class="page-title mb-6">Import Climbing Log</h1>
-
+<%= render PageLayout.new(title: "Import Climbing Log", size: :sm, back_to: activity_path, back_label: "Back to Activity Log") do %>
   <div class="card">
     <%= form_with url: crag_ascent_imports_path, method: :post, multipart: true do |f| %>
       <div class="form-group">
@@ -30,4 +22,4 @@
       </div>
     <% end %>
   </div>
-</div>
+<% end %>

@@ -1,12 +1,4 @@
-<% content_for :title, "Edit Exercise" %>
-
-<div class="page-sm">
-  <div class="mb-6">
-    <%= link_to "&larr; Back".html_safe, @return_to || activity_path %>
-  </div>
-
-  <h1 class="page-title mb-6">Edit Exercise</h1>
-
+<%= render PageLayout.new(title: "Edit Exercise", size: :sm, back_to: @return_to || activity_path) do %>
   <div class="card">
     <%= form_with model: @exercise do |f| %>
       <%= render FormErrors.new(@exercise, noun: "activity") %>
@@ -51,4 +43,4 @@
       </div>
     <% end %>
   </div>
-</div>
+<% end %>

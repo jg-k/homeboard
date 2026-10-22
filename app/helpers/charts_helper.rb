@@ -118,7 +118,9 @@ module ChartsHelper
   end
 
   # Flashes in purple and sends in green, as on the activity cards.
-  PYRAMID_COLORS = { "Flash" => CHART_PALETTE[4], "Send" => CHART_PALETTE[3] }.freeze
+  PYRAMID_COLORS = {
+    "Flash" => CHART_PALETTE[4], "Onsight / flash" => CHART_PALETTE[4], "Send" => CHART_PALETTE[3]
+  }.freeze
 
   # A Charts::Grades::Pyramid as horizontal stacked bars, one row per grade.
   # The count runs along x, so its ticks are whole numbers; every grade gets

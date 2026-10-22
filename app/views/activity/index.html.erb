@@ -30,7 +30,7 @@
           </div>
         <% end %>
       </div>
-      <%== pagy_nav(@pagy) if @pagy.pages > 1 %>
+      <%== series_nav(@pagy) if @pagy.pages > 1 %>
     <% else %>
       <div class="empty-state">
         <% if @category %>

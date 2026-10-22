@@ -1,24 +1,7 @@
-<% content_for :title, "Edit Hike" %>
-
-<div class="page-sm">
-  <div class="mb-6">
-    <%= link_to "&larr; Back to Activity Log".html_safe, activity_path %>
-  </div>
-
-  <h1 class="page-title mb-6">Edit Hike</h1>
-
+<%= render PageLayout.new(title: "Edit Hike", size: :sm, back_to: activity_path, back_label: "Back to Activity Log") do %>
   <div class="card">
     <%= form_with model: @hike do |f| %>
-      <% if @hike.errors.any? %>
-        <div class="form-errors">
-          <h2><%= pluralize(@hike.errors.count, "error") %> prohibited this activity from being saved:</h2>
-          <ul>
-            <% @hike.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
+      <%= render FormErrors.new(@hike, noun: "activity") %>
 
       <div class="form-group">
         <%= f.label :name, class: "form-label" %>
@@ -56,4 +39,4 @@
       </div>
     <% end %>
   </div>
-</div>
+<% end %>

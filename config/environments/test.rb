@@ -50,4 +50,11 @@ Rails.application.configure do
 
   # Raise error when a before_action's only/except options reference missing actions.
   config.action_controller.raise_on_missing_callback_actions = true
+
+  # Fixed keys for Active Record encryption (User#thecrag_api_key), so the
+  # suite runs without the master key that unlocks the real ones in
+  # credentials. They protect nothing: test data is throwaway.
+  config.active_record.encryption.primary_key = "test-primary-key"
+  config.active_record.encryption.deterministic_key = "test-deterministic-key"
+  config.active_record.encryption.key_derivation_salt = "test-key-derivation-salt"
 end

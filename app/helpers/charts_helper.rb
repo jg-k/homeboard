@@ -65,6 +65,51 @@ module ChartsHelper
     }
   end
 
+  PROGRESS_COLORS = [ "#14b8a6", "#3b82f6", "#a855f7", "#f97316", "#22c55e" ].freeze
+  TARGET_COLOR = "#f59e0b".freeze
+
+  # One line per series of a Charts::Progress, plus its target as a dashed
+  # amber line when it has one.
+  def progress_chart(progress, unit:, height: "300px")
+    measured = progress.target? ? progress.series[0...-1] : progress.series
+    colors = PROGRESS_COLORS.cycle.first(measured.size)
+    colors << TARGET_COLOR if progress.target?
+    datasets = measured.map { {} }
+    datasets << { borderDash: [ 5, 5 ], pointRadius: 0 } if progress.target?
+
+    line_chart progress.series,
+               ytitle: unit,
+               curve: false,
+               height: height,
+               colors: colors,
+               library: {
+                 spanGaps: true,
+                 datasets: datasets,
+                 scales: {
+                   x: { ticks: { color: AXIS_COLOR }, grid: { color: GRID_COLOR } },
+                   y: { ticks: { color: AXIS_COLOR }, grid: { color: GRID_COLOR }, **Charts::YAxis.range(progress.series) }
+                 }
+               }
+  end
+
+  # The range and grouping pickers above progress charts. The block builds
+  # the link for a given { range:, grouping: }.
+  def progress_controls(choice, &url_for)
+    range_options = Charts::Progress::RANGES.map do |key, range|
+      option = choice.with(range: key)
+      SegmentedControl::Option.new(label: range[:label], url: url_for.call(option.to_h), active: option == choice)
+    end
+    grouping_options = Charts::Progress::GROUPINGS.map do |key, label|
+      option = choice.with(grouping: key)
+      SegmentedControl::Option.new(label: label, url: url_for.call(option.to_h), active: option == choice)
+    end
+
+    tag.div(class: "progress-controls") do
+      safe_join([ render(SegmentedControl.new(label: "Look-back period", options: range_options)),
+                  render(SegmentedControl.new(label: "Grouping", options: grouping_options)) ])
+    end
+  end
+
   def modern_bar_dataset
     {
       categoryPercentage: 0.65,

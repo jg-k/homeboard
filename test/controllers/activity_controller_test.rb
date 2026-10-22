@@ -59,7 +59,8 @@ class ActivityControllerTest < ActionDispatch::IntegrationTest
     get activity_url(category: "gym_session")
 
     assert_response :success
-    assert_match "No indoor activity yet", response.body
+    assert_select ".empty-state h3", "No indoor activity yet"
+    assert_select ".empty-state .empty-state-actions a[href=?]", activity_path, text: "Show all activity"
   end
 
   # A hand-edited query param should not empty the page.
@@ -86,6 +87,15 @@ class ActivityControllerTest < ActionDispatch::IntegrationTest
 
     assert_select "a.legend-filter-active[href=?]", activity_history_path, text: "All"
     assert_select "a.legend-item[href=?]", activity_history_path(category: "hike")
+  end
+
+  test "a long history pages through" do
+    30.times { |i| log(Hike.create!(name: "Hike #{i}"), (i + 30).days.ago.to_date) }
+
+    get activity_url(page: 2)
+
+    assert_response :success
+    assert_select "nav.pagy a[href*='page=1']"
   end
 
   test "requires authentication" do

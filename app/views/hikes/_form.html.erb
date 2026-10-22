@@ -1,14 +1,5 @@
 <%= form_with model: hike do |f| %>
-  <% if hike.errors.any? %>
-    <div class="form-errors">
-      <h2><%= pluralize(hike.errors.count, "error") %> prohibited this activity from being saved:</h2>
-      <ul>
-        <% hike.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render FormErrors.new(hike, noun: "activity") %>
 
   <div class="form-group">
     <%= f.label :name, class: "form-label" %>

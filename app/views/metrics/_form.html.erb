@@ -1,14 +1,5 @@
 <%= form_with model: metric do |f| %>
-  <% if metric.errors.any? %>
-    <div class="form-errors">
-      <h2><%= pluralize(metric.errors.count, "error") %> prohibited this metric from being saved:</h2>
-      <ul>
-        <% metric.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render FormErrors.new(metric) %>
 
   <div class="form-group">
     <%= f.label :name, class: "form-label" %>

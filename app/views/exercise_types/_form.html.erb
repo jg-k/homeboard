@@ -2,16 +2,7 @@
   <% if local_assigns[:return_to].present? %>
     <%= hidden_field_tag :return_to, return_to %>
   <% end %>
-  <% if exercise_type.errors.any? %>
-    <div class="form-errors">
-      <h2><%= pluralize(exercise_type.errors.count, "error") %> prohibited this exercise type from being saved:</h2>
-      <ul>
-        <% exercise_type.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render FormErrors.new(exercise_type) %>
 
   <div class="form-group">
     <%= f.label :name, class: "form-label" %>

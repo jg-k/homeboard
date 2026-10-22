@@ -56,6 +56,7 @@ class ActivityLogCommentsControllerTest < ActionDispatch::IntegrationTest
            params: { activity_log_comment: { body: "x", category: "bogus" } }
     end
     assert_response :unprocessable_entity
+    assert_select ".form-errors h2", "1 error prohibited this comment from being saved:"
   end
 
   test "POST create cannot target another user's activity log" do

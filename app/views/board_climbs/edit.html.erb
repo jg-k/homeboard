@@ -15,16 +15,7 @@
     </div>
 
     <%= form_with model: [@board, @problem, @board_climb] do |f| %>
-      <% if @board_climb.errors.any? %>
-        <div class="form-errors">
-          <h2><%= pluralize(@board_climb.errors.count, "error") %> prohibited this board climb from being saved:</h2>
-          <ul>
-            <% @board_climb.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
+      <%= render FormErrors.new(@board_climb) %>
 
       <% if @board_climb.problem.circuit? %>
         <%= f.hidden_field :climb_type, value: "circuit" %>

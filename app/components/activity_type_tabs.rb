@@ -13,10 +13,11 @@ class ActivityTypeTabs < ApplicationComponent
   end
 
   def view_template
-    div(class: "tabs") do
+    nav(class: "tabs", aria_label: "Activity type", data: { controller: "tabs" }) do
       TABS.each do |kind, tab|
         link_to public_send(tab[:path]),
                 class: [ "tab", ("tab-active" if kind == @active) ],
+                aria: { current: kind == @active ? "page" : nil },
                 data: { turbo_action: "replace" } do
           tab_icon(kind)
           span { tab[:label] }

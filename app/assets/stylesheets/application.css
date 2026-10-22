@@ -1536,36 +1536,6 @@ a.problem-link-row:hover {
   cursor: pointer;
 }
 
-/* ===== Dashboard Styles ===== */
-.board-tabs {
-  border-bottom: 1px solid var(--color-gray-200);
-}
-
-.tabs-nav {
-  display: flex;
-  gap: var(--space-8);
-  margin-bottom: -1px;
-}
-
-.tab-link {
-  padding: var(--space-2) var(--space-1);
-  border-bottom: 2px solid transparent;
-  font-size: var(--text-sm);
-  font-weight: 500;
-  color: var(--color-gray-500);
-  white-space: nowrap;
-
-  &:hover {
-    color: var(--color-gray-700);
-    border-color: var(--color-gray-300);
-  }
-}
-
-.tab-active {
-  color: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
 /* ===== Tracking Tabs ===== */
 /* Stats: one grade pyramid per board, side by side on desktop */
 .grade-pyramids {
@@ -1641,23 +1611,35 @@ a.problem-link-row:hover {
   }
 }
 
+/* ===== Tabs (TabBar, ActivityTypeTabs) ===== */
+/* Rows that do not fit scroll sideways rather than wrap. The row's line is
+   an inset shadow, so the active tab's underline can sit on it without
+   overflowing the scroll box. */
 .tabs {
   display: flex;
   gap: var(--space-2);
   margin-bottom: var(--space-6);
-  border-bottom: 1px solid var(--color-gray-300);
+  box-shadow: inset 0 -1px 0 var(--color-gray-300);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.tabs::-webkit-scrollbar {
+  display: none;
 }
 
 .tab {
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: var(--space-2);
-  padding: var(--space-3) var(--space-4);
+  min-height: 44px;
+  padding: var(--space-3);
+  white-space: nowrap;
   font-size: var(--text-base);
   font-weight: 500;
   color: var(--color-gray-600);
   border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
   transition: color 0.2s, border-color 0.2s;
 
   &:hover {
@@ -1672,6 +1654,23 @@ a.problem-link-row:hover {
 
   &:hover {
     color: var(--color-primary);
+  }
+}
+
+@media (min-width: 1024px) {
+  .tab {
+    padding: var(--space-3) var(--space-4);
+  }
+}
+
+/* A row nested under another, such as categories under Fitness. */
+.tabs-secondary {
+  gap: var(--space-1);
+  box-shadow: inset 0 -1px 0 var(--color-gray-200);
+
+  .tab {
+    padding: var(--space-2) var(--space-3);
+    font-size: var(--text-sm);
   }
 }
 

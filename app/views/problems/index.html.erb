@@ -1,18 +1,9 @@
 <% content_for :title, "Dashboard" %>
 <div class="page pt-4 pb-8">
   <% if @boards.any? %>
-    <div class="mb-6">
-      <div class="board-tabs">
-        <nav class="tabs-nav">
-          <% @boards.each do |board| %>
-            <%= link_to board_problems_path(board, filter_params),
-                        class: "tab-link #{@current_board == board ? 'tab-active' : ''}" do %>
-              <%= board.name %>
-            <% end %>
-          <% end %>
-        </nav>
-      </div>
-    </div>
+    <%= render TabBar.new(label: "Boards", replace: false, tabs: @boards.map { |board|
+          TabBar::Tab.new(label: board.name, url: board_problems_path(board, filter_params), active: @current_board == board)
+        }) %>
     <% if @current_board %>
       <%#
         offline-filter spans both breakpoints: the sidebar list it reads from

@@ -6,6 +6,7 @@ class StatsController < ApplicationController
     @period = Charts::Period.find(params[:period])
     @climbing_chart_data = Charts::Climbing.new(current_user, period: @period).series
     @exercise_chart_data = Charts::Exercise.new(current_user, period: @period).series
+    @grade_pyramids = Charts::Grades.new(current_user, period: @period).pyramids if @tab == "overview"
 
     if @tab == "fitness"
       @exercise_types_by_category = current_user.exercise_types.includes(:exercises).order(:name).group_by(&:category)

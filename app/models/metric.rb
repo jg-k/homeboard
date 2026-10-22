@@ -15,10 +15,6 @@ class Metric < ApplicationRecord
                 .map { |recorded_at, value| [ recorded_at.to_date.iso8601, value.to_f ] }
   end
 
-  def current_target
-    targets.first
-  end
-
   def chart_data_with_targets
     metric_data = chart_data
     target_data = build_target_staircase(metric_data)

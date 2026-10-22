@@ -142,10 +142,6 @@ class User < ApplicationRecord
     active_follows.create(followed: user) unless self == user
   end
 
-  def unfollow(user)
-    active_follows.find_by(followed: user)&.destroy
-  end
-
   # The WebAuthn user handle: a stable opaque id authenticators store next to
   # each credential. Deliberately not the database id, which would otherwise be
   # copied onto every device the user registers. Generated on first use so

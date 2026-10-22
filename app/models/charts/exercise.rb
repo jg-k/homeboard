@@ -1,32 +1,22 @@
 class Charts::Exercise
-  def initialize(user, weeks: 12)
+  def initialize(user, period: Charts::Period.find(nil))
     @user = user
-    @weeks = weeks
-    @start_date = (weeks - 1).weeks.ago.beginning_of_week
-    @weeks_range = Charts::Week.range(from: @start_date, count: weeks)
+    @period = period
   end
 
   def series
-    categories.map do |category|
-      data = @weeks_range.map do |week|
-        count = exercise_counts[[ category, week.key ]] || 0
-        [ week.label, count ]
-      end
-      { name: category.titleize, data: data }
+    rows_by_category.sort.map do |category, rows|
+      { name: category.titleize, data: @period.totals(rows.map { |performed_at, _| [ performed_at, 1 ] }) }
     end
   end
 
   private
 
-  def categories
-    exercise_counts.keys.map(&:first).uniq.sort
-  end
-
-  def exercise_counts
-    @exercise_counts ||= Exercise.joins(:exercise_type, :activity_log)
-                                 .where(exercise_types: { user_id: @user.id })
-                                 .where(activity_logs: { performed_at: @start_date.. })
-                                 .group("exercise_types.category", "strftime('%Y-%W', activity_logs.performed_at)")
-                                 .count
+  def rows_by_category
+    Exercise.joins(:exercise_type, :activity_log)
+            .where(exercise_types: { user_id: @user.id })
+            .where(activity_logs: { performed_at: @period.starts_at.. })
+            .pluck("activity_logs.performed_at", "exercise_types.category")
+            .group_by(&:last)
   end
 end

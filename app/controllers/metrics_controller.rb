@@ -11,7 +11,7 @@ class MetricsController < ApplicationController
   end
 
   def show
-    @chart_data = @metric.chart_data_with_targets
+    @progress = Charts::Progress.new(@metric, choice: Charts::Progress::Choice.from(params))
     @measurements = @metric.measurements.order(recorded_at: :desc).limit(20)
   end
 

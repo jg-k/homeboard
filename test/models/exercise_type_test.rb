@@ -25,19 +25,4 @@
 require "test_helper"
 
 class ExerciseTypeTest < ActiveSupport::TestCase
-  test "chart_data_with_targets returns plain array when no exercise data" do
-    exercise_type = exercise_types(:running)
-    data = exercise_type.chart_data_with_targets
-
-    # No exercises logged, so returns plain array (no target line without exercise data)
-    assert data.is_a?(Array)
-  end
-
-  test "chart_data_with_targets returns plain array when no targets" do
-    exercise_type = exercise_types(:deadhang)
-    data = exercise_type.chart_data_with_targets
-
-    assert data.is_a?(Array)
-    assert data.empty? || !data.first.is_a?(Hash)
-  end
 end

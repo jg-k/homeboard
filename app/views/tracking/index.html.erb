@@ -3,14 +3,10 @@
 <div class="page">
   <h1 class="page-title">Tracking</h1>
 
-  <div class="tabs">
-    <%= link_to "Exercises", tracking_path(tab: "exercises"),
-        class: "tab-link #{@tab == 'exercises' ? 'tab-active' : ''}",
-        data: { turbo_action: "replace" } %>
-    <%= link_to "Metrics", tracking_path(tab: "metrics"),
-        class: "tab-link #{@tab == 'metrics' ? 'tab-active' : ''}",
-        data: { turbo_action: "replace" } %>
-  </div>
+  <%= render TabBar.new(label: "Tracking", tabs: [
+        TabBar::Tab.new(label: "Exercises", url: tracking_path(tab: "exercises"), active: @tab == "exercises"),
+        TabBar::Tab.new(label: "Metrics", url: tracking_path(tab: "metrics"), active: @tab == "metrics")
+      ]) %>
 
   <% if @tab == "exercises" %>
     <%= render "tracking/exercises" %>

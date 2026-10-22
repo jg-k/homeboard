@@ -1,10 +1,8 @@
 <%= render PageLayout.new(title: "Stats") do %>
-  <div class="tabs">
-    <%= link_to "Overview", stats_path(tab: "overview"),
-        class: "tab-link #{@tab == 'overview' ? 'tab-active' : ''}" %>
-    <%= link_to "Fitness", stats_path(tab: "fitness"),
-        class: "tab-link #{@tab == 'fitness' ? 'tab-active' : ''}" %>
-  </div>
+  <%= render TabBar.new(label: "Stats", tabs: [
+        TabBar::Tab.new(label: "Overview", url: stats_path(tab: "overview"), active: @tab == "overview"),
+        TabBar::Tab.new(label: "Fitness", url: stats_path(tab: "fitness"), active: @tab == "fitness")
+      ]) %>
   <div class="text-right mb-6">
     <%= link_to "View activity comments &rarr;".html_safe, activity_comments_path,
         class: "text-sm text-muted" %>
@@ -49,12 +47,9 @@
     <% end %>
   <% elsif @tab == "fitness" %>
     <% if @categories.any? %>
-      <div class="tabs-nav mb-6">
-        <% @categories.each do |category| %>
-          <%= link_to category.titleize, stats_path(tab: "fitness", category: category),
-              class: "tab-link #{@category == category ? 'tab-active' : ''}" %>
-        <% end %>
-      </div>
+      <%= render TabBar.new(label: "Exercise category", secondary: true, tabs: @categories.map { |category|
+            TabBar::Tab.new(label: category.titleize, url: stats_path(tab: "fitness", category: category), active: @category == category)
+          }) %>
       <% if @exercise_types.any? %>
         <%= progress_controls(@progress_choice) { |choice|
               stats_path(tab: "fitness", category: @category, **choice)

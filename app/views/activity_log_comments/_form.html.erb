@@ -1,14 +1,5 @@
 <%= form_with model: comment, url: form_url do |f| %>
-  <% if comment.errors.any? %>
-    <div class="form-errors">
-      <h2><%= pluralize(comment.errors.count, "error") %> prohibited this comment from being saved:</h2>
-      <ul>
-        <% comment.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render FormErrors.new(comment, noun: "comment") %>
 
   <div class="form-group">
     <%= f.label :category, class: "form-label" %>

@@ -31,7 +31,7 @@ class BuddiesController < ApplicationController
 
   def exercise_chart
     @exercise_type = @user.exercise_types.find(params[:exercise_type_id])
-    @chart_data = @exercise_type.chart_data_with_targets
+    @progress = Charts::Progress.new(@exercise_type, choice: Charts::Progress::Choice.from(params))
   end
 
   def create

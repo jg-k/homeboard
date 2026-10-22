@@ -18,12 +18,8 @@ class Settings::GradingSystemsSection < ApplicationComponent
           end
         end
       else
-        div(class: "empty-state") do
-          h3 { "No grading systems found" }
-          p { "Create a custom grading system for your gym." }
-          div(class: "empty-state-actions") do
-            link_to "New Grading System", new_grading_system_path, class: "btn btn-primary"
-          end
+        render EmptyState.new(title: "No grading systems found", description: "Create a custom grading system for your gym.") do
+          link_to "New Grading System", new_grading_system_path, class: "btn btn-primary"
         end
       end
     end

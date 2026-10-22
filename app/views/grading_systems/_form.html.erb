@@ -1,14 +1,5 @@
 <%= form_with model: grading_system do |f| %>
-  <% if grading_system.errors.any? %>
-    <div class="form-errors">
-      <h2><%= pluralize(grading_system.errors.count, "error") %> prohibited this grading system from being saved:</h2>
-      <ul>
-        <% grading_system.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render FormErrors.new(grading_system) %>
 
   <div class="form-group">
     <%= f.label :name, class: "form-label" %>

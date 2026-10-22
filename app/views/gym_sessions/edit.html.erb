@@ -1,24 +1,7 @@
-<% content_for :title, "Edit Gym Session" %>
-
-<div class="page-sm">
-  <div class="mb-6">
-    <%= link_to "&larr; Back to Activity Log".html_safe, activity_path %>
-  </div>
-
-  <h1 class="page-title mb-6">Edit Gym Session</h1>
-
+<%= render PageLayout.new(title: "Edit Gym Session", size: :sm, back_to: activity_path, back_label: "Back to Activity Log") do %>
   <div class="card">
     <%= form_with model: @gym_session do |f| %>
-      <% if @gym_session.errors.any? %>
-        <div class="form-errors">
-          <h2><%= pluralize(@gym_session.errors.count, "error") %> prohibited this activity from being saved:</h2>
-          <ul>
-            <% @gym_session.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
+      <%= render FormErrors.new(@gym_session, noun: "activity") %>
 
       <div class="form-group">
         <%= f.label :number_of_boulders, class: "form-label" do %>
@@ -53,4 +36,4 @@
       </div>
     <% end %>
   </div>
-</div>
+<% end %>

@@ -1,13 +1,5 @@
-<% content_for :title, "Edit #{@grading_system.name}" %>
-
-<div class="page-sm">
-  <div class="mb-6">
-    <%= link_to "&larr; Back to Settings".html_safe, settings_path %>
-  </div>
-
-  <h1 class="page-title mb-6">Edit <%= @grading_system.name %></h1>
-
+<%= render PageLayout.new(title: "Edit #{@grading_system.name}", size: :sm, back_to: settings_path, back_label: "Back to Settings") do %>
   <div class="card">
     <%= render "form", grading_system: @grading_system %>
   </div>
-</div>
+<% end %>

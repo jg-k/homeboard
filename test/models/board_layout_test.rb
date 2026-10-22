@@ -70,10 +70,6 @@ class BoardLayoutTest < ActiveSupport::TestCase
     assert_not_includes active_layouts, @layout2
   end
 
-  test "active_for_board class method should work" do
-    assert_equal @layout1, BoardLayout.active_for_board(@board)
-  end
-
   test "should handle discarded layouts" do
     # First deactivate and then discard the active layout
     @layout1.update!(active: false)

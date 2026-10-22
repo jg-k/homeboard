@@ -1,13 +1,5 @@
-<% content_for :title, "Edit Exercise Type" %>
-
-<div class="page-sm">
-  <div class="mb-6">
-    <%= link_to "&larr; Back".html_safe, @return_to || exercise_types_path %>
-  </div>
-
-  <h1 class="page-title mb-6">Edit Exercise Type</h1>
-
+<%= render PageLayout.new(title: "Edit Exercise Type", size: :sm, back_to: @return_to || exercise_types_path) do %>
   <div class="card">
     <%= render "form", exercise_type: @exercise_type, return_to: @return_to %>
   </div>
-</div>
+<% end %>

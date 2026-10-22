@@ -1,24 +1,7 @@
-<% content_for :title, "Edit Measurement" %>
-
-<div class="page-sm">
-  <div class="mb-6">
-    <%= link_to "&larr; Back to #{@metric.name}".html_safe, metric_path(@metric) %>
-  </div>
-
-  <h1 class="page-title mb-6">Edit Measurement</h1>
-
+<%= render PageLayout.new(title: "Edit Measurement", size: :sm, back_to: metric_path(@metric), back_label: "Back to #{@metric.name}") do %>
   <div class="card">
     <%= form_with model: [@metric, @measurement] do |f| %>
-      <% if @measurement.errors.any? %>
-        <div class="form-errors">
-          <h2><%= pluralize(@measurement.errors.count, "error") %> prohibited this measurement from being saved:</h2>
-          <ul>
-            <% @measurement.errors.full_messages.each do |message| %>
-              <li><%= message %></li>
-            <% end %>
-          </ul>
-        </div>
-      <% end %>
+      <%= render FormErrors.new(@measurement) %>
 
       <div class="form-group">
         <%= f.label :value, class: "form-label" %>
@@ -42,4 +25,4 @@
       </div>
     <% end %>
   </div>
-</div>
+<% end %>

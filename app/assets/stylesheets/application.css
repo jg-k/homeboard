@@ -1748,6 +1748,39 @@ a.problem-link-row:hover {
   border-top: 1px solid var(--color-gray-200);
 }
 
+/* One button per outcome: a tap logs the climb. Colours match the badges. */
+.climb-log-actions {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.climb-log-btn {
+  min-height: 52px;
+  font-size: var(--text-base);
+  background: transparent;
+  border: 2px solid currentColor;
+}
+
+.climb-log-btn-attempt { color: var(--color-warning); }
+.climb-log-btn-sent { color: var(--color-success); }
+.climb-log-btn-flash { color: var(--color-purple); }
+
+.climb-log-btn-attempt:hover,
+.climb-log-btn-sent:hover,
+.climb-log-btn-flash:hover {
+  background: color-mix(in srgb, currentColor 15%, transparent);
+}
+
+.climb-log-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.form-input-narrow {
+  width: 8rem;
+}
+
 .board-climb-type-options {
   display: flex;
   gap: var(--space-4);

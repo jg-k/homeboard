@@ -1,6 +1,6 @@
 require "test_helper"
 
-class PageLayoutTest < ActionView::TestCase
+class PageLayoutComponentTest < ActionView::TestCase
   test "without actions the header is just the title and subtitle" do
     html = render(PageLayout.new(title: "Stats", subtitle: "This year")) { "body" }
 

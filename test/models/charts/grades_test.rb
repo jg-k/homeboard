@@ -124,4 +124,3 @@ class Charts::GradesTest < ActiveSupport::TestCase
     assert_equal [ [ "6a", 1 ], [ "?", 1 ] ], rows(pyramids.fetch("Outdoor routes"), "Send")
   end
 end
-

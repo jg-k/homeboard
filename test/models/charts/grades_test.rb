@@ -91,19 +91,30 @@ class Charts::GradesTest < ActiveSupport::TestCase
               .tap { _1.create_activity_log!(user: @user, performed_at: on) }
   end
 
-  test "outdoor bouldering and routes get a pyramid each, on Font and French" do
+  test "outdoor bouldering, sport and trad get a pyramid each, on Font and French" do
     ascent("White Wine", "f5", "flash", gear_style: "boulder")
     ascent("Crystal", "V3", "send", gear_style: "boulder")
     ascent("Magic Flute", "E1 5b", "onsight", gear_style: "trad")
     ascent("Old Lawbreaker", "6b", "redpoint", gear_style: "sport")
 
     boulders = pyramids.fetch("Outdoor bouldering")
-    routes = pyramids.fetch("Outdoor routes")
+    sport = pyramids.fetch("Outdoor sport")
+    trad = pyramids.fetch("Outdoor trad")
 
     assert_equal [ [ "6A", 1 ], [ "5C", 0 ], [ "5B", 0 ], [ "5A", 0 ] ], rows(boulders, "Send")
     assert_equal [ [ "6A", 0 ], [ "5C", 0 ], [ "5B", 0 ], [ "5A", 1 ] ], rows(boulders, "Flash")
-    assert_equal [ [ "6b", 0 ], [ "6a+", 0 ], [ "6a", 0 ], [ "5c", 1 ] ], rows(routes, "Onsight / flash")
-    assert_equal [ [ "6b", 1 ], [ "6a+", 0 ], [ "6a", 0 ], [ "5c", 0 ] ], rows(routes, "Send")
+    assert_equal [ [ "6b", 1 ] ], rows(sport, "Send")
+    assert_equal [ [ "6b", 0 ] ], rows(sport, "Onsight / flash")
+    assert_equal [ [ "5c", 1 ] ], rows(trad, "Onsight / flash")
+    assert_equal [ [ "5c", 0 ] ], rows(trad, "Send")
+  end
+
+  test "without a gear style, a British grade goes to trad and a French one to sport" do
+    ascent("Unsorted trad", "HVS 5a", "redpoint")
+    ascent("Unsorted sport", "7a", "redpoint")
+
+    assert_equal [ [ "5b", 1 ] ], rows(pyramids.fetch("Outdoor trad"), "Send")
+    assert_equal [ [ "7a", 1 ] ], rows(pyramids.fetch("Outdoor sport"), "Send")
   end
 
   test "an outdoor route counts once, at its best style, and attempts do not count" do
@@ -112,15 +123,13 @@ class Charts::GradesTest < ActiveSupport::TestCase
     ascent("Darkness Falling", "6a+", "redpoint", route_id: "407", on: 2.days.ago)
     ascent("Unfinished", "7a", "hang_dog")
 
-    routes = pyramids.fetch("Outdoor routes")
-
-    assert_equal [ [ "6a+", 1 ] ], rows(routes, "Send")
+    assert_equal [ [ "6a+", 1 ] ], rows(pyramids.fetch("Outdoor sport"), "Send")
   end
 
   test "a grade no system reads still counts, below the rest" do
     ascent("Mystery", "Project", "send", gear_style: "sport")
     ascent("Known", "6a", "send", gear_style: "sport")
 
-    assert_equal [ [ "6a", 1 ], [ "?", 1 ] ], rows(pyramids.fetch("Outdoor routes"), "Send")
+    assert_equal [ [ "6a", 1 ], [ "?", 1 ] ], rows(pyramids.fetch("Outdoor sport"), "Send")
   end
 end

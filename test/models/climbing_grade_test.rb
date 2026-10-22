@@ -2,7 +2,7 @@ require "test_helper"
 
 class ClimbingGradeTest < ActiveSupport::TestCase
   def boulder(grade) = ClimbingGrade.normalize(grade, discipline: :boulder)
-  def route(grade) = ClimbingGrade.normalize(grade, discipline: :route)
+  def route(grade) = ClimbingGrade.normalize(grade, discipline: :sport)
 
   test "Font boulder grades keep their grade, whatever the prefix or case" do
     assert_equal %w[6A+ 7B 6C 5B 4C], [ "6A+", "Font 7B", "fb6c", "5B", "4c" ].map { boulder(_1) }
@@ -40,6 +40,10 @@ class ClimbingGradeTest < ActiveSupport::TestCase
     assert_equal %w[4a 5c 3], %w[4 5+ 3].map { route(_1) }
   end
 
+  test "sport and trad read grades the same way" do
+    assert_equal ClimbingGrade.normalize("E1 5b", discipline: :sport), ClimbingGrade.normalize("E1 5b", discipline: :trad)
+  end
+
   test "anything else is unreadable" do
     assert_nil route("Project")
     assert_nil boulder("Hard")
@@ -49,13 +53,13 @@ class ClimbingGradeTest < ActiveSupport::TestCase
 
   test "the logbook's gear style decides the discipline" do
     assert_equal :boulder, ClimbingGrade.discipline("6a", gear_style: "boulder")
-    assert_equal :route, ClimbingGrade.discipline("6A", gear_style: "sport")
-    assert_equal :route, ClimbingGrade.discipline("V5", gear_style: "trad")
+    assert_equal :sport, ClimbingGrade.discipline("6A", gear_style: "sport")
+    assert_equal :trad, ClimbingGrade.discipline("6a", gear_style: "trad")
   end
 
   test "without a gear style, the grade's look decides" do
-    assert_equal %i[boulder boulder boulder route route route route],
-                 %w[V5 6A f5 7a 6a+ VS 5.10a].map { ClimbingGrade.discipline(_1) }
+    assert_equal %i[boulder boulder boulder sport sport sport trad trad],
+                 [ "V5", "6A", "f5", "7a", "6a+", "5.10a", "VS", "E1 5b" ].map { ClimbingGrade.discipline(_1) }
   end
 
   test "every conversion lands on its scale" do

@@ -1,17 +1,17 @@
 # Puts outdoor grades from any system on one scale per discipline, so ascents
 # logged in different systems can be counted side by side: Font for boulders,
-# French for routes. Conversions follow the usual comparison tables and pick
+# French for sport and trad routes. Conversions follow the usual comparison tables and pick
 # the lower grade where one grade spans two. A grade we cannot read comes back
 # nil.
 #
 #   ClimbingGrade.normalize("V5", discipline: :boulder)    # => "6C"
-#   ClimbingGrade.normalize("E1 5b", discipline: :route)   # => "5c"
-#   ClimbingGrade.normalize("5.11a", discipline: :route)   # => "6b+"
+#   ClimbingGrade.normalize("E1 5b", discipline: :trad)    # => "5c"
+#   ClimbingGrade.normalize("5.11a", discipline: :sport)   # => "6b+"
 module ClimbingGrade
   FONT = %w[3 4A 4B 4C 5A 5B 5C 6A 6A+ 6B 6B+ 6C 6C+ 7A 7A+ 7B 7B+ 7C 7C+ 8A 8A+ 8B 8B+ 8C 8C+ 9A].freeze
   FRENCH = %w[1 2 3 4a 4b 4c 5a 5b 5c 6a 6a+ 6b 6b+ 6c 6c+ 7a 7a+ 7b 7b+ 7c 7c+
               8a 8a+ 8b 8b+ 8c 8c+ 9a 9a+ 9b 9b+ 9c].freeze
-  SCALES = { boulder: FONT, route: FRENCH }.freeze
+  SCALES = { boulder: FONT, sport: FRENCH, trad: FRENCH }.freeze
 
   V_TO_FONT = {
     "B" => "3", "0" => "4A", "1" => "5A", "2" => "5C", "3" => "6A", "4" => "6B", "5" => "6C",
@@ -63,17 +63,25 @@ module ClimbingGrade
   BARE_FRENCH = { "1" => "1", "2" => "2", "3" => "3", "3+" => "3", "4" => "4a", "4+" => "4c",
                   "5" => "5a", "5+" => "5c" }.freeze
 
+  BRITISH = /\A(HVD|HVS|MVS|VD|VS|HS|MS|E\d{1,2}|M|D|S)(\s|\z)/i
+
   module_function
 
-  # Boulder or route. The logbook's gear style decides when it has one;
-  # otherwise V grades, an f prefix or an upper-case Font letter mean a
-  # boulder.
+  # Boulder, sport or trad. The logbook's gear style decides when it has one.
+  # Otherwise V grades, an f prefix or an upper-case Font letter mean a
+  # boulder, a British adjectival grade means trad, and anything else sport.
   def discipline(grade, gear_style: nil)
-    return :boulder if gear_style.to_s == "boulder"
-    return :route if gear_style.present?
+    style = gear_style.to_s.to_sym
+    return style if SCALES.key?(style)
 
     text = grade.to_s.strip
-    text.match?(/\A(V\s*(\d|B)|f\s*\d|font|fb)/i) || text.match?(/\A\d[ABC]/) ? :boulder : :route
+    if text.match?(/\A(V\s*(\d|B)|f\s*\d|font|fb)/i) || text.match?(/\A\d[ABC]/)
+      :boulder
+    elsif text.match?(BRITISH)
+      :trad
+    else
+      :sport
+    end
   end
 
   def normalize(grade, discipline:)
@@ -103,7 +111,7 @@ module ClimbingGrade
       return YDS_TO_FRENCH[key]
     end
 
-    if (british = text.match(/\A(HVD|HVS|MVS|VD|VS|HS|MS|E\d{1,2}|M|D|S)(\s|\z)/i))
+    if (british = text.match(BRITISH))
       return BRITISH_TO_FRENCH[british[1].upcase]
     end
 

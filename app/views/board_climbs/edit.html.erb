@@ -13,7 +13,7 @@
         <%= f.hidden_field :climb_type, value: "circuit" %>
         <div class="form-group">
           <%= f.label :number_of_moves, "Number of Moves", class: "form-label" %>
-          <%= f.number_field :number_of_moves, min: 1, class: "form-input", placeholder: "Moves completed", style: "width: 8rem" %>
+          <%= f.number_field :number_of_moves, min: 1, class: "form-input form-input-narrow", placeholder: "Moves completed" %>
         </div>
       <% else %>
         <div class="form-group">
@@ -36,7 +36,7 @@
 
         <div class="form-group">
           <%= f.label :attempts, class: "form-label" %>
-          <%= f.number_field :attempts, min: 1, class: "form-input", style: "width: 8rem" %>
+          <%= f.number_field :attempts, min: 1, class: "form-input form-input-narrow" %>
         </div>
       <% end %>
 

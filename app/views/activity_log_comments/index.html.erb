@@ -52,12 +52,9 @@
       <% end %>
     </div>
   <% else %>
-    <div class="empty-state">
-      <h3>No <%= @category&.titleize || "" %> comments yet</h3>
-      <p>Add comments from any activity log entry to track <%= @category || "your" %> observations.</p>
-      <div class="empty-state-actions">
-        <%= link_to "Go to Activity Log", activity_path, class: "btn btn-primary" %>
-      </div>
-    </div>
+    <%= render EmptyState.new(title: "No #{@category&.titleize} comments yet".squish,
+                              description: "Add comments from any activity log entry to track #{@category || "your"} observations.") do %>
+      <%= link_to "Go to Activity Log", activity_path, class: "btn btn-primary" %>
+    <% end %>
   <% end %>
 </div>

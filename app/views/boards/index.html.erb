@@ -65,12 +65,8 @@
       <%= link_to "New board", new_board_path, class: "btn btn-primary" %>
     </div>
   <% else %>
-    <div class="empty-state">
-      <h3>No boards found</h3>
-      <p>Create a board to start adding climbing problems.</p>
-      <div class="empty-state-actions">
-        <%= link_to "New board", new_board_path, class: "btn btn-primary" %>
-      </div>
-    </div>
+    <%= render EmptyState.new(title: "No boards found", description: "Create a board to start adding climbing problems.") do %>
+      <%= link_to "New board", new_board_path, class: "btn btn-primary" %>
+    <% end %>
   <% end %>
 <% end %>

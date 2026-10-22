@@ -32,22 +32,17 @@
       </div>
       <%== series_nav(@pagy) if @pagy.pages > 1 %>
     <% else %>
-      <div class="empty-state">
-        <% if @category %>
-          <h3>No <%= ActivityCalendar::DayActivity::LEGEND_LABELS[@category].downcase %> activity yet</h3>
-          <div class="empty-state-actions">
-            <%= link_to "Show all activity", activity_path, class: "btn btn-primary", data: { turbo_frame: "_top" } %>
-          </div>
-        <% else %>
-          <h3>No activity yet</h3>
-          <p>Start logging your board climbs and exercises to see them here!</p>
-          <div class="empty-state-actions">
-            <%= link_to "Go to Board Problems", problems_landing_path, class: "btn btn-primary", data: { turbo_frame: "_top" } %>
-            <span class="text-muted">or</span>
-            <%= link_to "Go to Exercises", exercise_types_path, class: "btn btn-primary", data: { turbo_frame: "_top" } %>
-          </div>
+      <% if @category %>
+        <%= render EmptyState.new(title: "No #{ActivityCalendar::DayActivity::LEGEND_LABELS[@category].downcase} activity yet") do %>
+          <%= link_to "Show all activity", activity_path, class: "btn btn-primary", data: { turbo_frame: "_top" } %>
         <% end %>
-      </div>
+      <% else %>
+        <%= render EmptyState.new(title: "No activity yet", description: "Start logging your board climbs and exercises to see them here!") do %>
+          <%= link_to "Go to Board Problems", problems_landing_path, class: "btn btn-primary", data: { turbo_frame: "_top" } %>
+          <span class="text-muted">or</span>
+          <%= link_to "Go to Exercises", exercise_types_path, class: "btn btn-primary", data: { turbo_frame: "_top" } %>
+        <% end %>
+      <% end %>
     <% end %>
   <% end %>
 </div>

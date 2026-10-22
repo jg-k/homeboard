@@ -1,7 +1,4 @@
 module ApplicationHelper
-  include Pagy::HelperLoader
-  include Pagy::NumericHelperLoader
-
   def smart_date(date, threshold_days: 10)
     return "" if date.blank?
 

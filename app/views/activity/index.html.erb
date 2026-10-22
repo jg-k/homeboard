@@ -30,7 +30,7 @@
           </div>
         <% end %>
       </div>
-      <%== series_nav(@pagy) if @pagy.pages > 1 %>
+      <%== @pagy.series_nav if @pagy.pages > 1 %>
     <% else %>
       <% if @category %>
         <%= render EmptyState.new(title: "No #{ActivityCalendar::DayActivity::LEGEND_LABELS[@category].downcase} activity yet") do %>

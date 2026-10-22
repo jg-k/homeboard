@@ -89,6 +89,15 @@ class ActivityControllerTest < ActionDispatch::IntegrationTest
     assert_select "a.legend-item[href=?]", activity_history_path(category: "hike")
   end
 
+  test "a long history pages through" do
+    30.times { |i| log(Hike.create!(name: "Hike #{i}"), (i + 30).days.ago.to_date) }
+
+    get activity_url(page: 2)
+
+    assert_response :success
+    assert_select "nav.pagy a[href*='page=1']"
+  end
+
   test "requires authentication" do
     sign_out @user
     get activity_url

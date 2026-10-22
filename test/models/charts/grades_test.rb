@@ -132,4 +132,23 @@ class Charts::GradesTest < ActiveSupport::TestCase
 
     assert_equal [ [ "6a", 1 ], [ "?", 1 ] ], rows(pyramids.fetch("Outdoor sport"), "Send")
   end
+
+  test "converted grades carry what was logged, for the tooltip" do
+    ascent("Magic Flute", "E1 5b", "redpoint", gear_style: "trad")
+    ascent("Bitter End", "E1 5b", "redpoint", gear_style: "trad")
+    ascent("Overhang", "E1 6a", "redpoint", gear_style: "trad")
+    ascent("Old Lawbreaker", "6b", "redpoint", gear_style: "sport")
+
+    trad = pyramids.fetch("Outdoor trad").series.find { _1[:name] == "Send" }
+    sport = pyramids.fetch("Outdoor sport").series.find { _1[:name] == "Send" }
+
+    assert_equal({ "5c" => [ "E1 5b ×2", "E1 6a" ] }, trad.dig(:dataset, :loggedAs))
+    assert_nil sport[:dataset], "grades logged as they show need no note"
+  end
+
+  test "home board pyramids need no logged grades" do
+    climb(problem("V4"), :sent)
+
+    assert pyramids.fetch("Garage board").series.none? { _1.key?(:dataset) }
+  end
 end

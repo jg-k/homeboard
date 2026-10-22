@@ -1,11 +1,5 @@
-<% content_for :title, "Activity Log" %>
-<div class="page">
-  <div class="page-header-flex">
-    <h1 class="page-title">Activity Log</h1>
-    <%= link_to stats_path, class: "btn-icon", title: "Stats" do %>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-    <% end %>
-  </div>
+<%= render PageLayout.new(title: "Activity Log",
+                          actions: link_to(stats_path, class: "btn-icon", title: "Stats") { icon(:bar_chart) }) do %>
   <%= render "activity/activity_grid",
              activity_data: @activity_data,
              legend_filter: true,
@@ -45,4 +39,4 @@
       <% end %>
     <% end %>
   <% end %>
-</div>
+<% end %>

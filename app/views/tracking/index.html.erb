@@ -1,7 +1,4 @@
-<% content_for :title, "Tracking" %>
-
-<div class="page">
-  <h1 class="page-title">Tracking</h1>
+<%= render PageLayout.new(title: "Tracking") do %>
 
   <%= render TabBar.new(label: "Tracking", tabs: [
         TabBar::Tab.new(label: "Exercises", url: tracking_path(tab: "exercises"), active: @tab == "exercises"),
@@ -13,4 +10,4 @@
   <% else %>
     <%= render "tracking/metrics" %>
   <% end %>
-</div>
+<% end %>

@@ -1,15 +1,5 @@
-<% content_for :title, "#{@user.display_name}'s Activity" %>
-
-<div class="page">
-  <div class="page-header-flex">
-    <div>
-      <h1 class="page-title"><%= @user.display_name %></h1>
-      <p class="page-subtitle">Activity Log</p>
-    </div>
-    <div>
-      <%= link_to "Back to Buddies", buddies_path, class: "btn btn-outline" %>
-    </div>
-  </div>
+<%= render PageLayout.new(title: @user.display_name, subtitle: "Activity Log",
+                          actions: link_to("Back to Buddies", buddies_path, class: "btn btn-outline")) do %>
 
   <%= render "activity/activity_grid",
              activity_data: @activity_data,
@@ -36,4 +26,4 @@
   <% else %>
     <%= render EmptyState.new(title: "No activity yet", description: "#{@user.display_name} hasn't logged any activity yet.") %>
   <% end %>
-</div>
+<% end %>

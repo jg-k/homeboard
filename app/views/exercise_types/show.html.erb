@@ -13,6 +13,19 @@
     <% end %>
   </div>
 
+  <% if @exercise_type.added_weight_possible? %>
+    <h2 class="text-lg font-semibold mt-8 mb-4">Strength to weight</h2>
+    <div class="card">
+      <% if @bodyweight_ratio&.any? %>
+        <%= progress_chart(@bodyweight_ratio, unit: "% body weight") %>
+      <% elsif @bodyweight_ratio %>
+        <p class="text-muted text-center py-8">Log a set and a body weight to see it as a share of your body weight.</p>
+      <% else %>
+        <p class="text-muted text-center py-8"><%= link_to "Mark a metric as your body weight", metrics_path %> to see each set as a share of it.</p>
+      <% end %>
+    </div>
+  <% end %>
+
   <div class="mt-8">
     <div class="flex-between mb-4">
       <h2 class="text-lg font-semibold">Logs <span class="text-muted font-normal">(<%= @exercises.size %>)</span></h2>

@@ -49,7 +49,7 @@ class MetricsController < ApplicationController
   end
 
   def metric_params
-    params.require(:metric).permit(:name, :unit, :initial_target)
+    params.require(:metric).permit(:name, :unit, :initial_target, :body_weight)
   end
 
   def create_initial_target

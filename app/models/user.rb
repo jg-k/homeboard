@@ -124,6 +124,7 @@ class User < ApplicationRecord
   has_many :grading_systems, dependent: :destroy
   has_many :exercise_types, dependent: :destroy
   has_many :metrics, dependent: :destroy
+  has_one :body_weight_metric, -> { where(body_weight: true) }, class_name: "Metric"
   has_many :activity_logs, dependent: :destroy
   has_many :created_problems, class_name: "Problem", foreign_key: :created_by_id, dependent: :nullify
   belongs_to :default_grading_system, class_name: "GradingSystem", optional: true

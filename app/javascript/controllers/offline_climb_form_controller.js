@@ -12,13 +12,16 @@ export default class extends Controller {
   async submit(event) {
     event.preventDefault()
     const form = event.target
-    const submitButton = form.querySelector('input[type="submit"], button[type="submit"]')
-    if (submitButton) submitButton.disabled = true
+    // The button pressed carries the outcome (attempt, send, flash), so it has
+    // to ride along in the form data.
+    const data = new FormData(form, event.submitter)
+    const buttons = form.querySelectorAll('input[type="submit"], button[type="submit"]')
+    buttons.forEach((button) => { button.disabled = true })
 
     try {
       const res = await fetch(form.action, {
         method: (form.method || "POST").toUpperCase(),
-        body: new FormData(form),
+        body: data,
         credentials: "same-origin",
         headers: { Accept: "text/html" },
         redirect: "follow"
@@ -26,16 +29,16 @@ export default class extends Controller {
       if (!res.ok && res.status !== 302) throw new Error(`status ${res.status}`)
       this.navigateTo(res.url || window.location.href)
     } catch (_) {
-      this.queueSubmission(form)
+      this.queueSubmission(form, data)
       this.notifyQueued()
       form.reset()
-      if (submitButton) submitButton.disabled = false
+      buttons.forEach((button) => { button.disabled = false })
     }
   }
 
-  queueSubmission(form) {
+  queueSubmission(form, data) {
     const formData = []
-    new FormData(form).forEach((value, key) => {
+    data.forEach((value, key) => {
       if (value instanceof File) return
       formData.push([key, String(value)])
     })

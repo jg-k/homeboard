@@ -15,11 +15,11 @@ class IntervalTimerTest < ApplicationSystemTestCase
     fill_in "Added weight (kg)", with: 20
     click_on "Start"
 
-    assert_selector ".timer-phase", text: "Get ready"
+    assert_selector ".timer-display[data-phase=ready]"
     assert_selector ".timer-display[data-phase=hang]", text: "Rep 1 of 2", wait: 7
     assert_selector ".timer-display[data-phase=rest]", wait: 2
     assert_selector ".timer-display[data-phase=hang]", text: "Rep 2 of 2", wait: 2
-    assert_selector ".timer-phase", text: "Done", wait: 2
+    assert_selector ".timer-display[data-phase=done]", wait: 2
     assert_button "Again"
 
     click_on "Log set"

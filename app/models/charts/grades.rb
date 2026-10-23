@@ -70,7 +70,7 @@ class Charts::Grades
       # The same route can come from theCrag and UKC, or be logged by hand.
       by_route = ascents.group_by { |crag_id, ukc_id, name, crag, *| crag_id || (ukc_id && "ukc-#{ukc_id}") || [ name, crag ] }.values
       first_go, other = by_route.partition { |route| route.any? { OUTDOOR_FIRST_GO.include?(_1.last) } }
-      grade = ->(route) { ClimbingGrade.normalize(route.first[4], discipline: discipline) }
+      grade = ->(route) { [ ClimbingGrade.normalize(route.first[4], discipline: discipline), route.first[4] ] }
 
       pyramid(title, ClimbingGrade::SCALES.fetch(discipline),
               (discipline == :boulder ? "Flash" : "Onsight / flash") => first_go.map(&grade),
@@ -78,20 +78,34 @@ class Charts::Grades
     end
   end
 
-  # grades_by_series maps a series name to one grade per problem sent. Rows run
+  # grades_by_series maps a series name to one entry per problem sent: its
+  # grade, or [grade, grade as logged] when the grade was converted. Rows run
   # from the hardest grade sent down to the easiest, with empty grades between
   # kept so the shape reads true; grades outside the known order (or none,
   # shown as "?") go below.
+  #
+  # Converted grades carry what was logged, so the tooltip on a "5c" bar can
+  # say it was an E1 5b. That rides on the Chart.js dataset as loggedAs.
   def pyramid(title, order, grades_by_series)
-    sent = grades_by_series.values.flatten.map { _1.presence || "?" }
+    entries = grades_by_series.transform_values { |list| list.map { |grade, logged| [ grade.presence || "?", logged ] } }
+    sent = entries.values.flatten(1).map(&:first)
     known = sent.select { order.include?(_1) }.uniq.sort_by { order.index(_1) }
     rows = known.any? ? order[order.index(known.first)..order.index(known.last)] : []
     rows = rows.reverse + (sent.uniq - rows).sort
 
-    series = grades_by_series.map do |name, grades|
-      tally = grades.map { _1.presence || "?" }.tally
-      { name: name, data: rows.map { [ _1, tally.fetch(_1, 0) ] } }
+    series = entries.map do |name, list|
+      tally = list.map(&:first).tally
+      line = { name: name, data: rows.map { [ _1, tally.fetch(_1, 0) ] } }
+      logged_as = logged_as(list)
+      logged_as.any? ? line.merge(dataset: { loggedAs: logged_as }) : line
     end
     Pyramid.new(title: title, series: series)
+  end
+
+  # { "5c" => ["E1 5b ×2", "E1 6a"] }, leaving out grades logged as they show.
+  def logged_as(list)
+    list.select { |grade, logged| logged.present? && logged != grade }
+        .group_by(&:first)
+        .transform_values { |pairs| pairs.map(&:last).tally.map { |logged, n| n > 1 ? "#{logged} ×#{n}" : logged } }
   end
 end

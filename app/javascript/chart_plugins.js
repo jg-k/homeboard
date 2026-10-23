@@ -37,8 +37,17 @@ const stackedBarRoundedTop = {
   }
 };
 
+// Tooltip line for bars whose grade was converted from what the climber
+// logged: a dataset can carry loggedAs, mapping a bar's label to the grades
+// as logged ("5c" → ["E1 5b ×2"]).
+function loggedAsLine(context) {
+  const logged = context.dataset.loggedAs?.[context.label];
+  return logged?.length ? `Logged as ${logged.join(", ")}` : "";
+}
+
 if (typeof Chart !== "undefined") {
   Chart.register(stackedBarRoundedTop);
+  Chart.defaults.plugins.tooltip.callbacks.afterLabel = loggedAsLine;
 }
 
 export default stackedBarRoundedTop;

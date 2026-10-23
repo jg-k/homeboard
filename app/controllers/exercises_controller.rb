@@ -31,7 +31,7 @@ class ExercisesController < ApplicationController
     @exercise = exercise_type.exercises.build(exercise_params)
 
     if @exercise.save
-      redirect_to activity_path, notice: "Activity was successfully logged."
+      redirect_to safe_return_to.presence || activity_path, notice: "Activity was successfully logged."
     else
       render :new, status: :unprocessable_entity
     end

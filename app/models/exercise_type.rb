@@ -50,6 +50,11 @@ class ExerciseType < ApplicationRecord
     end
   end
 
+  # Whether a logged value is a duration in seconds, so a timed hang can fill it in.
+  def timed?
+    unit.to_s.strip.match?(/\A(s|secs?|seconds?)\z/i)
+  end
+
   def has_varying_reps?
     exercises.where.not(reps: nil).where.not(reps: reps).exists?
   end

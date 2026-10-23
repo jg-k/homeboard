@@ -16,7 +16,12 @@
   <div class="mt-8">
     <div class="flex-between mb-4">
       <h2 class="text-lg font-semibold">Logs <span class="text-muted font-normal">(<%= @exercises.size %>)</span></h2>
-      <%= link_to "Log New", new_exercise_path(exercise_type_id: @exercise_type.id, category: @exercise_type.category), class: "btn btn-primary btn-sm" %>
+      <div class="flex gap-2">
+        <%= link_to exercise_type_timer_path(@exercise_type), class: "btn btn-outline btn-sm" do %>
+          <%= icon(:timer, size: :sm) %> Timer
+        <% end %>
+        <%= link_to "Log New", new_exercise_path(exercise_type_id: @exercise_type.id, category: @exercise_type.category), class: "btn btn-primary btn-sm" %>
+      </div>
     </div>
 
     <% if @exercises.any? %>

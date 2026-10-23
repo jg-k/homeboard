@@ -52,6 +52,7 @@ Rails.application.routes.draw do
   # Exercise types and logging
   resources :exercise_types do
     resources :targets, only: [ :create, :destroy ]
+    resource :timer, only: :show, module: :exercise_types
   end
   resources :exercises, only: [ :new, :create, :edit, :update, :destroy ]
 

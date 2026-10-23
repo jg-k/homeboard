@@ -4,13 +4,9 @@
   </div>
 
   <% if @categories.any? %>
-    <div class="tabs-nav mb-6">
-      <% @categories.each do |category| %>
-        <%= link_to category.titleize, tracking_path(tab: "exercises", category: category),
-            class: "tab-link #{@category == category ? 'tab-active' : ''}",
-            data: { turbo_action: "replace" } %>
-      <% end %>
-    </div>
+    <%= render TabBar.new(label: "Exercise category", secondary: true, tabs: @categories.map { |category|
+          TabBar::Tab.new(label: category.titleize, url: tracking_path(tab: "exercises", category: category), active: @category == category)
+        }) %>
 
     <% if @exercise_types.any? %>
       <div class="stack">

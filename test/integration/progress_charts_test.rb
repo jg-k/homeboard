@@ -44,4 +44,17 @@ class ProgressChartsTest < ActionDispatch::IntegrationTest
     assert_select ".period-picker a[href=?]",
                   stats_path(tab: "fitness", category: exercise_type.category, range: "1m", grouping: "week")
   end
+
+  test "an exercise with added weight is also charted against body weight" do
+    hang = @user.exercise_types.create!(name: "Max hang", unit: "seconds", added_weight_possible: true)
+    hang.exercises.create!(value: 10, added_weight: 14, performed_at: 1.day.ago)
+
+    get exercise_type_path(hang)
+    assert_select "a[href=?]", metrics_path, text: "Mark a metric as your body weight"
+
+    @metric.update!(body_weight: true)
+    get exercise_type_path(hang)
+    assert_select "h2", "Strength to weight"
+    assert_select "a[href=?]", metrics_path, count: 0
+  end
 end

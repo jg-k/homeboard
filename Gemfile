@@ -29,7 +29,7 @@ gem "omniauth-rails_csrf_protection"
 gem "webauthn"
 
 # Soft delete
-gem "discard", "~> 1.2"
+gem "discard", "~> 2.0"
 
 # CSV parsing
 gem "csv"

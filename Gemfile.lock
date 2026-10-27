@@ -140,8 +140,8 @@ GEM
       railties (>= 7.0)
       responders
       warden (~> 1.2.3)
-    discard (1.4.0)
-      activerecord (>= 4.2, < 9.0)
+    discard (2.0.0)
+      activerecord (>= 7.0, < 9.0)
     dotenv (3.2.0)
     drb (2.2.3)
     ed25519 (1.4.0)
@@ -187,7 +187,7 @@ GEM
     herb (0.10.1-x86_64-linux-gnu)
     herb (0.10.1-x86_64-linux-musl)
     htmlbeautifier (1.4.3)
-    i18n (1.14.8)
+    i18n (1.15.2)
       concurrent-ruby (~> 1.0)
     image_processing (2.2.0)
     importmap-rails (2.2.3)
@@ -203,7 +203,7 @@ GEM
     jbuilder (2.15.1)
       actionview (>= 7.0.0)
       activesupport (>= 7.0.0)
-    json (2.19.9)
+    json (2.21.2)
     jwt (3.3.0)
       base64
     kamal (2.11.0)
@@ -517,7 +517,7 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.2.0)
-    uri (1.1.1)
+    uri (1.1.2)
     useragent (0.16.11)
     version_gem (1.1.15)
     warden (1.2.9)
@@ -570,7 +570,7 @@ DEPENDENCIES
   csv
   debug
   devise
-  discard (~> 1.2)
+  discard (~> 2.0)
   erb_lint
   herb
   htmlbeautifier

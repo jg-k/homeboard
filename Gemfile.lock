@@ -203,7 +203,7 @@ GEM
     jbuilder (2.15.1)
       actionview (>= 7.0.0)
       activesupport (>= 7.0.0)
-    json (2.19.9)
+    json (2.21.2)
     jwt (3.3.0)
       base64
     kamal (2.11.0)
@@ -315,7 +315,7 @@ GEM
       openssl (> 2.0)
     orm_adapter (0.5.0)
     ostruct (0.6.3)
-    pagy (43.5.6)
+    pagy (43.8.1)
       json
       uri
       yaml
@@ -517,7 +517,7 @@ GEM
     unicode-display_width (3.2.0)
       unicode-emoji (~> 4.1)
     unicode-emoji (4.2.0)
-    uri (1.1.1)
+    uri (1.1.2)
     useragent (0.16.11)
     version_gem (1.1.15)
     warden (1.2.9)
@@ -582,7 +582,7 @@ DEPENDENCIES
   omniauth-entra-id
   omniauth-google-oauth2
   omniauth-rails_csrf_protection
-  pagy (~> 43.5)
+  pagy (~> 43.8)
   phlex-rails (~> 2.4)
   prawn
   propshaft

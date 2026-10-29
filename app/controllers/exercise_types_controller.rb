@@ -12,6 +12,9 @@ class ExerciseTypesController < ApplicationController
 
   def show
     @progress = Charts::Progress.new(@exercise_type, choice: Charts::Progress::Choice.from(params))
+    if @exercise_type.added_weight_possible? && (body_weight = current_user.body_weight_metric)
+      @bodyweight_ratio = Charts::Progress.new(ExerciseType::BodyweightRatio.new(@exercise_type, body_weight), choice: @progress.choice)
+    end
     @exercises = @exercise_type.exercises
                                .joins(:activity_log)
                                .includes(:activity_log)

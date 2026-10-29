@@ -35,7 +35,7 @@ gem "discard", "~> 2.0"
 gem "csv"
 
 # Pagination
-gem "pagy", "~> 43.5"
+gem "pagy", "~> 43.8"
 
 # Charts
 gem "chartkick"

@@ -316,7 +316,7 @@ GEM
       openssl (> 2.0)
     orm_adapter (0.5.0)
     ostruct (0.6.3)
-    pagy (43.5.6)
+    pagy (43.8.1)
       json
       uri
       yaml
@@ -583,7 +583,7 @@ DEPENDENCIES
   omniauth-entra-id
   omniauth-google-oauth2
   omniauth-rails_csrf_protection
-  pagy (~> 43.5)
+  pagy (~> 43.8)
   phlex-rails (~> 2.4)
   prawn
   propshaft

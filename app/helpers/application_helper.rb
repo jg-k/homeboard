@@ -40,6 +40,7 @@ module ApplicationHelper
       trad: '<g transform="translate(12 0) scale(0.78 1) translate(-12 0)"><path d="M 6 7 A 4 4 0 0 1 12 3 L 12 11 Z" stroke-width="2" stroke-linejoin="round" transform="rotate(-45 12 11)"/><path d="M 12 3 A 4 4 0 0 1 18 7 L 12 11 Z" stroke-width="2" stroke-linejoin="round" transform="rotate(45 12 11)"/><line x1="12" y1="11" x2="12" y2="20" stroke-width="2" stroke-linecap="round"/><rect x="10" y="20" width="4" height="2" stroke-width="2"/></g>',
       boulder: '<path d="M5 21 L4 10 L9 6 L17 6 L21 9 L21 12 L15 15 L15 21 Z" stroke-width="2" stroke-linejoin="round"/>',
       message_circle: '<path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6 8.38 8.38 0 013.8-.9h.5a8.48 8.48 0 018 8v.5z"/>',
+      timer: '<circle cx="12" cy="13" r="8" stroke-width="2"/><polyline points="12 9 12 13 14.5 15.5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="10" y1="2" x2="14" y2="2" stroke-width="2" stroke-linecap="round"/>',
       key: '<circle cx="7.5" cy="15.5" r="4.5" stroke-width="2"/><line x1="10.7" y1="12.3" x2="21" y2="2" stroke-width="2" stroke-linecap="round"/><line x1="18" y1="5" x2="20" y2="7" stroke-width="2" stroke-linecap="round"/><line x1="15" y1="8" x2="17" y2="10" stroke-width="2" stroke-linecap="round"/>'
     }
 

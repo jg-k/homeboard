@@ -1,0 +1,71 @@
+<%= render PageLayout.new(title: "#{@exercise_type.name} timer", subtitle: @exercise_type.category.titleize) do %>
+  <div class="mb-6">
+    <%= link_to "&larr; Back to #{h @exercise_type.name}".html_safe, exercise_type_path(@exercise_type) %>
+  </div>
+
+  <div class="card" data-controller="interval-timer">
+    <div class="timer-display" data-interval-timer-target="display" data-phase="idle">
+      <div class="timer-phase" data-interval-timer-target="phase">Ready</div>
+      <div class="timer-clock" data-interval-timer-target="clock" aria-live="polite">0</div>
+      <div class="text-muted" data-interval-timer-target="count">&nbsp;</div>
+    </div>
+
+    <div class="timer-actions">
+      <button type="button" class="btn btn-primary timer-button" data-interval-timer-target="toggle" data-action="interval-timer#toggle">Start</button>
+      <button type="button" class="btn btn-outline timer-button" data-action="interval-timer#reset">Reset</button>
+    </div>
+
+    <%= form_with model: @exercise, url: exercises_path do |f| %>
+      <%= f.hidden_field :exercise_type_id %>
+      <%= hidden_field_tag :return_to, exercise_type_path(@exercise_type) %>
+
+      <div class="form-row">
+        <% if @exercise_type.timed? %>
+          <div class="form-group">
+            <%= f.label :value, "Hang (s)", class: "form-label" %>
+            <%= f.number_field :value, value: @exercise.value || 10, step: "any", min: 1, class: "form-input",
+                               data: { interval_timer_target: "work", action: "interval-timer#reset" } %>
+          </div>
+        <% else %>
+          <div class="form-group">
+            <%= label_tag :timer_work, "Hang (s)", class: "form-label" %>
+            <%= number_field_tag :timer_work, 10, name: nil, min: 1, class: "form-input",
+                                 data: { interval_timer_target: "work", action: "interval-timer#reset" } %>
+          </div>
+        <% end %>
+        <div class="form-group">
+          <%= label_tag :timer_rest, "Rest (s)", class: "form-label" %>
+          <%= number_field_tag :timer_rest, @exercise_type.rest_seconds || 180, name: nil, min: 0, class: "form-input",
+                               data: { interval_timer_target: "rest", action: "interval-timer#reset" } %>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <%= f.label :reps, "Reps", class: "form-label" %>
+          <%= f.number_field :reps, value: @exercise.reps || 1, min: 1, class: "form-input",
+                             data: { interval_timer_target: "reps", action: "interval-timer#reset" } %>
+        </div>
+        <% if @exercise_type.added_weight_possible? %>
+          <div class="form-group">
+            <%= f.label :added_weight, "Added weight (kg)", class: "form-label" %>
+            <%= f.number_field :added_weight, step: "any", class: "form-input", placeholder: "Bodyweight" %>
+          </div>
+        <% end %>
+      </div>
+
+      <% unless @exercise_type.timed? %>
+        <div class="form-group">
+          <%= f.label :value, class: "form-label" do %>
+            Value <span class="text-muted font-normal">(<%= @exercise_type.unit %>)</span>
+          <% end %>
+          <%= f.number_field :value, step: "any", class: "form-input", required: true %>
+        </div>
+      <% end %>
+
+      <div class="form-actions">
+        <%= f.submit "Log set", class: "btn btn-success", data: { interval_timer_target: "submit" } %>
+      </div>
+    <% end %>
+  </div>
+<% end %>

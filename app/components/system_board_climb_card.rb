@@ -37,7 +37,9 @@ class SystemBoardClimbCard < ActivityCard
 
   def activity_actions
     @activity_actions ||= ActivityActions.new(
-      comment_path: new_activity_log_comment_path(@activity_log)
+      comment_path: new_activity_log_comment_path(@activity_log),
+      delete_path: system_board_climb_path(system_board_climb),
+      delete_confirm: "Are you sure you want to delete this board climb?"
     )
   end
 

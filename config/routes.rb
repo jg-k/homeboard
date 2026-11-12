@@ -69,6 +69,7 @@ Rails.application.routes.draw do
     end
   end
   resources :crag_ascents, only: [ :destroy ]
+  resources :system_board_climbs, only: [ :destroy ]
 
   # Boardsesh integration
   resource :boardsesh_connection, only: [ :new, :create, :destroy ]
